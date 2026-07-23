@@ -44,7 +44,7 @@
 
 FileX 是一个面向团队和个人的 AI 增强型知识管理平台。它将文档管理、语义检索、知识图谱、AI 问答与自动化工作流整合在一起，帮助组织从分散的文件和数据中构建结构化知识资产。
 
-**产品名：钉** · [ding.yyyou.top](https://ding.yyyou.top)
+FileX — Ding Skill
 
 **演示体验**：[ding.yyyou.top](https://ding.yyyou.top) — 仅供体验，请勿上传隐私数据。数据库可能随时清理，请注意备份。
 
