@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileX — Enterprise-Grade AI Knowledge Platform</title>
+  <meta name="description" content="AI-powered knowledge management platform with RAG, multi-engine OCR parsing, vector search, wiki graphs, and Agent skill integration.">
+  <meta property="og:title" content="FileX — Enterprise-Grade AI Knowledge Platform">
+  <meta property="og:description" content="AI-powered knowledge management platform with RAG, multi-engine OCR parsing, vector search, wiki graphs, and Agent skill integration.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://roamer-remote.github.io/filex/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81', 950: '#1e1b4b' }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out forwards',
+            'slide-up': 'slideUp 0.6s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { opacity: '0', transform: 'translateY(24px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .feature-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .feature-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+    @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } }
+    .gradient-text { background: linear-gradient(135deg, #6366f1, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-gradient { background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 60%); }
+    .section-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(99,102,241,0.2), transparent); }
+  </style>
+</head>
+<body class="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+  <script>document.documentElement.classList.toggle('dark', window.matchMedia('(prefers-color-scheme:dark)').matches)</script>
+
+  <!-- Nav -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-950/80 backdrop-blur-lg">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="#" class="text-lg font-bold tracking-tight">FileX</a>
+      <div class="flex items-center gap-6 text-sm">
+        <a href="#features" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">Features</a>
+        <a href="#tech" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">Tech</a>
+        <a href="#deploy" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">Deploy</a>
+        <a href="https://github.com/roamer-remote/filex" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-gradient pt-32 pb-20 md:pt-40 md:pb-28 min-h-[100dvh] flex items-center">
+    <div class="max-w-6xl mx-auto px-6 w-full">
+      <div class="max-w-3xl">
+        <p class="text-sm font-semibold text-brand-600 dark:text-brand-400 mb-4 tracking-wide">AI Knowledge Base for Agents</p>
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-none mb-6">
+          Turn your documents into<br>
+          <span class="gradient-text">structured knowledge</span>
+        </h1>
+        <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mb-10">
+          FileX is an AI-augmented knowledge management platform. RAG retrieval, multi-engine OCR (Docling/MinerU), vector search, wiki graphs, and Agent skill integration — all in one Docker Compose.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="https://github.com/roamer-remote/filex" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors text-base">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
+            View on GitHub
+          </a>
+          <a href="#features" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-base">
+            Explore Features
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Highlights -->
+  <section id="features" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <p class="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-wide">Capabilities</p>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight mt-3">Why FileX</h2>
+        <p class="text-slate-600 dark:text-slate-400 mt-4 max-w-xl mx-auto">From document upload to Agent-ready knowledge, every step is designed for scale and transparency.</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="reveal feature-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" style="transition-delay:0ms">
+          <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Multi-Engine Pipeline</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Docling, MinerU, and Insavlo auto-route by document type. Full pipeline visualization with stage-level status and timing.</p>
+        </div>
+        <div class="reveal feature-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" style="transition-delay:100ms">
+          <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">RAPTOR Retrieval</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Stanford's RAPTOR algorithm recursively summarizes documents into a tree structure for hierarchical retrieval.</p>
+        </div>
+        <div class="reveal feature-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" style="transition-delay:200ms">
+          <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Editable Agent Notes</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">OCR results become structured Markdown notes. Agents read them; users edit and enrich them like online notes.</p>
+        </div>
+        <div class="reveal feature-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" style="transition-delay:300ms">
+          <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">OKF Interoperability</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Import, export, and validate Google OKF bundles for cross-platform knowledge asset exchange.</p>
+        </div>
+        <div class="reveal feature-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" style="transition-delay:400ms">
+          <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Analytics & Graphs</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Knowledge base metrics, document relation graphs, and tag heatmaps for insight into your knowledge assets.</p>
+        </div>
+        <div class="reveal feature-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" style="transition-delay:500ms">
+          <div class="w-10 h-10 rounded-lg bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Hot-Pluggable Config</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">LLM routing, embedding engines, parsing strategies centrally managed. Changes take effect instantly, no restart.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider max-w-6xl mx-auto"></div>
+
+  <!-- Screenshot Showcase -->
+  <section class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">See It in Action</h2>
+        <p class="text-slate-600 dark:text-slate-400 mt-4 max-w-xl mx-auto">Real screens from the FileX platform — from login to knowledge analytics.</p>
+      </div>
+
+      <div class="space-y-20">
+        <div class="reveal">
+          <p class="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-wide mb-2">Knowledge Base Overview</p>
+          <h3 class="text-2xl font-bold mb-4">Organize with custom directories</h3>
+          <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg">
+            <img src="screenshots/kb.jpg" alt="Knowledge Base Overview" class="w-full">
+          </div>
+        </div>
+
+        <div class="reveal">
+          <p class="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-wide mb-2">Document Pipeline</p>
+          <h3 class="text-2xl font-bold mb-4">Full traceability from upload to search</h3>
+          <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg">
+            <img src="screenshots/file-show-process.png" alt="Pipeline Trace" class="w-full">
+          </div>
+        </div>
+
+        <div class="reveal">
+          <p class="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-wide mb-2">Agent Call Trace</p>
+          <h3 class="text-2xl font-bold mb-4">See every Agent reasoning step</h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg">
+              <img src="screenshots/agent-log-1.png" alt="Agent Log" class="w-full">
+            </div>
+            <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg">
+              <img src="screenshots/agent-log-2.png" alt="Agent Trace Detail" class="w-full">
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal">
+          <p class="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-wide mb-2">Knowledge Base Analytics</p>
+          <h3 class="text-2xl font-bold mb-4">Insights into your knowledge assets</h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg">
+              <img src="screenshots/wiki-relation.png" alt="Wiki Relation Graph" class="w-full">
+            </div>
+            <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg">
+              <img src="screenshots/tag.png" alt="Tag Heatmap" class="w-full">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section id="tech" class="py-20 md:py-28 bg-slate-50 dark:bg-slate-900/50">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <p class="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-wide">Stack</p>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight mt-3">Technology</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8 reveal">
+        <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <h3 class="font-semibold text-lg mb-4">Frontend</h3>
+          <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>React 18 + TypeScript</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Vite 6 + Ant Design 5</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Zustand + React Router 6</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ECharts + i18next</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <h3 class="font-semibold text-lg mb-4">Backend</h3>
+          <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Python 3.12 + FastAPI</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>PostgreSQL 16 + pgvector</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Docling / MinerU OCR</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>LangGraph + Celery / Redis</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <h3 class="font-semibold text-lg mb-4">Infrastructure</h3>
+          <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Docker Compose (macOS/Linux/Windows)</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>NVIDIA GPU acceleration</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>MinIO / S3 object storage</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Nginx reverse proxy + SSL</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deploy -->
+  <section id="deploy" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="reveal text-center max-w-2xl mx-auto">
+        <p class="text-sm font-semibold text-brand-600 dark:text-brand-400 tracking-wide mb-2">Deployment</p>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">One command to start</h2>
+        <p class="text-slate-600 dark:text-slate-400 mb-8">FileX runs on Docker Compose. A single server brings up the full stack — PostgreSQL, RabbitMQ, Redis, Ollama and more.</p>
+        <div class="bg-slate-900 dark:bg-slate-800 rounded-xl p-6 text-left text-sm font-mono text-green-400 overflow-x-auto mb-8 shadow-lg">
+          <div><span class="text-slate-500"># Clone and go</span></div>
+          <div class="mt-2"><span class="text-slate-500">$ </span>git clone https://github.com/roamer-remote/filex.git</div>
+          <div><span class="text-slate-500">$ </span>cd filex</div>
+          <div><span class="text-slate-500">$ </span>cat docs/deployment.md</div>
+        </div>
+        <a href="https://github.com/roamer-remote/filex" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors text-base">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
+          Get Started on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 dark:border-slate-800 py-12">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="text-sm text-slate-500 dark:text-slate-500">FileX — Enterprise-Grade AI Knowledge Platform</p>
+      <div class="flex items-center gap-6 text-sm text-slate-500 dark:text-slate-500">
+        <a href="https://github.com/roamer-remote/filex" target="_blank" class="hover:text-slate-700 dark:hover:text-slate-300">GitHub</a>
+        <a href="mailto:roamerxv@163.com" class="hover:text-slate-700 dark:hover:text-slate-300">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
