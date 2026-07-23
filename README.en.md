@@ -238,19 +238,19 @@ See [docs/architecture.md](docs/architecture.md) for details.
 
 ```
 User Layer  →  SPA (React)  →  API Gateway (Nginx)  →  FastAPI Backend
-                                                            ↓
-                                                  ┌───────────────────┐
-                                                  │  LLM Router       │
-                                                  │  Embedding Service │
-                                                  │  OCR/Extract Pipe  │
-                                                  │  Agent Engine      │
-                                                  └───────────────────┘
-                                                            ↓
-                                                  ┌───────────────────┐
-                                                  │  PostgreSQL        │
-                                                  │  Redis / Celery    │
-                                                  │  S3 / MinIO        │
-                                                  └───────────────────┘
+                                                                ↓
+                                                  ┌──────────────────────┐
+                                                  │  LLM Router          │
+                                                  │  Embedding Service    │
+                                                  │  OCR/Extract Pipe     │
+                                                  │  Agent Engine         │
+                                                  └──────────────────────┘
+                                                                ↓
+                                                  ┌──────────────────────┐
+                                                  │  PostgreSQL           │
+                                                  │  Redis / Celery       │
+                                                  │  S3 / MinIO           │
+                                                  └──────────────────────┘
 ```
 
 ---
