@@ -57,6 +57,8 @@ FileX is an AI-augmented knowledge management platform for teams and individuals
 
 **Contact**: WeChat `roamerxv` · Email [roamerxv@163.com](mailto:roamerxv@163.com)
 
+**i18n**: Built-in internationalization (i18next). English and Chinese shipped; extensible to additional languages.
+
 ---
 
 ## <a id="highlights"></a>Highlights [↑](#table-of-contents)
