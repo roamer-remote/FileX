@@ -1,6 +1,5 @@
 # FileX · 企业级 AI 知识管理平台
 
-[![License](https://img.shields.io/badge/license- Proprietary-red)]()
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)]()
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python)]()
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)]()
