@@ -72,17 +72,15 @@ flowchart TB
 
 ## 部署拓扑
 
+```mermaid
+flowchart LR
+    Nginx["Nginx (Public)"] --> Backend["Backend (Internal)"]
+    Backend --> PG[("PostgreSQL (Internal)")]
+    Backend --> AI["AI Service (GPU opt.)"]
+    AI <--> Redis[("Redis")]
 ```
-┌────────────────┐     ┌────────────────┐     ┌────────────────┐
-│   Nginx        │────▶│  Backend       │────▶│  PostgreSQL    │
-│  (Public)      │     │  (Internal)    │     │  (Internal)    │
-└────────────────┘     └───────┬────────┘     └────────────────┘
-                               │
-                        ┌──────▼────────┐     ┌────────────────┐
-                        │  AI Service   │◀───▶│  Redis         │
-                        │  (GPU opt.)    │     └────────────────┘
-                        └───────────────┘
-```
+
+支持单机 Docker Compose 部署与分布式部署两种模式。
 
 支持单机 Docker Compose 部署与分布式部署两种模式。
 
