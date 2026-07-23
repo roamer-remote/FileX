@@ -6,34 +6,36 @@
 
 ## 系统分层
 
-```
-┌─────────────────────────────────────────────────────┐
-│                   用户层                              │
-│  Web App (React SPA) · 钉钉集成 · API Client          │
-└──────────────────┬──────────────────────────────────┘
-                   │ HTTPS
-┌──────────────────▼──────────────────────────────────┐
-│                网关层                                 │
-│  Nginx (反向代理 · SSL 终结 · 静态资源)               │
-└──────────────────┬──────────────────────────────────┘
-                   │
-┌──────────────────▼──────────────────────────────────┐
-│                服务层                                 │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────┐  │
-│  │ FastAPI     │  │ Agent Engine │  │ Task Queue │  │
-│  │ REST/WS API │  │ LangGraph    │  │ Celery     │  │
-│  └──────┬──────┘  └──────┬───────┘  └──────┬─────┘  │
-│         │                │                  │        │
-│  ┌──────▼────────────────▼──────────────────▼─────┐  │
-│  │            AI 能力层                             │  │
-│  │  LLM Router · Embedding · OCR · 版面分析         │  │
-│  └──────────────────┬──────────────────────────────┘  │
-└─────────────────────┼────────────────────────────────┘
-                      │
-┌─────────────────────▼────────────────────────────────┐
-│                 数据层                                 │
-│  PostgreSQL · Redis · MinIO/S3 · 向量数据库            │
-└──────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph User["用户层"]
+        SPA["Web App (React SPA)"] 
+        Ding["钉钉集成"]
+        Client["API Client"]
+    end
+    subgraph Gateway["网关层"]
+        Nginx["Nginx (Reverse Proxy + SSL)"]
+    end
+    subgraph Service["服务层"]
+        FastAPI["FastAPI Backend"]
+        Agent["Agent Engine (LangGraph)"]
+        Queue["Task Queue (Celery/Redis)"]
+    end
+    subgraph AI["AI 能力层"]
+        LLM["LLM Router"]
+        Embed["Embedding Service"]
+        OCR["OCR Pipeline (Docling/MinerU)"]
+    end
+    subgraph Data["数据层"]
+        PG[("PostgreSQL + pgvector")]
+        Cache[("Redis")]
+        Storage[("MinIO / S3")]
+    end
+
+    User --> Gateway
+    Gateway --> Service
+    Service --> AI
+    AI --> Data
 ```
 
 ---

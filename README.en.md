@@ -236,21 +236,35 @@ Built-in help system covering everything from getting started to advanced operat
 
 See [docs/architecture.md](docs/architecture.md) for details.
 
-```
-User Layer  →  SPA (React)  →  API Gateway (Nginx)  →  FastAPI Backend
-                                                                ↓
-                                                  ┌──────────────────────┐
-                                                  │  LLM Router          │
-                                                  │  Embedding Service    │
-                                                  │  OCR/Extract Pipe     │
-                                                  │  Agent Engine         │
-                                                  └──────────────────────┘
-                                                                ↓
-                                                  ┌──────────────────────┐
-                                                  │  PostgreSQL           │
-                                                  │  Redis / Celery       │
-                                                  │  S3 / MinIO           │
-                                                  └──────────────────────┘
+```mermaid
+flowchart TB
+    subgraph User["User Layer"]
+        SPA["Web App (React SPA)"]
+        API["DingTalk Integration"]
+    end
+    subgraph Gateway["Gateway Layer"]
+        Nginx["Nginx (Reverse Proxy + SSL)"]
+    end
+    subgraph Service["Service Layer"]
+        FastAPI["FastAPI Backend"]
+        Agent["Agent Engine (LangGraph)"]
+        Queue["Task Queue (Celery/Redis)"]
+    end
+    subgraph AI["AI Layer"]
+        LLM["LLM Router"]
+        Embed["Embedding Service"]
+        OCR["OCR Pipeline (Docling/MinerU)"]
+    end
+    subgraph Data["Data Layer"]
+        PG[("PostgreSQL + pgvector")]
+        Redis[("Redis")]
+        S3[("MinIO / S3")]
+    end
+
+    User --> Gateway
+    Gateway --> Service
+    Service --> AI
+    AI --> Data
 ```
 
 ---
