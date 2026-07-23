@@ -4,6 +4,8 @@
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python)]()
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)]()
 
+> **AI Knowledge Base for Agents** — Document management, RAG retrieval, multi-engine OCR (Docling/MinerU), vector search, wiki graph, and Agent skill integration.
+>
 > **AI 智能体资料库** — 个人与集团知识空间，RAG 检索、文档提取与向量索引、Wiki 互联、钉技能集成。
 
 ---
