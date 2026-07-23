@@ -79,7 +79,7 @@ FileX is an AI-augmented knowledge management platform for teams and individuals
 Password and enterprise authentication with secure workspace switching.
 
 <p align="center">
-  <img src="screenshots/login.png" alt="Login" width="700">
+  <img src="docs/screenshots/login.png" alt="Login" width="700">
 </p>
 
 <a id="kb-overview-en"></a>**Knowledge Base Overview** [↑](#table-of-contents)
@@ -87,7 +87,7 @@ Password and enterprise authentication with secure workspace switching.
 Full view of your knowledge base with customizable directory structures and categories.
 
 <p align="center">
-  <img src="screenshots/kb.jpg" alt="Knowledge Base Overview" width="700">
+  <img src="docs/screenshots/kb.jpg" alt="Knowledge Base Overview" width="700">
 </p>
 
 <a id="kb-management-en"></a>**Knowledge Base Management** [↑](#table-of-contents)
@@ -95,66 +95,66 @@ Full view of your knowledge base with customizable directory structures and cate
 <a id="file-list"></a>- Browse all uploaded files [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/kb-overview.jpg" alt="File List" width="700">
+  <img src="docs/screenshots/kb-overview.jpg" alt="File List" width="700">
 </p>
 
 <a id="file-preview"></a>- Preview file originals [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/file-preview.png" alt="File Preview" width="700">
+  <img src="docs/screenshots/file-preview.png" alt="File Preview" width="700">
 </p>
 
 <a id="agent-note"></a>- Agent Notes: OCR'd documents become structured Markdown for Agents to read. Users can edit and extend them like online notes. [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/file-markdown.png" alt="Agent Markdown" width="700">
+  <img src="docs/screenshots/file-markdown.png" alt="Agent Markdown" width="700">
 </p>
 
 <a id="okf"></a>- OKF Interop: Import, export, and validate Google OKF (Open Knowledge Format) bundles for cross-platform knowledge asset exchange. [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/file-okf.png" alt="OKF Import/Export" width="700">
+  <img src="docs/screenshots/file-okf.png" alt="OKF Import/Export" width="700">
 </p>
 
 <a id="process-trace"></a>- Pipeline Trace: End-to-end visibility from upload through OCR, vector indexing, to search. Every stage status is inspectable and replayable. [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/file-show-process.png" alt="Pipeline Trace" width="700">
+  <img src="docs/screenshots/file-show-process.png" alt="Pipeline Trace" width="700">
 </p>
 
 <a id="multi-process"></a>- Multi-Engine Processing: Docling, MinerU, and Insavlo engines with configurable chunking strategies. Supports per-file re-extraction and re-indexing. [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/file-multi-redo.png" alt="Multi-Engine Processing" width="700">
+  <img src="docs/screenshots/file-multi-redo.png" alt="Multi-Engine Processing" width="700">
 </p>
 
 <p align="center">
-  <img src="screenshots/multi-processor.png" alt="Processing Engines" width="700">
+  <img src="docs/screenshots/multi-processor.png" alt="Processing Engines" width="700">
 </p>
 
 <a id="raptor"></a>- RAPTOR Post-Processing: Stanford's RAPTOR recursively summarizes indexed documents into a tree for hierarchical retrieval, boosting recall on long and multi-document queries. [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/raptor.png" alt="RAPTOR" width="700">
+  <img src="docs/screenshots/raptor.png" alt="RAPTOR" width="700">
 </p>
 
 <a id="kb-analysis"></a>- Knowledge Base Analytics [↑](#table-of-contents)
   <a id="kb-metrics"></a>  - Overview: Inspect file inventory, index status, and retrieval quality. [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/kb-overview.png" alt="KB Analytics" width="700">
+  <img src="docs/screenshots/kb-overview.png" alt="KB Analytics" width="700">
 </p>
 
   <a id="wiki-graph"></a>  - Document Relation Graph: Auto-build citation and tag networks. Visualize knowledge topology and detect isolated assets. [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/wiki-relation.png" alt="Wiki Relation Graph" width="700">
+  <img src="docs/screenshots/wiki-relation.png" alt="Wiki Relation Graph" width="700">
 </p>
 
   <a id="tag-heatmap"></a>  - Tag Heatmap: Tag frequency and co-occurrence visualized as a heatmap to reveal topic distribution and blind spots. [↑](#table-of-contents)
 
 <p align="center">
-  <img src="screenshots/tag.png" alt="Tag Heatmap" width="700">
+  <img src="docs/screenshots/tag.png" alt="Tag Heatmap" width="700">
 </p>
 
 <a id="process-viz-en"></a>**Pipeline Visualization** [↑](#table-of-contents)
@@ -162,7 +162,7 @@ Full view of your knowledge base with customizable directory structures and cate
 Real-time dashboard of the document processing pipeline — upload, extraction, indexing, and search — with stage-level status and timing. Supports manual retry, dead-letter queue drain, and index rebuild for operations.
 
 <p align="center">
-  <img src="screenshots/prcess-view.png" alt="Pipeline Dashboard" width="700">
+  <img src="docs/screenshots/prcess-view.png" alt="Pipeline Dashboard" width="700">
 </p>
 
 <a id="agent-trace-en"></a>**Agent Call Trace** [↑](#table-of-contents)
@@ -170,11 +170,11 @@ Real-time dashboard of the document processing pipeline — upload, extraction, 
 Full trace of Agent inference requests: input, reasoning steps, tool calls, and final output. Navigate by session to debug and evaluate Agent behavior.
 
 <p align="center">
-  <img src="screenshots/agent-log-1.png" alt="Agent Log" width="700">
+  <img src="docs/screenshots/agent-log-1.png" alt="Agent Log" width="700">
 </p>
 
 <p align="center">
-  <img src="screenshots/agent-log-2.png" alt="Agent Trace Detail" width="700">
+  <img src="docs/screenshots/agent-log-2.png" alt="Agent Trace Detail" width="700">
 </p>
 
 <a id="settings-en"></a>**System Settings** [↑](#table-of-contents)
@@ -182,7 +182,7 @@ Full trace of Agent inference requests: input, reasoning steps, tool calls, and 
 Centralized configuration for LLM routing, embedding engines, parsing strategies, caching rules, and more. Changes apply instantly — no restart required. Hot-plug between Ollama, OpenAI, Azure, and other backends.
 
 <p align="center">
-  <img src="screenshots/params.png" alt="System Settings" width="700">
+  <img src="docs/screenshots/params.png" alt="System Settings" width="700">
 </p>
 
 <a id="help-docs-en"></a>**Help Documentation** [↑](#table-of-contents)
@@ -190,7 +190,7 @@ Centralized configuration for LLM routing, embedding engines, parsing strategies
 Built-in help system covering everything from getting started to advanced operations — file management, retrieval tuning, Agent skill development, system configuration, and more. Full-text search and version-aware.
 
 <p align="center">
-  <img src="screenshots/help.png" alt="Help Documentation" width="700">
+  <img src="docs/screenshots/help.png" alt="Help Documentation" width="700">
 </p>
 
 ---
@@ -260,7 +260,7 @@ User Layer  →  SPA (React)  →  API Gateway (Nginx)  →  FastAPI Backend
 FileX runs on Docker Compose and supports **macOS, Linux, and Windows**. A single server runs the full stack including PostgreSQL, RabbitMQ, Redis, and Ollama. NVIDIA GPU acceleration is available for OCR and embedding inference.
 
 <p align="center">
-  <img src="screenshots/docker.png" alt="Docker Deployment" width="700">
+  <img src="docs/screenshots/docker.png" alt="Docker Deployment" width="700">
 </p>
 
 ### <a id="quick-start"></a>Quick Start [↑](#table-of-contents)
