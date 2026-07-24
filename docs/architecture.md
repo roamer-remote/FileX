@@ -1,6 +1,6 @@
 # FileX 架构概览
 
-本文档提供 FileX 平台的高层架构说明，不含实现细节。
+本文档提供 FileX 平台的高层架构说明，不含源码实现细节。
 
 ---
 
@@ -18,8 +18,8 @@ flowchart TB
     end
     subgraph Service["服务层"]
         FastAPI["FastAPI Backend"]
-        Agent["Agent Engine (LangGraph)"]
-        Queue["Task Queue (Celery/Redis)"]
+        Skill["Ding Skill / Agent Host"]
+        Queue["Worker Pipeline (RabbitMQ/Redis)"]
     end
     subgraph AI["AI 能力层"]
         LLM["LLM Router"]
@@ -49,18 +49,18 @@ flowchart TB
 - Zustand 管理客户端状态，减少不必要的服务端请求
 - 内置多文档格式预览能力（Office、PDF、Markdown、LaTeX）
 
-### 后端微服务风格
+### 后端服务与异步流水线
 
 - FastAPI 提供 REST 和 WebSocket 接口
-- 任务队列（Celery + Redis）处理异步工作：文档解析、向量索引、批量提取
-- 模块化设计：知识库、索引、提取、Agent、Wiki 各自独立
+- RabbitMQ + Redis 驱动异步工作：文档解析、向量索引、批量提取
+- 模块化设计：知识库、索引、提取、Wiki 与 Agent 工具接口各自独立
 
 ### AI 能力层
 
 - 多种 LLM 后端支持（OpenAI、Azure OpenAI、Ollama 本地模型）
 - Embedding 服务统一管理向量化流程
 - OCR 管道支持 Docling 和 MinerU 两种引擎，根据文档类型自动路由
-- Agent 引擎基于 LangGraph 构建工作流
+- Agent 编排运行在钉技能或外部 Agent 宿主侧，FileX 提供确定性工具 API
 
 ### 数据存储
 
@@ -79,8 +79,6 @@ flowchart LR
     Backend --> AI["AI Service (GPU opt.)"]
     AI <--> Redis[("Redis")]
 ```
-
-支持单机 Docker Compose 部署与分布式部署两种模式。
 
 支持单机 Docker Compose 部署与分布式部署两种模式。
 
