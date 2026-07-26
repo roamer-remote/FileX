@@ -219,7 +219,7 @@ FileX 是一个面向团队和个人的 AI 增强型知识管理平台。它把�
 | OCR | Docling, MinerU |
 | Agent | 钉技能；LangGraph 可在外部 Agent 宿主侧编排 |
 | 异步任务 | RabbitMQ + Redis，多 worker 流水线 |
-| 搜索 | 全文检索 + 向量检索 + 重排序 |
+| 搜索 | 全文检索 + 向量检索；可外接重排序服务 |
 
 ### <a id="基础设施"></a>基础设施 [↑](#目录)
 
@@ -268,7 +268,7 @@ flowchart TB
 
 ## <a id="获取与部署"></a>获取与部署 [↑](#目录)
 
-本仓库提供 FileX 的 Docker 发行安装包。用户可以通过 `git pull` 获取最新部署文件，再用 Docker Compose 拉起完整服务栈。仓库不包含应用源码；运行时通过预构建镜像安装。当前公开发行包默认启用 MinerU 文档解析链路。
+本仓库提供 FileX 的 Docker 发行安装包。用户可以通过 `git pull` 获取最新部署文件，再用 Docker Compose 拉起完整服务栈。仓库不包含应用源码；运行时通过预构建镜像安装。当前公开发行包按 arm64 生产环境准备，默认启用 MinerU 文档解析链路，Cross-Encoder rerank 服务默认关闭。
 
 <p align="center">
   <img src="screenshots/docker.png" alt="Docker 部署" width="700">
@@ -302,7 +302,7 @@ docker compose pull
 docker compose up -d
 ```
 
-完整安装与服务器部署说明见 [Docker 安装指南](docs/docker-install.md)。公开演示站仅供体验，请勿上传隐私数据。
+完整安装、arm64 镜像与可选 rerank 接入说明见 [Docker 安装指南](docs/docker-install.md)。公开演示站仅供体验，请勿上传隐私数据。
 
 ---
 

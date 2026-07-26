@@ -221,7 +221,7 @@ Built-in help system covering everything from getting started to advanced operat
 | OCR | Docling, MinerU |
 | Agent | Ding Skill; LangGraph can run in an external Agent host |
 | Async Jobs | RabbitMQ + Redis, multi-worker pipeline |
-| Search | Full-text search + vector search + reranking |
+| Search | Full-text search + vector search; optional external reranking service |
 
 ### <a id="infrastructure"></a>Infrastructure [↑](#table-of-contents)
 
@@ -270,7 +270,7 @@ flowchart TB
 
 ## <a id="access-and-deployment"></a>Access and Deployment [↑](#table-of-contents)
 
-This repository provides the FileX Docker distribution package. Users can `git pull` the latest deployment files and install the full service stack with Docker Compose. The repository does not contain application source code; runtime services are installed from prebuilt container images. The current public distribution enables the MinerU document parsing path by default.
+This repository provides the FileX Docker distribution package. Users can `git pull` the latest deployment files and install the full service stack with Docker Compose. The repository does not contain application source code; runtime services are installed from prebuilt container images. The current public distribution is prepared for arm64 production environments, enables the MinerU document parsing path by default, and leaves Cross-Encoder reranking disabled by default.
 
 <p align="center">
   <img src="screenshots/docker.png" alt="Docker Deployment" width="700">
@@ -304,7 +304,7 @@ docker compose pull
 docker compose up -d
 ```
 
-See the [Docker install guide](docs/docker-install.md) for full installation and server deployment notes. The public demo is for evaluation only; do not upload sensitive data.
+See the [Docker install guide](docs/docker-install.md) for full installation, arm64 image, and optional reranking notes. The public demo is for evaluation only; do not upload sensitive data.
 
 ---
 

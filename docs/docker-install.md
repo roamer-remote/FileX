@@ -6,6 +6,7 @@
 
 - Docker Desktop 或 Docker Engine
 - Docker Compose v2
+- arm64 服务器或本机 Docker 环境
 - 至少 16 GB 内存；启用 MinerU 文档解析建议 32 GB
 - 首次启动需要拉取 Ollama embedding 模型，耗时取决于网络
 - 默认 `FILEX_ENV=development` 便于本机试用；生产部署请切到 `production` 并配置授权密钥
@@ -100,17 +101,26 @@ FILEX_LICENSE_HMAC_SECRET=your-license-hmac-secret
 
 ## 镜像说明
 
-默认镜像名在 `.env.example` 中定义：
+默认镜像名在 `.env.example` 中定义。当前公开发行包按 arm64 生产环境准备：
 
 ```dotenv
 FILEX_APP_IMAGE=ghcr.io/roamer-remote/filex-app:${FILEX_VERSION}
 FILEX_EXTRACT_IMAGE=ghcr.io/roamer-remote/filex-kb-extract:${FILEX_VERSION}
 FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:${FILEX_VERSION}
 FILEX_POSTGRES_IMAGE=ghcr.io/roamer-remote/filex-postgres:pg16-zh
-FILEX_RERANK_IMAGE=ghcr.io/roamer-remote/filex-rerank:cpu-1.5
 ```
 
 如果使用私有镜像仓库，可以在 `.env` 中改成自己的镜像地址。
+
+## Rerank 说明
+
+当前公开 Docker 发行包默认不启动 Cross-Encoder rerank 服务，`KB_RERANK_URL` 为空。语义检索、全文检索与向量检索仍可正常使用。
+
+原因是项目现用的 Hugging Face TEI rerank CPU 镜像没有官方 arm64 镜像；在 arm64 生产环境中默认拉 amd64 仿真服务会增加部署风险。如需接入自建 rerank 服务，可在 `.env` 中设置：
+
+```dotenv
+KB_RERANK_URL=http://your-rerank-service/rerank
+```
 
 ## Docling 说明
 

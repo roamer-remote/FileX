@@ -24,7 +24,7 @@ x-app-env: &app_env
   OLLAMA_EMBED_BATCH_SIZE: ${OLLAMA_EMBED_BATCH_SIZE:-48}
   OLLAMA_EMBED_CONCURRENCY: ${OLLAMA_EMBED_CONCURRENCY:-4}
   OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
-  KB_RERANK_URL: http://kb-rerank:80/rerank
+  KB_RERANK_URL: ${KB_RERANK_URL:-}
   KB_EXTRACT_MINERU_URL: http://filex-mineru:8080
 
 x-app-volumes: &app_volumes
@@ -117,15 +117,6 @@ services:
         done
     volumes:
       - ${FILEX_DATA_ROOT:-./data}/ollama:/root/.ollama
-
-  kb-rerank:
-    image: ${FILEX_RERANK_IMAGE:-ghcr.io/roamer-remote/filex-rerank:cpu-1.5}
-    container_name: filex-kb-rerank
-    restart: unless-stopped
-    platform: linux/amd64
-    command: --model-id /data/model --port 80
-    environment:
-      <<: *filex_timezone
 
   db-migrate:
     image: ${FILEX_APP_IMAGE:-ghcr.io/roamer-remote/filex-app:latest}
@@ -272,8 +263,6 @@ services:
         condition: service_healthy
       kb-indexer:
         condition: service_healthy
-      kb-rerank:
-        condition: service_started
     ports:
       - "${FILEX_HOST:-127.0.0.1}:${FILEX_PORT:-8000}:8000"
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
