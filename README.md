@@ -268,13 +268,41 @@ flowchart TB
 
 ## <a id="获取与部署"></a>获取与部署 [↑](#目录)
 
-FileX 当前为专有软件，GitHub 仓库仅用于产品展示，不包含可运行源码。生产版本基于 Docker Compose 部署，支持单服务器运行完整知识管理服务，含 PostgreSQL、RabbitMQ、Redis、Ollama 等依赖；GPU 服务器可用于 OCR 与嵌入推理加速。
+本仓库提供 FileX 的 Docker 发行安装包。用户可以通过 `git pull` 获取最新部署文件，再用 Docker Compose 拉起完整服务栈。仓库不包含应用源码；运行时通过预构建镜像安装。
 
 <p align="center">
   <img src="screenshots/docker.png" alt="Docker 部署" width="700">
 </p>
 
-需要演示、试用或私有化部署，请通过上方联系方式沟通。公开演示站仅供体验，请勿上传隐私数据。
+快速安装：
+
+```bash
+git clone https://github.com/roamer-remote/filex.git
+cd filex
+cp .env.example .env
+```
+
+编辑 `.env`，至少设置 `FILEX_BOOTSTRAP_PASSWORD`。如镜像仓库未公开，先执行 `docker login ghcr.io`。
+
+```bash
+./scripts/install.sh
+```
+
+默认访问地址：
+
+```text
+http://127.0.0.1:8000
+```
+
+常用升级：
+
+```bash
+git pull
+docker compose pull
+docker compose up -d
+```
+
+完整安装与服务器部署说明见 [Docker 安装指南](docs/docker-install.md)。公开演示站仅供体验，请勿上传隐私数据。
 
 ---
 

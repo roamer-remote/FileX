@@ -270,13 +270,41 @@ flowchart TB
 
 ## <a id="access-and-deployment"></a>Access and Deployment [↑](#table-of-contents)
 
-FileX is currently proprietary software. This GitHub repository is a product showcase and does not contain runnable source code. Production deployments use Docker Compose; a single server can run PostgreSQL, RabbitMQ, Redis, Ollama, and the FileX service stack. GPU servers can accelerate OCR and embedding inference.
+This repository provides the FileX Docker distribution package. Users can `git pull` the latest deployment files and install the full service stack with Docker Compose. The repository does not contain application source code; runtime services are installed from prebuilt container images.
 
 <p align="center">
   <img src="screenshots/docker.png" alt="Docker Deployment" width="700">
 </p>
 
-For demos, evaluation, or private deployment, contact the author above. The public demo is for evaluation only; do not upload sensitive data.
+Quick install:
+
+```bash
+git clone https://github.com/roamer-remote/filex.git
+cd filex
+cp .env.example .env
+```
+
+Edit `.env` and set at least `FILEX_BOOTSTRAP_PASSWORD`. If the image registry is not public, run `docker login ghcr.io` first.
+
+```bash
+./scripts/install.sh
+```
+
+Default URL:
+
+```text
+http://127.0.0.1:8000
+```
+
+Upgrade:
+
+```bash
+git pull
+docker compose pull
+docker compose up -d
+```
+
+See the [Docker install guide](docs/docker-install.md) for full installation and server deployment notes. The public demo is for evaluation only; do not upload sensitive data.
 
 ---
 

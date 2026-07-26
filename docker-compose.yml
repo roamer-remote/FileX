@@ -1,0 +1,335 @@
+name: filex
+
+x-filex-timezone: &filex_timezone
+  TZ: Asia/Shanghai
+  FILEX_LOG_TIMEZONE: Asia/Shanghai
+
+x-app-env: &app_env
+  <<: *filex_timezone
+  FILEX_ENV: ${FILEX_ENV:-development}
+  FILEX_ORIGIN: ${FILEX_ORIGIN:-http://127.0.0.1:8000}
+  FILEX_SECRET_KEY: ${FILEX_SECRET_KEY:?set FILEX_SECRET_KEY in .env}
+  FILEX_ASSET_SIGNING_SECRET: ${FILEX_ASSET_SIGNING_SECRET:?set FILEX_ASSET_SIGNING_SECRET in .env}
+  FILEX_LICENSE_HMAC_SECRET: ${FILEX_LICENSE_HMAC_SECRET:-}
+  DATABASE_URL: postgresql://${POSTGRES_USER:-filebox}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-filebox}
+  RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-filebox}:${RABBITMQ_DEFAULT_PASS:?set RABBITMQ_DEFAULT_PASS in .env}@rabbitmq:5672/
+  REDIS_URL: redis://redis:6379/0
+  UPLOAD_DIR: /app/uploads
+  FILEX_LOG_FORMAT: json
+  FILEX_LOG_DIR: /app/logs
+  OLLAMA_BASE_URL: http://filex-ollama:11434
+  OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-bge-m3:latest}
+  OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-qwen3.5:cloud}
+  OLLAMA_EMBED_DIM: ${OLLAMA_EMBED_DIM:-1024}
+  OLLAMA_EMBED_BATCH_SIZE: ${OLLAMA_EMBED_BATCH_SIZE:-48}
+  OLLAMA_EMBED_CONCURRENCY: ${OLLAMA_EMBED_CONCURRENCY:-4}
+  OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
+  KB_RERANK_URL: http://kb-rerank:80/rerank
+  KB_EXTRACT_MINERU_URL: http://filex-mineru:8080
+  KB_EXTRACT_DOCLING_URL: http://filex-docling:8080
+
+x-app-volumes: &app_volumes
+  - ${FILEX_DATA_ROOT:-./data}/uploads:/app/uploads
+  - ${FILEX_DATA_ROOT:-./data}/logs:/app/logs
+
+services:
+  postgres:
+    image: ${FILEX_POSTGRES_IMAGE:-ghcr.io/roamer-remote/filex-postgres:pg16-zh}
+    container_name: filex-postgres
+    restart: unless-stopped
+    command: ["postgres", "-c", "max_connections=200"]
+    environment:
+      <<: *filex_timezone
+      POSTGRES_USER: ${POSTGRES_USER:-filebox}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-filebox}
+    volumes:
+      - ${FILEX_DATA_ROOT:-./data}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-filebox} -d ${POSTGRES_DB:-filebox}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: filex-rabbitmq
+    restart: unless-stopped
+    environment:
+      <<: *filex_timezone
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-filebox}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?set RABBITMQ_DEFAULT_PASS in .env}
+    volumes:
+      - ${FILEX_DATA_ROOT:-./data}/rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: filex-redis
+    restart: unless-stopped
+    environment:
+      <<: *filex_timezone
+    volumes:
+      - ${FILEX_DATA_ROOT:-./data}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  filex-ollama:
+    image: ollama/ollama:latest
+    container_name: filex-ollama
+    restart: unless-stopped
+    environment:
+      <<: *filex_timezone
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-4}
+    volumes:
+      - ${FILEX_DATA_ROOT:-./data}/ollama:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
+
+  ollama-models:
+    image: ollama/ollama:latest
+    container_name: filex-ollama-models
+    restart: "no"
+    depends_on:
+      filex-ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://filex-ollama:11434
+      OLLAMA_PULL_MODELS: ${OLLAMA_PULL_MODELS:-bge-m3:latest}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        for model in $$OLLAMA_PULL_MODELS; do
+          echo "Pulling Ollama model: $$model"
+          ollama pull "$$model"
+        done
+    volumes:
+      - ${FILEX_DATA_ROOT:-./data}/ollama:/root/.ollama
+
+  kb-rerank:
+    image: ${FILEX_RERANK_IMAGE:-ghcr.io/roamer-remote/filex-rerank:cpu-1.5}
+    container_name: filex-kb-rerank
+    restart: unless-stopped
+    platform: linux/amd64
+    command: --model-id /data/model --port 80
+    environment:
+      <<: *filex_timezone
+
+  db-migrate:
+    image: ${FILEX_APP_IMAGE:-ghcr.io/roamer-remote/filex-app:latest}
+    container_name: filex-db-migrate
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - python -c "from database import wait_for_database; wait_for_database()" && alembic upgrade head
+    environment:
+      <<: *app_env
+      FILEX_SERVICE_NAME: db-migrate
+    volumes: *app_volumes
+
+  filex-mineru:
+    image: ${FILEX_MINERU_IMAGE:-ghcr.io/roamer-remote/filex-mineru:latest}
+    container_name: filex-mineru
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    shm_size: "4gb"
+    mem_limit: ${FILEX_MINERU_MEM_LIMIT:-16g}
+    environment:
+      <<: *filex_timezone
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: filex-mineru
+      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-filebox}:${RABBITMQ_DEFAULT_PASS:?set RABBITMQ_DEFAULT_PASS in .env}@rabbitmq:5672/
+      MINERU_MODELS_DIR: /models
+      MINERU_CACHE_DIR: /cache
+      MINERU_MODEL_SOURCE: local
+      MINERU_MAX_CONCURRENT: "1"
+      MINERU_PARSE_TIMEOUT_SEC: "1200"
+      UPLOAD_DIR: /uploads
+    volumes:
+      - ${FILEX_DATA_ROOT:-./data}/mineru/models:/models
+      - ${FILEX_DATA_ROOT:-./data}/mineru/cache:/cache
+      - ${FILEX_DATA_ROOT:-./data}/uploads:/uploads:ro
+      - ${FILEX_DATA_ROOT:-./data}/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+
+  filex-docling:
+    image: ${FILEX_DOCLING_IMAGE:-ghcr.io/roamer-remote/filex-docling:latest}
+    container_name: filex-docling
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    shm_size: "2gb"
+    mem_limit: ${FILEX_DOCLING_MEM_LIMIT:-8g}
+    environment:
+      <<: *filex_timezone
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: filex-docling
+      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-filebox}:${RABBITMQ_DEFAULT_PASS:?set RABBITMQ_DEFAULT_PASS in .env}@rabbitmq:5672/
+      DOCLING_MODELS_DIR: /models
+      DOCLING_CACHE_DIR: /cache
+      DOCLING_MAX_CONCURRENT: "1"
+      DOCLING_PARSE_TIMEOUT_SEC: "550"
+      DOCLING_HTTP_PROXY: ${DOCLING_HTTP_PROXY:-}
+      UPLOAD_DIR: /uploads
+    volumes:
+      - ${FILEX_DATA_ROOT:-./data}/docling/models:/models
+      - ${FILEX_DATA_ROOT:-./data}/docling/cache:/cache
+      - ${FILEX_DATA_ROOT:-./data}/uploads:/uploads:ro
+      - ${FILEX_DATA_ROOT:-./data}/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+
+  kb-extract:
+    image: ${FILEX_EXTRACT_IMAGE:-ghcr.io/roamer-remote/filex-kb-extract:latest}
+    container_name: filex-kb-extract
+    restart: unless-stopped
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      filex-mineru:
+        condition: service_healthy
+      filex-docling:
+        condition: service_healthy
+    command: ["python", "-m", "workers.kb_extract"]
+    environment:
+      <<: *app_env
+      FILEX_SERVICE_NAME: kb-extract
+      KB_EXTRACT_CONCURRENCY: ${KB_EXTRACT_CONCURRENCY:-1}
+      FILEX_ENABLE_MINERU_PROVIDER: "1"
+      KB_EXTRACT_MINERU_USE_MQ: "1"
+      KB_EXTRACT_MINERU_TIMEOUT_SEC: "900"
+      KB_EXTRACT_DOCLING_USE_MQ: "1"
+      KB_EXTRACT_DOCLING_TIMEOUT_SEC: "600"
+      KB_EXTRACT_DOCLING_HTTP_TIMEOUT_SEC: "630"
+      KB_EXTRACT_DOCLING_CACHE_MOUNT: /docling-cache
+    volumes:
+      - ${FILEX_DATA_ROOT:-./data}/uploads:/app/uploads
+      - ${FILEX_DATA_ROOT:-./data}/logs:/app/logs
+      - ${FILEX_DATA_ROOT:-./data}/mineru/cache:/cache:ro
+      - ${FILEX_DATA_ROOT:-./data}/docling/cache:/docling-cache:ro
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1 2>/dev/null"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 180s
+
+  kb-indexer:
+    image: ${FILEX_APP_IMAGE:-ghcr.io/roamer-remote/filex-app:latest}
+    container_name: filex-kb-indexer
+    restart: unless-stopped
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+      filex-ollama:
+        condition: service_healthy
+      ollama-models:
+        condition: service_completed_successfully
+    command: ["python", "-m", "workers.kb_indexer"]
+    environment:
+      <<: *app_env
+      FILEX_SERVICE_NAME: kb-indexer
+      KB_INDEX_CONCURRENCY: ${KB_INDEX_CONCURRENCY:-4}
+    volumes: *app_volumes
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1 2>/dev/null"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 180s
+
+  kb-post:
+    image: ${FILEX_APP_IMAGE:-ghcr.io/roamer-remote/filex-app:latest}
+    container_name: filex-kb-post
+    restart: unless-stopped
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+      filex-ollama:
+        condition: service_healthy
+    command: ["python", "-m", "workers.kb_post"]
+    environment:
+      <<: *app_env
+      FILEX_SERVICE_NAME: kb-post
+      KB_POST_CONCURRENCY: ${KB_POST_CONCURRENCY:-1}
+    volumes: *app_volumes
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1 2>/dev/null"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 180s
+
+  filex:
+    image: ${FILEX_APP_IMAGE:-ghcr.io/roamer-remote/filex-app:latest}
+    container_name: filex
+    restart: unless-stopped
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kb-indexer:
+        condition: service_healthy
+      kb-rerank:
+        condition: service_started
+    ports:
+      - "${FILEX_HOST:-127.0.0.1}:${FILEX_PORT:-8000}:8000"
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      <<: *app_env
+      FILEX_SERVICE_NAME: filex
+      FILEX_BOOTSTRAP_USERNAME: ${FILEX_BOOTSTRAP_USERNAME:-admin}
+      FILEX_BOOTSTRAP_PASSWORD: ${FILEX_BOOTSTRAP_PASSWORD:?set FILEX_BOOTSTRAP_PASSWORD in .env}
+    volumes: *app_volumes
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5).read()\"",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 180s
