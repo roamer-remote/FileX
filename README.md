@@ -268,7 +268,7 @@ flowchart TB
 
 ## <a id="获取与部署"></a>获取与部署 [↑](#目录)
 
-本仓库提供 FileX 的 Docker 发行安装包。用户可以通过 `git pull` 获取最新部署文件，再用 Docker Compose 拉起完整服务栈。仓库不包含应用源码；运行时通过预构建镜像安装。
+本仓库提供 FileX 的 Docker 发行安装包。用户可以通过 `git pull` 获取最新部署文件，再用 Docker Compose 拉起完整服务栈。仓库不包含应用源码；运行时通过预构建镜像安装。当前公开发行包默认启用 MinerU 文档解析链路。
 
 <p align="center">
   <img src="screenshots/docker.png" alt="Docker 部署" width="700">

@@ -26,7 +26,6 @@ x-app-env: &app_env
   OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
   KB_RERANK_URL: http://kb-rerank:80/rerank
   KB_EXTRACT_MINERU_URL: http://filex-mineru:8080
-  KB_EXTRACT_DOCLING_URL: http://filex-docling:8080
 
 x-app-volumes: &app_volumes
   - ${FILEX_DATA_ROOT:-./data}/uploads:/app/uploads
@@ -177,39 +176,6 @@ services:
       retries: 5
       start_period: 300s
 
-  filex-docling:
-    image: ${FILEX_DOCLING_IMAGE:-ghcr.io/roamer-remote/filex-docling:latest}
-    container_name: filex-docling
-    restart: unless-stopped
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-    shm_size: "2gb"
-    mem_limit: ${FILEX_DOCLING_MEM_LIMIT:-8g}
-    environment:
-      <<: *filex_timezone
-      FILEX_LOG_FORMAT: json
-      FILEX_LOG_DIR: /app/logs
-      FILEX_SERVICE_NAME: filex-docling
-      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-filebox}:${RABBITMQ_DEFAULT_PASS:?set RABBITMQ_DEFAULT_PASS in .env}@rabbitmq:5672/
-      DOCLING_MODELS_DIR: /models
-      DOCLING_CACHE_DIR: /cache
-      DOCLING_MAX_CONCURRENT: "1"
-      DOCLING_PARSE_TIMEOUT_SEC: "550"
-      DOCLING_HTTP_PROXY: ${DOCLING_HTTP_PROXY:-}
-      UPLOAD_DIR: /uploads
-    volumes:
-      - ${FILEX_DATA_ROOT:-./data}/docling/models:/models
-      - ${FILEX_DATA_ROOT:-./data}/docling/cache:/cache
-      - ${FILEX_DATA_ROOT:-./data}/uploads:/uploads:ro
-      - ${FILEX_DATA_ROOT:-./data}/logs:/app/logs
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 300s
-
   kb-extract:
     image: ${FILEX_EXTRACT_IMAGE:-ghcr.io/roamer-remote/filex-kb-extract:latest}
     container_name: filex-kb-extract
@@ -223,8 +189,6 @@ services:
         condition: service_healthy
       filex-mineru:
         condition: service_healthy
-      filex-docling:
-        condition: service_healthy
     command: ["python", "-m", "workers.kb_extract"]
     environment:
       <<: *app_env
@@ -233,15 +197,11 @@ services:
       FILEX_ENABLE_MINERU_PROVIDER: "1"
       KB_EXTRACT_MINERU_USE_MQ: "1"
       KB_EXTRACT_MINERU_TIMEOUT_SEC: "900"
-      KB_EXTRACT_DOCLING_USE_MQ: "1"
-      KB_EXTRACT_DOCLING_TIMEOUT_SEC: "600"
-      KB_EXTRACT_DOCLING_HTTP_TIMEOUT_SEC: "630"
-      KB_EXTRACT_DOCLING_CACHE_MOUNT: /docling-cache
+      KB_EXTRACT_DOCLING_USE_MQ: "0"
     volumes:
       - ${FILEX_DATA_ROOT:-./data}/uploads:/app/uploads
       - ${FILEX_DATA_ROOT:-./data}/logs:/app/logs
       - ${FILEX_DATA_ROOT:-./data}/mineru/cache:/cache:ro
-      - ${FILEX_DATA_ROOT:-./data}/docling/cache:/docling-cache:ro
     healthcheck:
       test: ["CMD-SHELL", "kill -0 1 2>/dev/null"]
       interval: 15s

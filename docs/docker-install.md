@@ -6,7 +6,7 @@
 
 - Docker Desktop 或 Docker Engine
 - Docker Compose v2
-- 至少 16 GB 内存；启用 MinerU / Docling 文档解析建议 32 GB
+- 至少 16 GB 内存；启用 MinerU 文档解析建议 32 GB
 - 首次启动需要拉取 Ollama embedding 模型，耗时取决于网络
 - 默认 `FILEX_ENV=development` 便于本机试用；生产部署请切到 `production` 并配置授权密钥
 
@@ -106,9 +106,12 @@ FILEX_LICENSE_HMAC_SECRET=your-license-hmac-secret
 FILEX_APP_IMAGE=ghcr.io/roamer-remote/filex-app:${FILEX_VERSION}
 FILEX_EXTRACT_IMAGE=ghcr.io/roamer-remote/filex-kb-extract:${FILEX_VERSION}
 FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:${FILEX_VERSION}
-FILEX_DOCLING_IMAGE=ghcr.io/roamer-remote/filex-docling:${FILEX_VERSION}
 FILEX_POSTGRES_IMAGE=ghcr.io/roamer-remote/filex-postgres:pg16-zh
 FILEX_RERANK_IMAGE=ghcr.io/roamer-remote/filex-rerank:cpu-1.5
 ```
 
 如果使用私有镜像仓库，可以在 `.env` 中改成自己的镜像地址。
+
+## Docling 说明
+
+当前公开 Docker 发行包默认启用 MinerU 解析链路。Docling 镜像体积较大，暂未作为默认安装服务发布；后续如需启用 Docling，可在单独的 Compose overlay 中接入 `filex-docling` 服务。

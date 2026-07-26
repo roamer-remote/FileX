@@ -270,7 +270,7 @@ flowchart TB
 
 ## <a id="access-and-deployment"></a>Access and Deployment [↑](#table-of-contents)
 
-This repository provides the FileX Docker distribution package. Users can `git pull` the latest deployment files and install the full service stack with Docker Compose. The repository does not contain application source code; runtime services are installed from prebuilt container images.
+This repository provides the FileX Docker distribution package. Users can `git pull` the latest deployment files and install the full service stack with Docker Compose. The repository does not contain application source code; runtime services are installed from prebuilt container images. The current public distribution enables the MinerU document parsing path by default.
 
 <p align="center">
   <img src="screenshots/docker.png" alt="Docker Deployment" width="700">
