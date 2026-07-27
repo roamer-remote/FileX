@@ -279,8 +279,8 @@ This repository provides the FileX Docker distribution package. Users can `git p
 Quick install:
 
 ```bash
-git clone https://github.com/roamer-remote/filex.git
-cd filex
+git clone https://github.com/roamer-remote/FileX.git
+cd FileX
 cp .env.example .env
 ```
 

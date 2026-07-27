@@ -20,8 +20,8 @@ docker login ghcr.io
 ## 快速安装
 
 ```bash
-git clone https://github.com/roamer-remote/filex.git
-cd filex
+git clone https://github.com/roamer-remote/FileX.git
+cd FileX
 cp .env.example .env
 ```
 
