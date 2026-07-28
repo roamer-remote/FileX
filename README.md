@@ -159,7 +159,7 @@ FileX 是一个面向团队和个人的 AI 增强型知识管理平台。它把�
 文档处理流水线的全程可视化看板，实时展示上传、提取、索引、检索等各环节的状态与耗时。支持对异常任务进行手动重试、死信队列排空与索引重建，帮助运维人员快速定位瓶颈与修复故障。
 
 <p align="center">
-  <img src="screenshots/prcess-view.png" alt="处理过程可视化" width="700">
+  <img src="screenshots/process-view.png" alt="处理过程可视化" width="700">
 </p>
 
 <a id="agent-trace"></a>**智能体调用追踪** [↑](#目录)

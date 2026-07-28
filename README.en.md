@@ -161,7 +161,7 @@ Full view of your knowledge base with customizable directory structures and cate
 Real-time dashboard of the document processing pipeline — upload, extraction, indexing, and search — with stage-level status and timing. Supports manual retry, dead-letter queue drain, and index rebuild for operations.
 
 <p align="center">
-  <img src="screenshots/prcess-view.png" alt="Pipeline Dashboard" width="700">
+  <img src="screenshots/process-view.png" alt="Pipeline Dashboard" width="700">
 </p>
 
 <a id="agent-trace-en"></a>**Agent Call Trace** [↑](#table-of-contents)
