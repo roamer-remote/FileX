@@ -134,9 +134,10 @@ docker exec filex-mineru curl -sf http://127.0.0.1:8080/health/models
 该镜像是 `amd64` GPU 发行包，不能用于 ARM64 主机；ARM64 用户继续使用默认
 `ghcr.io/roamer-remote/filex-mineru:latest`。
 
-注意：NVIDIA 驱动可见不等于所有 GPU 都能执行当前 PyTorch CUDA kernel。
-例如 GTX 10xx（compute capability 6.1）在当前 `cu126` 运行时可能由 MinerU
-自动回退 CPU；如需确认是否真正使用 GPU，应同时检查解析日志中的 GPU fallback。
+GPU 镜像使用 CUDA 11.8 与 PyTorch 2.6.0（`cu118`），兼容 Pascal/GTX 10xx。
+在有 GPU 的环境中，MinerU sidecar 会强制使用 CUDA；CUDA 不可用或 GPU 执行失败时
+直接退出并报告错误，不会静默回退到 CPU。验证时应使用实际 CUDA 运算（例如张量乘法）
+并检查 `torch.cuda.is_available()`，不要只依据驱动可见性或 `get_arch_list()` 的展示。
 
 ## Rerank 说明
 
