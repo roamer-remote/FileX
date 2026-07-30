@@ -268,7 +268,7 @@ flowchart TB
 
 ## <a id="获取与部署"></a>获取与部署 [↑](#目录)
 
-本仓库提供 FileX 的 Docker 发行安装包。用户可以通过 `git pull` 获取最新部署文件，再用 Docker Compose 拉起完整服务栈。仓库不包含应用源码；运行时通过预构建镜像安装。当前公开发行包按 arm64 生产环境准备，默认启用 MinerU 文档解析链路，Cross-Encoder rerank 服务默认关闭。
+本仓库提供 FileX 的 Docker 发行安装包。用户可以通过 `git pull` 获取最新部署文件，再用 Docker Compose 拉起完整服务栈。仓库不包含应用源码；运行时通过预构建镜像安装。FileX 主服务公开发行包按 arm64 生产环境准备；MinerU CPU 镜像同时支持 AMD64 与 ARM64，默认启用 MinerU 文档解析链路，Cross-Encoder rerank 服务默认关闭。
 
 <p align="center">
   <img src="screenshots/docker.png" alt="Docker 部署" width="700">
@@ -302,10 +302,10 @@ docker compose pull
 docker compose up -d
 ```
 
-完整安装、arm64 镜像与可选 rerank 接入说明见 [Docker 安装指南](docs/docker-install.md)。公开演示站仅供体验，请勿上传隐私数据。
+完整安装、MinerU CPU/GPU 镜像矩阵与可选 rerank 接入说明见 [Docker 安装指南](docs/docker-install.md)。公开演示站仅供体验，请勿上传隐私数据。
 
 NVIDIA GPU 主机请使用独立的 MinerU GPU 镜像 tag，并叠加
-`docker-compose.gpu.yml`；不要覆盖 ARM64 默认的 `latest` 镜像。具体命令见
+`docker-compose.gpu.yml`；默认 `latest` 保持为 CPU 多架构镜像。具体命令见
 [Docker 安装指南](docs/docker-install.md)。
 
 ---

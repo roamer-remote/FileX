@@ -5,6 +5,7 @@
 #
 # Set FILEX_MINERU_IMAGE in .env to the GPU-specific tag, for example:
 #   FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:4.0.0a4-gpu
+# The default `latest` tag remains the CPU multi-architecture image.
 
 services:
   filex-mineru:

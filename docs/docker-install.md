@@ -101,7 +101,8 @@ FILEX_LICENSE_HMAC_SECRET=your-license-hmac-secret
 
 ## 镜像说明
 
-默认镜像名在 `.env.example` 中定义。当前公开发行包按 arm64 生产环境准备：
+默认镜像名在 `.env.example` 中定义。FileX 主服务公开发行包仍按 arm64
+生产环境准备；MinerU CPU 镜像已同时提供 `linux/amd64` 和 `linux/arm64`：
 
 ```dotenv
 FILEX_APP_IMAGE=ghcr.io/roamer-remote/filex-app:${FILEX_VERSION}
@@ -112,11 +113,33 @@ FILEX_POSTGRES_IMAGE=ghcr.io/roamer-remote/filex-postgres:pg16-zh
 
 如果使用私有镜像仓库，可以在 `.env` 中改成自己的镜像地址。
 
+### CPU MinerU
+
+默认 `ghcr.io/roamer-remote/filex-mineru:latest` 与版本化标签
+`4.0.0a4-cpu` 都是 CPU 多架构镜像，Docker 会根据主机自动选择 AMD64 或 ARM64：
+
+```dotenv
+FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:4.0.0a4-cpu
+```
+
+需要固定架构时使用：
+
+```dotenv
+# linux/amd64
+FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:4.0.0a4-cpu-amd64
+
+# linux/arm64
+FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:4.0.0a4-cpu-arm64
+```
+
+CPU 镜像使用 MinerU 4.0.0a4 与 PyTorch 2.6.0 CPU wheel，不包含 CUDA
+runtime，也不需要 NVIDIA Container Toolkit。
+
 ### NVIDIA GPU MinerU
 
 Linux 主机安装 `nvidia-container-toolkit` 后，可使用 whb GPU 环境构建验证过的
-MinerU 镜像。不要把 GPU 镜像覆盖到默认的 ARM64 `latest` 标签；在 `.env`
-中单独指定 GPU tag：
+MinerU 镜像。GPU 镜像与默认 CPU 多架构 `latest` 分开发布；在 `.env`
+中单独指定 GPU 标签：
 
 ```dotenv
 FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:4.0.0a4-gpu
@@ -131,8 +154,11 @@ docker exec filex-mineru python3 -c 'import torch; assert torch.cuda.is_availabl
 docker exec filex-mineru curl -sf http://127.0.0.1:8080/health/models
 ```
 
-该镜像是 `amd64` GPU 发行包，不能用于 ARM64 主机；ARM64 用户继续使用默认
-`ghcr.io/roamer-remote/filex-mineru:latest`。
+该镜像是 `amd64` GPU 发行包，不能用于 ARM64 主机；无 NVIDIA GPU 的 AMD64
+或 ARM64 主机使用默认 `ghcr.io/roamer-remote/filex-mineru:latest`。
+
+需要显式标注架构时，GPU 同内容别名为
+`ghcr.io/roamer-remote/filex-mineru:4.0.0a4-gpu-amd64`。
 
 GPU 镜像使用 CUDA 11.8 与 PyTorch 2.6.0（`cu118`），兼容 Pascal/GTX 10xx。
 在有 GPU 的环境中，MinerU sidecar 会强制使用 CUDA；CUDA 不可用或 GPU 执行失败时
