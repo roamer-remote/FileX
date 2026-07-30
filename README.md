@@ -304,6 +304,10 @@ docker compose up -d
 
 完整安装、arm64 镜像与可选 rerank 接入说明见 [Docker 安装指南](docs/docker-install.md)。公开演示站仅供体验，请勿上传隐私数据。
 
+NVIDIA GPU 主机请使用独立的 MinerU GPU 镜像 tag，并叠加
+`docker-compose.gpu.yml`；不要覆盖 ARM64 默认的 `latest` 镜像。具体命令见
+[Docker 安装指南](docs/docker-install.md)。
+
 ---
 
 ## <a id="项目状态"></a>项目状态 [↑](#目录)

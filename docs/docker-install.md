@@ -112,6 +112,32 @@ FILEX_POSTGRES_IMAGE=ghcr.io/roamer-remote/filex-postgres:pg16-zh
 
 如果使用私有镜像仓库，可以在 `.env` 中改成自己的镜像地址。
 
+### NVIDIA GPU MinerU
+
+Linux 主机安装 `nvidia-container-toolkit` 后，可使用 whb GPU 环境构建验证过的
+MinerU 镜像。不要把 GPU 镜像覆盖到默认的 ARM64 `latest` 标签；在 `.env`
+中单独指定 GPU tag：
+
+```dotenv
+FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:4.0.0a4-gpu
+```
+
+然后叠加 GPU Compose 配置：
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml pull filex-mineru
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d filex-mineru
+docker exec filex-mineru python3 -c 'import torch; assert torch.cuda.is_available(); print(torch.cuda.get_device_name(0))'
+docker exec filex-mineru curl -sf http://127.0.0.1:8080/health/models
+```
+
+该镜像是 `amd64` GPU 发行包，不能用于 ARM64 主机；ARM64 用户继续使用默认
+`ghcr.io/roamer-remote/filex-mineru:latest`。
+
+注意：NVIDIA 驱动可见不等于所有 GPU 都能执行当前 PyTorch CUDA kernel。
+例如 GTX 10xx（compute capability 6.1）在当前 `cu126` 运行时可能由 MinerU
+自动回退 CPU；如需确认是否真正使用 GPU，应同时检查解析日志中的 GPU fallback。
+
 ## Rerank 说明
 
 当前公开 Docker 发行包默认不启动 Cross-Encoder rerank 服务，`KB_RERANK_URL` 为空。语义检索、全文检索与向量检索仍可正常使用。

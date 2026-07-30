@@ -306,6 +306,10 @@ docker compose up -d
 
 See the [Docker install guide](docs/docker-install.md) for full installation, arm64 image, and optional reranking notes. The public demo is for evaluation only; do not upload sensitive data.
 
+NVIDIA GPU hosts must use the dedicated MinerU GPU image tag and add
+`docker-compose.gpu.yml`; do not replace the ARM64 default `latest` image. See
+the [Docker install guide](docs/docker-install.md) for the exact commands.
+
 ---
 
 ## <a id="project-status"></a>Project Status [↑](#table-of-contents)

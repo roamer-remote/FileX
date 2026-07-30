@@ -1,0 +1,24 @@
+# Optional NVIDIA GPU overlay for the MinerU sidecar.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml pull filex-mineru
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d filex-mineru
+#
+# Set FILEX_MINERU_IMAGE in .env to the GPU-specific tag, for example:
+#   FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:4.0.0a4-gpu
+
+services:
+  filex-mineru:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES:-0}
+      MINERU_DEVICE: cuda
+      OMP_NUM_THREADS: ""
+      MKL_NUM_THREADS: ""
+      OPENBLAS_NUM_THREADS: ""
+      TORCH_NUM_THREADS: ""
