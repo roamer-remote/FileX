@@ -6,7 +6,7 @@
 
 - Docker Desktop 或 Docker Engine
 - Docker Compose v2
-- arm64 服务器或本机 Docker 环境
+- AMD64 或 ARM64 服务器/本机 Docker 环境
 - 至少 16 GB 内存；启用 MinerU 文档解析建议 32 GB
 - 首次启动需要拉取 Ollama embedding 模型，耗时取决于网络
 - 默认 `FILEX_ENV=development` 便于本机试用；生产部署请切到 `production` 并配置授权密钥
@@ -101,8 +101,9 @@ FILEX_LICENSE_HMAC_SECRET=your-license-hmac-secret
 
 ## 镜像说明
 
-默认镜像名在 `.env.example` 中定义。FileX 主服务公开发行包仍按 arm64
-生产环境准备；MinerU CPU 镜像已同时提供 `linux/amd64` 和 `linux/arm64`：
+默认镜像名在 `.env.example` 中定义。FileX 主服务、知识抽取服务、定制
+PostgreSQL 和 MinerU CPU 镜像均同时提供 `linux/amd64` 与 `linux/arm64`，
+Docker 会根据主机架构自动选择对应镜像：
 
 ```dotenv
 FILEX_APP_IMAGE=ghcr.io/roamer-remote/filex-app:${FILEX_VERSION}
@@ -110,6 +111,10 @@ FILEX_EXTRACT_IMAGE=ghcr.io/roamer-remote/filex-kb-extract:${FILEX_VERSION}
 FILEX_MINERU_IMAGE=ghcr.io/roamer-remote/filex-mineru:${FILEX_VERSION}
 FILEX_POSTGRES_IMAGE=ghcr.io/roamer-remote/filex-postgres:pg16-zh
 ```
+
+其中 `filex-app:latest`、`filex-kb-extract:latest` 与
+`filex-postgres:pg16-zh` 是 CPU 多架构镜像，不包含 CUDA 或 NVIDIA
+runtime。AMD64 与 ARM64 主机使用相同的 Compose 配置即可。
 
 如果使用私有镜像仓库，可以在 `.env` 中改成自己的镜像地址。
 
