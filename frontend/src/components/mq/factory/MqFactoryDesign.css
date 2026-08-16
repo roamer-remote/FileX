@@ -1,0 +1,242 @@
+/* 117 — 设计图 PNG 切片 + 动态 overlay（与 dashboard-full SSOT 一致） */
+
+.mq-factory-view {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 4px 0 8px;
+  background: transparent;
+}
+
+.mq-factory-view__pipelines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* —— 车间行（1496×232 切片） —— */
+.mq-design-row {
+  position: relative;
+  width: 100%;
+  max-width: 1496px;
+  margin-inline: auto;
+  user-select: none;
+}
+
+.mq-design-row__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.mq-design-row--expanded {
+  max-width: none;
+}
+
+/* —— 动态 overlay —— */
+.mq-design-overlay {
+  position: absolute;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.mq-design-overlay--metric {
+  font-size: clamp(13px, 1.2vw, 18px);
+  font-weight: 700;
+  color: var(--mq-design-accent, #00a3ff);
+  text-shadow: none;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+  min-width: 1.4em;
+  text-align: center;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mq-design-accent) 25%, transparent);
+}
+
+[data-theme='dark'] .mq-design-overlay--metric {
+  background: color-mix(in srgb, #0f172a 88%, transparent);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--mq-design-accent, #00a3ff) 45%, transparent);
+}
+
+.mq-design-overlay--counter {
+  font-size: clamp(9px, 0.72vw, 11px);
+  font-weight: 800;
+  color: var(--mq-design-accent, #00a3ff);
+  min-width: 1.4em;
+  text-align: center;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--bg-card) 90%, transparent);
+}
+
+[data-theme='dark'] .mq-design-overlay--counter {
+  background: color-mix(in srgb, #0f172a 85%, transparent);
+}
+
+.mq-design-row--extract {
+  --mq-design-accent: #00a3ff;
+}
+
+.mq-design-row--index {
+  --mq-design-accent: #00c853;
+}
+
+.mq-design-row--post {
+  --mq-design-accent: #00bcd4;
+}
+
+.mq-design-overlay--counter.mq-design-overlay--retry {
+  color: #eab308;
+}
+
+.mq-design-overlay--counter.mq-design-overlay--dlq {
+  color: #f87171;
+}
+
+.mq-design-overlay--health {
+  transform: translate(0, 0);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: clamp(8px, 0.65vw, 10px);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--mq-design-accent) 22%, rgba(0, 0, 0, 0.35));
+  border: 1px solid color-mix(in srgb, var(--mq-design-accent) 55%, transparent);
+  color: #fff;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--mq-design-accent) 35%, transparent);
+}
+
+.mq-design-overlay--health-backlog {
+  --mq-design-accent: #faad14;
+}
+
+.mq-design-overlay--health-attention {
+  --mq-design-accent: #f87171;
+}
+
+.mq-design-overlay--bubble {
+  transform: translate(-50%, 0);
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mq-design-accent) 18%, rgba(255, 255, 255, 0.92));
+  border: 1px solid color-mix(in srgb, var(--mq-design-accent) 45%, transparent);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--mq-design-accent) 25%, transparent);
+  font-size: clamp(8px, 0.62vw, 10px);
+  text-align: center;
+  max-width: 100%;
+}
+
+[data-theme='dark'] .mq-design-overlay--bubble {
+  background: color-mix(in srgb, var(--mq-design-accent) 22%, rgba(15, 23, 42, 0.92));
+}
+
+.mq-design-overlay__bubble-user {
+  display: block;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.mq-design-overlay__bubble-file {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.mq-design-hit {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.mq-design-hit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.mq-design-hit--expand {
+  cursor: pointer;
+}
+
+/* —— 支线（1496×162 切片） —— */
+.mq-design-sidecars {
+  position: relative;
+  width: 100%;
+  max-width: 1496px;
+  margin-inline: auto;
+}
+
+.mq-design-sidecars__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.mq-design-overlay--sidecar-metric {
+  transform: translate(0, -50%);
+  display: flex;
+  justify-content: space-around;
+  gap: 4px;
+  font-size: clamp(8px, 0.62vw, 10px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.mq-design-overlay--sidecar-metric span:nth-child(1) {
+  color: #00a3ff;
+}
+
+.mq-design-overlay--sidecar-metric span:nth-child(2) {
+  color: #00c853;
+}
+
+.mq-design-overlay--sidecar-metric span:nth-child(3) {
+  color: #ff8a00;
+}
+
+[data-theme='light'] .mq-design-overlay--metric {
+  text-shadow: none;
+}
+
+.mq-factory-drawer .mq-design-row {
+  max-width: none;
+}
+
+@media (max-width: 768px) {
+  .mq-design-row,
+  .mq-design-sidecars {
+    max-width: 100%;
+  }
+
+  .mq-design-overlay--metric {
+    font-size: 12px;
+  }
+
+  .mq-design-overlay--counter {
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mq-design-row,
+  .mq-design-sidecars {
+    scroll-behavior: auto;
+  }
+}

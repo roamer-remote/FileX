@@ -1,0 +1,24 @@
+# Docling 笔记侧运行层；依赖见 docker/Dockerfile.base（filex-docling-base）
+ARG DOCLING_BASE_IMAGE=filex-docling-base
+FROM ${DOCLING_BASE_IMAGE} AS docling-runtime
+
+WORKDIR /app/sidecar
+
+COPY docker/docling-sidecar/main.py \
+     docker/docling-sidecar/mq_consumer.py \
+     docker/docling-sidecar/docling_runner.py \
+     docker/docling-sidecar/entrypoint.sh \
+     ./
+COPY backend/logging_setup.py ./logging_setup.py
+
+RUN chmod +x entrypoint.sh && mkdir -p /app/logs
+
+ENV DOCLING_MODELS_DIR=/models \
+    DOCLING_CACHE_DIR=/cache \
+    DOCLING_MAX_CONCURRENT=1
+
+HEALTHCHECK CMD curl -f http://127.0.0.1:8080/health || exit 1
+
+EXPOSE 8080
+
+ENTRYPOINT ["./entrypoint.sh"]

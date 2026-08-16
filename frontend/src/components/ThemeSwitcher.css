@@ -1,0 +1,39 @@
+.theme-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.theme-switcher-icon {
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text-secondary);
+}
+
+.theme-switcher-trigger:hover .theme-switcher-icon,
+.theme-switcher-trigger:focus-visible .theme-switcher-icon {
+  color: var(--btn-hover-text-default);
+}
+
+.theme-switcher-caret {
+  font-size: 9px;
+  opacity: 0.55;
+  transition: opacity 0.2s var(--ease-out-expo);
+}
+
+.theme-switcher-trigger:hover .theme-switcher-caret,
+.theme-switcher-trigger:focus-visible .theme-switcher-caret {
+  opacity: 0.85;
+}
+
+.theme-switcher-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  font-size: 12px;
+  line-height: 1;
+}

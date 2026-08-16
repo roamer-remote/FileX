@@ -1,0 +1,157 @@
+.library-map-tab {
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 8px 4px 0;
+  box-sizing: border-box;
+}
+
+.library-map-tab__body {
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.library-map-tab__stats {
+  margin-bottom: 16px;
+}
+
+.library-map-tab__stat-value-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-bottom: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.library-map-tab__stat-value-btn:hover {
+  color: var(--accent);
+}
+
+.library-map-tab__card {
+  margin-bottom: 16px;
+}
+
+.library-map-tab__card .ant-card-head-title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* 卡片内表格 hover 与全站 zebra 一致 */
+.library-map-tab__card .ant-table-tbody > tr:hover > td {
+  background: var(--table-row-hover) !important;
+}
+
+.library-map-tab__tag {
+  margin: 4px 6px 4px 0;
+}
+
+.library-map-tab__suggestions {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--ink-muted, rgba(245, 245, 247, 0.72));
+}
+
+.library-map-tab__suggestions > li {
+  margin-bottom: 8px;
+}
+
+.library-map-tab__related-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 6px;
+}
+
+.library-map-tab__related-files .library-map-tab__file-link {
+  display: inline;
+  max-width: none;
+}
+
+.library-map-tab__file-link {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.library-map-tab__file-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.library-map-tab__note-btn {
+  color: var(--accent);
+}
+
+.library-map-tab__note-btn:hover {
+  color: var(--accent-hover, var(--accent)) !important;
+  background: color-mix(in srgb, var(--accent) 10%, transparent) !important;
+}
+
+.library-map-tab__no-note {
+  color: var(--text-muted);
+}
+
+.library-map-tab__score-value {
+  cursor: help;
+  border-bottom: 1px dashed color-mix(in srgb, var(--text-primary) 35%, transparent);
+}
+
+.library-map-tab__score-tooltip-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.library-map-tab__score-tooltip-total {
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.library-map-tab__card .ant-table-thead .stat-label-with-help__text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.library-map-tab__folder-marquee {
+  display: block;
+  max-width: 100%;
+}
+
+.library-map-tab__slug-linked-hint {
+  margin: 0 0 12px;
+  color: var(--ink-muted, rgba(245, 245, 247, 0.72));
+  font-size: 13px;
+}
+
+.library-map-tab__slug-linked-list-item {
+  padding-inline: 0 !important;
+}
+
+.library-map-tab__slug-linked-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+

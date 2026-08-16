@@ -1,0 +1,80 @@
+# PostgreSQL 16 + pgvector + zhparser（008 中文 FTS）
+# 构建（仓库根目录）:
+#   docker build -f docker/Dockerfile.postgres -t filex-postgres:pg16-zh .
+# 或 compose（filex 镜像 npm 与 postgres GitHub 步骤可注入 BUILD_HTTP_PROXY）:
+#   docker compose -f docker/docker-compose.yml build postgres
+#
+# apt / SCWS 走国内源直连；仅 git clone GitHub（zhparser）在 BUILD_HTTP_PROXY 非空时走宿主机 :7890。
+# 无代理时: docker build ... --build-arg BUILD_HTTP_PROXY= .
+#
+# zhparser 依赖 SCWS（libscws），须先安装 scws 再编译 zhparser（见 amutu/zhparser README）。
+
+FROM docker.m.daocloud.io/pgvector/pgvector:pg16 AS builder
+
+ARG BUILD_HTTP_PROXY=http://host.docker.internal:7890
+ARG SCWS_VERSION=1.2.3
+
+USER root
+
+# apt 走阿里云镜像，不经代理
+RUN set -eux; \
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY all_proxy ALL_PROXY; \
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || true; \
+    sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || true; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        git \
+        wget \
+        bzip2 \
+        ca-certificates \
+        postgresql-server-dev-16; \
+    rm -rf /var/lib/apt/lists/*
+
+# 1) SCWS（xunsearch 国内源，不经代理）
+RUN set -eux; \
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY all_proxy ALL_PROXY; \
+    wget -q -O /tmp/scws.tar.bz2 "http://www.xunsearch.com/scws/down/scws-${SCWS_VERSION}.tar.bz2"; \
+    tar -xjf /tmp/scws.tar.bz2 -C /tmp; \
+    cd "/tmp/scws-${SCWS_VERSION}"; \
+    ./configure --prefix=/usr/local; \
+    make -j"$(nproc)"; \
+    make install; \
+    ldconfig; \
+    test -f /usr/local/include/scws/scws.h
+
+# 2) zhparser（GitHub，仅本步骤按需走 BUILD_HTTP_PROXY）
+ARG BUILD_HTTP_PROXY=http://host.docker.internal:7890
+RUN set -eux; \
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY all_proxy ALL_PROXY; \
+    BUILD_PROXY="${BUILD_HTTP_PROXY}"; \
+    if [ -n "${BUILD_PROXY}" ]; then \
+      export http_proxy="${BUILD_PROXY}" https_proxy="${BUILD_PROXY}" \
+             HTTP_PROXY="${BUILD_PROXY}" HTTPS_PROXY="${BUILD_PROXY}"; \
+    fi; \
+    git clone --depth 1 https://github.com/amutu/zhparser.git /tmp/zhparser; \
+    cd /tmp/zhparser; \
+    make SCWS_HOME=/usr/local; \
+    make SCWS_HOME=/usr/local install; \
+    ldconfig
+
+FROM docker.m.daocloud.io/pgvector/pgvector:pg16
+
+USER root
+COPY --from=builder /usr/lib/postgresql/16/lib/zhparser.so /usr/lib/postgresql/16/lib/
+COPY --from=builder /usr/share/postgresql/16/extension/zhparser* /usr/share/postgresql/16/extension/
+COPY --from=builder /usr/local/lib/libscws.so* /usr/local/lib/
+COPY --from=builder /usr/share/postgresql/16/tsearch_data/ /usr/share/postgresql/16/tsearch_data/
+
+RUN ldconfig 2>/dev/null || true
+
+RUN unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY all_proxy ALL_PROXY; \
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || true && \
+    sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || true && \
+    apt-get update && apt-get install -y --no-install-recommends tzdata \
+    && ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo Asia/Shanghai > /etc/timezone \
+    && rm -rf /var/lib/apt/lists/*
+ENV TZ=Asia/Shanghai
+
+USER postgres

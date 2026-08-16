@@ -1,0 +1,64 @@
+# Example overlay for amd64 hosts with NVIDIA acceleration.
+#
+# Usage:
+#   docker compose \
+#     -f docker/docker-compose.yml \
+#     -f docker/docker-compose.prod.yml \
+#     -f docker/docker-compose.gpu.yml \
+#     -f docker/overrides/amd64-nvidia.example.yml \
+#     up -d
+#
+# Notes:
+# - Leave HTTP proxy values empty on hosts without a reachable
+#   host.docker.internal:7890 proxy.
+# - GTX 1080 / compute capability 6.1 is not compatible with the TEI 1.5 GPU
+#   backend, so rerank uses the CPU TEI image here while MinerU/Docling/Ollama
+#   can still use NVIDIA.
+
+services:
+  filex:
+    environment:
+      OLLAMA_CHAT_MODEL: qwen3.5:9b
+
+  filex-ollama:
+    environment:
+      # GTX 10xx（compute capability 6.1）需固定使用 CUDA 12 runner；
+      # 当前 CUDA 13 runner 未编译 sm_61，会回退到 CPU。
+      OLLAMA_LLM_LIBRARY: cuda_v12
+      OLLAMA_PULL_MODELS: bge-m3:latest,qwen3.5:9b
+
+  filex-docling:
+    environment:
+      DOCLING_HTTP_PROXY: ""
+      DOCLING_HTTPS_PROXY: ""
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      http_proxy: ""
+      https_proxy: ""
+      HF_ENDPOINT: "https://hf-mirror.com"
+      HF_HUB_ENDPOINT: "https://hf-mirror.com"
+
+  filex-mineru:
+    environment:
+      OMP_NUM_THREADS: "12"
+      MKL_NUM_THREADS: "12"
+      OPENBLAS_NUM_THREADS: "12"
+      TORCH_NUM_THREADS: "12"
+
+  kb-indexer:
+    environment:
+      OLLAMA_CHAT_MODEL: qwen3.5:9b
+
+  kb-post:
+    environment:
+      OLLAMA_CHAT_MODEL: qwen3.5:9b
+
+  kb-rerank:
+    image: filex/tei-rerank:cpu-1.9.3
+    environment:
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      http_proxy: ""
+      https_proxy: ""
+      HF_ENDPOINT: "https://hf-mirror.com"
+      HF_HUB_ENDPOINT: "https://hf-mirror.com"

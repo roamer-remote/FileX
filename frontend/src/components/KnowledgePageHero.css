@@ -1,0 +1,101 @@
+.knowledge-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 320px);
+  align-items: start;
+  gap: clamp(16px, 3vw, 32px);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.knowledge-hero__copy {
+  min-width: 0;
+  padding-bottom: 0;
+}
+
+.knowledge-hero__eyebrow {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.knowledge-hero__title-row {
+  margin-top: 4px;
+}
+
+.knowledge-hero__title {
+  margin: 0;
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--text-primary);
+}
+
+.knowledge-hero__visual {
+  width: 100%;
+  max-width: 360px;
+  justify-self: end;
+  align-self: end;
+  pointer-events: none;
+  user-select: none;
+}
+
+.knowledge-hero__visual-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: right bottom;
+  image-rendering: auto;
+}
+
+[data-theme='light'] .knowledge-hero__visual {
+  background: none;
+}
+
+[data-theme='dark'] .knowledge-hero__visual {
+  background: none;
+}
+
+[data-theme='light'] .knowledge-hero__visual-img--dark,
+[data-theme='dark'] .knowledge-hero__visual-img--light {
+  display: none;
+}
+
+[data-theme='light'] .knowledge-hero__visual-img--light {
+  filter: drop-shadow(0 14px 28px rgba(44, 44, 46, 0.14));
+}
+
+[data-theme='dark'] .knowledge-hero__visual-img--dark {
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.38));
+}
+
+@media (max-width: 900px) {
+  .knowledge-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 240px);
+    gap: 16px;
+  }
+
+  .knowledge-hero__visual {
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 720px) {
+  .knowledge-hero {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-bottom: 12px;
+  }
+
+  .knowledge-hero__visual {
+    display: none;
+  }
+}

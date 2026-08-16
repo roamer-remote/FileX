@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>钉技能 · 操作流向图</title>
+  <script>
+  (function () {
+    var html = document.documentElement;
+    html.classList.toggle('is-embed', /[?&]embed=1/.test(location.search));
+
+    function readParentTheme() {
+      try {
+        if (window.parent !== window && window.parent.document.documentElement) {
+          var t = window.parent.document.documentElement.getAttribute('data-theme');
+          if (t === 'dark' || t === 'light') return t;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    function resolveTheme() {
+      var q = new URLSearchParams(location.search).get('theme');
+      if (q === 'dark' || q === 'light') return q;
+      var parent = readParentTheme();
+      if (parent) return parent;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
+    }
+
+    applyTheme(resolveTheme());
+
+    if (/[?&]embed=1/.test(location.search)) {
+      try {
+        var parentRoot = window.parent.document.documentElement;
+        new MutationObserver(function () {
+          var t = parentRoot.getAttribute('data-theme');
+          if (t === 'dark' || t === 'light') applyTheme(t);
+        }).observe(parentRoot, { attributes: true, attributeFilter: ['data-theme'] });
+      } catch (e) {}
+    } else {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+        if (readParentTheme()) return;
+        if (!new URLSearchParams(location.search).get('theme')) {
+          applyTheme(e.matches ? 'dark' : 'light');
+        }
+      });
+    }
+  })();
+  </script>
+  <style>
+    :root,
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1a1d26;
+      --muted: #5c6370;
+      --line: #d8dde6;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --violet: #7c3aed;
+      --violet-soft: #f5f3ff;
+      --rose: #e11d48;
+      --rose-soft: #fff1f2;
+      --cyan: #0891b2;
+      --cyan-soft: #ecfeff;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.04);
+      --radius: 14px;
+      --tab-track-bg: linear-gradient(180deg, #eef2f7 0%, #e8ecf2 100%);
+      --tab-indicator-base: #ffffff;
+      --tab-muted: #64748b;
+      --step-divider: #eef1f5;
+      --on-accent: #ffffff;
+      --tag-neutral: #64748b;
+      --decision-border: #94a3b8;
+      --highlight-warn-border: #fcd34d;
+      --highlight-warn-text: #92400e;
+      --highlight-ok-border: #6ee7b7;
+      --highlight-ok-text: #065f46;
+      --slice-selected-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #14171e;
+      --card: #1c2130;
+      --text: #e8eaed;
+      --muted: #9aa3b2;
+      --line: #2d3548;
+      --accent: #3b82f6;
+      --accent-soft: rgba(37, 99, 235, 0.18);
+      --green: #34d399;
+      --green-soft: rgba(5, 150, 105, 0.18);
+      --amber: #fbbf24;
+      --amber-soft: rgba(217, 119, 6, 0.18);
+      --violet: #a78bfa;
+      --violet-soft: rgba(124, 58, 237, 0.18);
+      --rose: #fb7185;
+      --rose-soft: rgba(225, 29, 72, 0.15);
+      --cyan: #22d3ee;
+      --cyan-soft: rgba(8, 145, 178, 0.18);
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.28);
+      --tab-track-bg: linear-gradient(180deg, #1a2030 0%, #151a26 100%);
+      --tab-indicator-base: #2a3142;
+      --tab-muted: #9aa3b2;
+      --step-divider: rgba(255, 255, 255, 0.06);
+      --on-accent: #ffffff;
+      --tag-neutral: #94a3b8;
+      --decision-border: #64748b;
+      --highlight-warn-border: rgba(251, 191, 36, 0.45);
+      --highlight-warn-text: #fcd34d;
+      --highlight-ok-border: rgba(52, 211, 153, 0.45);
+      --highlight-ok-text: #6ee7b7;
+      --slice-selected-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 28px 20px 48px;
+    }
+
+    html.is-embed body {
+      padding: 0;
+      background: transparent;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    html.is-embed {
+      height: 100%;
+    }
+
+    html.is-embed header { display: none; }
+
+    html.is-embed .wrap {
+      max-width: none;
+      margin: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    html.is-embed .tabs {
+      animation: none;
+      box-shadow: none;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    html.is-embed .tab-nav {
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      padding: 8px 10px 10px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+    }
+
+    html.is-embed .tab-panel {
+      display: none;
+      padding: 16px 14px 20px;
+    }
+
+    html.is-embed .tab-panel.active {
+      display: block;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .wrap { max-width: 980px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      animation: titleIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes titleIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tabs — 分段胶囊 */
+    .tabs {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: tabsIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+    }
+
+    @keyframes tabsIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tab-nav {
+      padding: 14px 14px 0;
+    }
+
+    .tab-list {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 2px;
+      padding: 4px;
+      background: var(--tab-track-bg);
+      border-radius: 12px;
+      position: relative;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-list::-webkit-scrollbar { display: none; }
+
+    .tab-indicator {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: 0;
+      background: linear-gradient(180deg, var(--tab-indicator-base) 0%, var(--accent-soft) 100%);
+      border-radius: 9px;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      box-shadow:
+        0 2px 8px rgba(37, 99, 235, 0.12),
+        0 4px 16px rgba(37, 99, 235, 0.06);
+      transition:
+        left 0.4s cubic-bezier(0.34, 1.25, 0.64, 1),
+        width 0.4s cubic-bezier(0.34, 1.25, 0.64, 1),
+        background 0.35s ease,
+        border-color 0.35s ease,
+        box-shadow 0.35s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .tab-list[data-active="scenes"] .tab-indicator {
+      background: linear-gradient(180deg, var(--tab-indicator-base) 0%, var(--accent-soft) 100%);
+      border-color: rgba(37, 99, 235, 0.22);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.14), 0 4px 16px rgba(37, 99, 235, 0.08);
+    }
+
+    .tab-list[data-active="overview"] .tab-indicator {
+      background: linear-gradient(180deg, var(--tab-indicator-base) 0%, var(--violet-soft) 100%);
+      border-color: rgba(124, 58, 237, 0.22);
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.14), 0 4px 16px rgba(124, 58, 237, 0.08);
+    }
+
+    .tab-list[data-active="paths"] .tab-indicator {
+      background: linear-gradient(180deg, var(--tab-indicator-base) 0%, var(--amber-soft) 100%);
+      border-color: rgba(217, 119, 6, 0.22);
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.14), 0 4px 16px rgba(217, 119, 6, 0.08);
+    }
+
+    .tab-list[data-active="rules"] .tab-indicator {
+      background: linear-gradient(180deg, var(--tab-indicator-base) 0%, var(--green-soft) 100%);
+      border-color: rgba(5, 150, 105, 0.22);
+      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.14), 0 4px 16px rgba(5, 150, 105, 0.08);
+    }
+
+    .tab-btn {
+      flex: 1 1 0;
+      min-width: max(0px, 5.5rem);
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      color: var(--tab-muted);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      border-radius: 9px;
+      transition: color 0.22s, transform 0.15s;
+      white-space: nowrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tab-btn:active { transform: scale(0.96); }
+
+    .tab-btn:hover:not([aria-selected="true"]).tab-scenes { color: var(--accent); }
+    .tab-btn:hover:not([aria-selected="true"]).tab-overview { color: var(--violet); }
+    .tab-btn:hover:not([aria-selected="true"]).tab-paths { color: var(--amber); }
+    .tab-btn:hover:not([aria-selected="true"]).tab-rules { color: var(--green); }
+
+    .tab-btn.tab-scenes[aria-selected="true"] { color: var(--accent); font-weight: 600; }
+    .tab-btn.tab-overview[aria-selected="true"] { color: var(--violet); font-weight: 600; }
+    .tab-btn.tab-paths[aria-selected="true"] { color: var(--amber); font-weight: 600; }
+    .tab-btn.tab-rules[aria-selected="true"] { color: var(--green); font-weight: 600; }
+
+    .tab-panel {
+      display: none;
+      padding: 28px 24px 32px;
+    }
+
+    .tab-panel.active { display: block; }
+
+    /* ---- 面板内顺序动画 ---- */
+    @keyframes revealUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes revealScale {
+      from { opacity: 0; transform: scale(0.92) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes arrowGrow {
+      from { opacity: 0; transform: scaleY(0); }
+      to { opacity: 1; transform: scaleY(1); }
+    }
+
+    @keyframes dotPop {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes pulseRing {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.35); }
+      50% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+    }
+
+    .panel-animate .legend span,
+    .panel-animate .panel-intro,
+    .panel-animate .branch-card,
+    .panel-animate .feature-tile,
+    .panel-animate .principles li,
+    .panel-animate .highlight-box {
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    .panel-animate .legend span {
+      animation-name: revealScale;
+      animation-duration: 0.4s;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .panel-animate .legend span:nth-child(1) { animation-delay: 0.05s; }
+    .panel-animate .legend span:nth-child(2) { animation-delay: 0.12s; }
+    .panel-animate .legend span:nth-child(3) { animation-delay: 0.19s; }
+    .panel-animate .legend span:nth-child(4) { animation-delay: 0.26s; }
+    .panel-animate .legend span:nth-child(5) { animation-delay: 0.33s; }
+
+    .panel-animate .legend span .dot {
+      animation: dotPop 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .panel-animate .panel-intro {
+      animation: revealUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+    }
+
+    /* ---- 总览流程：图例 → 三节点自上而下依次出现 ---- */
+    @keyframes flowNodeIn {
+      from { opacity: 0; transform: translateY(14px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes flowLinkIn {
+      from { opacity: 0; transform: scaleY(0); }
+      to { opacity: 1; transform: scaleY(1); }
+    }
+
+    @keyframes flowInnerIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #panel-overview.panel-animate .flow-node,
+    #panel-overview.panel-animate .flow-link,
+    #panel-overview.panel-animate .flow-node .tag,
+    #panel-overview.panel-animate .flow-node h3,
+    #panel-overview.panel-animate .flow-node p,
+    #panel-overview.panel-animate .flow-node .examples {
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    #panel-overview.panel-animate .flow-node-1 {
+      animation: flowNodeIn 0.48s cubic-bezier(0.22, 1, 0.36, 1) 0.36s forwards;
+    }
+    #panel-overview.panel-animate .flow-node-1 .tag { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 0.48s forwards; }
+    #panel-overview.panel-animate .flow-node-1 h3 { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 0.54s forwards; }
+    #panel-overview.panel-animate .flow-node-1 p { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 0.60s forwards; }
+    #panel-overview.panel-animate .flow-node-1 .examples { animation: flowInnerIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.68s forwards; }
+
+    #panel-overview.panel-animate .flow-link-1 {
+      transform-origin: top center;
+      animation: flowLinkIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) 0.82s forwards;
+    }
+
+    #panel-overview.panel-animate .flow-node-2 {
+      animation: flowNodeIn 0.48s cubic-bezier(0.22, 1, 0.36, 1) 0.98s forwards;
+    }
+    #panel-overview.panel-animate .flow-node-2 .tag { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 1.08s forwards; }
+    #panel-overview.panel-animate .flow-node-2 h3 { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 1.14s forwards; }
+    #panel-overview.panel-animate .flow-node-2 p { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 1.20s forwards; }
+
+    #panel-overview.panel-animate .flow-link-2 {
+      transform-origin: top center;
+      animation: flowLinkIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) 1.38s forwards;
+    }
+
+    #panel-overview.panel-animate .flow-node-3 {
+      animation: flowNodeIn 0.48s cubic-bezier(0.22, 1, 0.36, 1) 1.54s forwards;
+    }
+    #panel-overview.panel-animate .flow-node-3 .tag { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 1.64s forwards; }
+    #panel-overview.panel-animate .flow-node-3 h3 { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 1.70s forwards; }
+    #panel-overview.panel-animate .flow-node-3 p { animation: flowInnerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) 1.76s forwards; }
+    #panel-overview.panel-animate .flow-node-3 .examples { animation: flowInnerIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) 1.84s forwards; }
+
+    #panel-overview.panel-animate .flow-node-1.start {
+      animation: flowNodeIn 0.48s cubic-bezier(0.22, 1, 0.36, 1) 0.36s forwards,
+                 pulseRing 1.8s ease-in-out 1.05s 1;
+    }
+
+    .panel-animate .branches .branch-card {
+      animation: revealScale 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .panel-animate .branches .branch-card:nth-child(1) { animation-delay: 0.08s; }
+    .panel-animate .branches .branch-card:nth-child(2) { animation-delay: 0.16s; }
+    .panel-animate .branches .branch-card:nth-child(3) { animation-delay: 0.24s; }
+    .panel-animate .branches .branch-card:nth-child(4) { animation-delay: 0.32s; }
+    .panel-animate .branches .branch-card:nth-child(5) { animation-delay: 0.40s; }
+    .panel-animate .branches .branch-card:nth-child(6) { animation-delay: 0.48s; }
+
+    .panel-animate .branch-card .steps li {
+      opacity: 0;
+      animation: stepIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .panel-animate .branch-card .steps li:nth-child(1) { animation-delay: calc(var(--card-delay, 0.3s) + 0.05s); }
+    .panel-animate .branch-card .steps li:nth-child(2) { animation-delay: calc(var(--card-delay, 0.3s) + 0.13s); }
+    .panel-animate .branch-card .steps li:nth-child(3) { animation-delay: calc(var(--card-delay, 0.3s) + 0.21s); }
+    .panel-animate .branch-card .steps li:nth-child(4) { animation-delay: calc(var(--card-delay, 0.3s) + 0.29s); }
+    .panel-animate .branch-card .steps li:nth-child(5) { animation-delay: calc(var(--card-delay, 0.3s) + 0.37s); }
+
+    .panel-animate .branches .branch-card:nth-child(1) { --card-delay: 0.25s; }
+    .panel-animate .branches .branch-card:nth-child(2) { --card-delay: 0.35s; }
+    .panel-animate .branches .branch-card:nth-child(3) { --card-delay: 0.45s; }
+    .panel-animate .branches .branch-card:nth-child(4) { --card-delay: 0.55s; }
+    .panel-animate .branches .branch-card:nth-child(5) { --card-delay: 0.65s; }
+    .panel-animate .branches .branch-card:nth-child(6) { --card-delay: 0.75s; }
+
+    .panel-animate .feature-tile {
+      animation: revealScale 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .panel-animate .feature-tiles .feature-tile:nth-child(1) { animation-delay: 0.06s; }
+    .panel-animate .feature-tiles .feature-tile:nth-child(2) { animation-delay: 0.12s; }
+    .panel-animate .feature-tiles .feature-tile:nth-child(3) { animation-delay: 0.18s; }
+    .panel-animate .feature-tiles .feature-tile:nth-child(4) { animation-delay: 0.24s; }
+    .panel-animate .feature-tiles .feature-tile:nth-child(5) { animation-delay: 0.30s; }
+    .panel-animate .feature-tiles .feature-tile:nth-child(6) { animation-delay: 0.36s; }
+
+    .panel-animate .feature-detail.active .feature-detail-head {
+      opacity: 0;
+      animation: revealUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.32s forwards;
+    }
+
+    .panel-animate .feature-detail.active .timeline li {
+      opacity: 0;
+      animation: stepIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .panel-animate .feature-detail.active .timeline li:nth-child(1) { animation-delay: 0.4s; }
+    .panel-animate .feature-detail.active .timeline li:nth-child(2) { animation-delay: 0.48s; }
+    .panel-animate .feature-detail.active .timeline li:nth-child(3) { animation-delay: 0.56s; }
+    .panel-animate .feature-detail.active .timeline li:nth-child(4) { animation-delay: 0.64s; }
+    .panel-animate .feature-detail.active .timeline li:nth-child(5) { animation-delay: 0.72s; }
+
+    .panel-animate .feature-detail.active .highlight-box {
+      animation-delay: 0.78s;
+    }
+
+    .panel-animate.scene-switch .feature-detail.active .feature-detail-head {
+      animation-delay: 0s !important;
+    }
+    .panel-animate.scene-switch .feature-detail.active .timeline li:nth-child(1) { animation-delay: 0.05s !important; }
+    .panel-animate.scene-switch .feature-detail.active .timeline li:nth-child(2) { animation-delay: 0.12s !important; }
+    .panel-animate.scene-switch .feature-detail.active .timeline li:nth-child(3) { animation-delay: 0.19s !important; }
+    .panel-animate.scene-switch .feature-detail.active .timeline li:nth-child(4) { animation-delay: 0.26s !important; }
+    .panel-animate.scene-switch .feature-detail.active .timeline li:nth-child(5) { animation-delay: 0.33s !important; }
+    .panel-animate.scene-switch .feature-detail.active .highlight-box {
+      animation-delay: 0.4s !important;
+    }
+    .panel-animate.scene-switch .feature-tile {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .panel-animate .principles li {
+      animation: revealUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .panel-animate .principles li:nth-child(1) { animation-delay: 0.08s; }
+    .panel-animate .principles li:nth-child(2) { animation-delay: 0.16s; }
+    .panel-animate .principles li:nth-child(3) { animation-delay: 0.24s; }
+    .panel-animate .principles li:nth-child(4) { animation-delay: 0.32s; }
+    .panel-animate .principles li:nth-child(5) { animation-delay: 0.40s; }
+    .panel-animate .principles li:nth-child(6) { animation-delay: 0.48s; }
+
+    .panel-animate .scene-panels .scene-panel.active .branch-card {
+      opacity: 0;
+      animation: revealScale 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.28s forwards;
+    }
+
+    .panel-animate .scene-panels .scene-panel.active .steps li {
+      opacity: 0;
+      animation: stepIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .panel-animate .scene-panels .scene-panel.active .steps li:nth-child(1) { animation-delay: 0.38s; }
+    .panel-animate .scene-panels .scene-panel.active .steps li:nth-child(2) { animation-delay: 0.48s; }
+    .panel-animate .scene-panels .scene-panel.active .steps li:nth-child(3) { animation-delay: 0.58s; }
+    .panel-animate .scene-panels .scene-panel.active .steps li:nth-child(4) { animation-delay: 0.68s; }
+    .panel-animate .scene-panels .scene-panel.active .steps li:nth-child(5) { animation-delay: 0.78s; }
+
+    .panel-animate .highlight-box {
+      animation: revealUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+    }
+
+    .panel-animate.scene-switch .scene-panels .scene-panel.active .branch-card {
+      animation-delay: 0s !important;
+    }
+    .panel-animate.scene-switch .scene-panels .scene-panel.active .steps li:nth-child(1) { animation-delay: 0.05s !important; }
+    .panel-animate.scene-switch .scene-panels .scene-panel.active .steps li:nth-child(2) { animation-delay: 0.12s !important; }
+    .panel-animate.scene-switch .scene-panels .scene-panel.active .steps li:nth-child(3) { animation-delay: 0.19s !important; }
+    .panel-animate.scene-switch .scene-panels .scene-panel.active .steps li:nth-child(4) { animation-delay: 0.26s !important; }
+    .panel-animate.scene-switch .scene-panels .scene-panel.active .steps li:nth-child(5) { animation-delay: 0.33s !important; }
+    .panel-animate.scene-switch .scene-slice-btn,
+    .panel-animate.scene-switch .panel-intro {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 12px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+    .arrow {
+      width: 2px;
+      height: 28px;
+      background: var(--line);
+      position: relative;
+    }
+
+    .arrow::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: var(--line);
+    }
+
+    .node {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .tab-panel .node { background: var(--bg); box-shadow: none; }
+    .tab-panel .node.start {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--accent-soft), var(--bg));
+    }
+
+    .node.decision {
+      border-style: dashed;
+      border-color: var(--decision-border);
+      max-width: 560px;
+    }
+
+    .node .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    .node h3 {
+      font-size: 1.05rem;
+      font-weight: 650;
+      margin-bottom: 6px;
+    }
+
+    .node p {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .node .examples {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text);
+      background: var(--card);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .panel-intro {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .branches {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      width: 100%;
+    }
+
+    .branch-card {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .branch-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .branch-head h4 {
+      font-size: 0.98rem;
+      font-weight: 650;
+    }
+
+    .branch-head p {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .steps {
+      list-style: none;
+      padding: 12px 18px 16px;
+      counter-reset: step;
+    }
+
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding: 10px 0 10px 36px;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--step-divider);
+    }
+
+    .steps li:last-child { border-bottom: none; }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--on-accent);
+    }
+
+    .steps li strong { display: block; font-weight: 600; margin-bottom: 2px; }
+    .steps li span { color: var(--muted); font-size: 0.82rem; }
+
+    .theme-blue .steps li::before { background: var(--accent); }
+    .theme-blue .branch-head { background: var(--accent-soft); }
+    .theme-green .steps li::before { background: var(--green); }
+    .theme-green .branch-head { background: var(--green-soft); }
+    .theme-amber .steps li::before { background: var(--amber); }
+    .theme-amber .branch-head { background: var(--amber-soft); }
+    .theme-violet .steps li::before { background: var(--violet); }
+    .theme-violet .branch-head { background: var(--violet-soft); }
+    .theme-cyan .steps li::before { background: var(--cyan); }
+    .theme-cyan .branch-head { background: var(--cyan-soft); }
+    .theme-rose .steps li::before { background: var(--rose); }
+    .theme-rose .branch-head { background: var(--rose-soft); }
+
+    .principles {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px 26px;
+    }
+
+    .principles ul {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .principles li {
+      font-size: 0.9rem;
+      padding-left: 22px;
+      position: relative;
+    }
+
+    .principles li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .highlight-box {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    .highlight-box.warn {
+      background: var(--amber-soft);
+      border: 1px solid var(--highlight-warn-border);
+      color: var(--highlight-warn-text);
+    }
+
+    .highlight-box.ok {
+      background: var(--green-soft);
+      border: 1px solid var(--highlight-ok-border);
+      color: var(--highlight-ok-text);
+    }
+
+    /* 典型场景 · 横向切片 */
+    .scene-slices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 4px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .scene-slice-btn {
+      padding: 12px 10px;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      color: var(--muted);
+    }
+
+    .scene-slice-btn:active { transform: scale(0.98); }
+
+    .scene-slice-btn .slice-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+    }
+
+    .scene-slice-btn .slice-title {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 550;
+      line-height: 1.35;
+    }
+
+    .scene-slice-btn[aria-selected="true"] {
+      background: var(--card);
+      box-shadow: var(--slice-selected-shadow);
+      color: var(--text);
+    }
+
+    .scene-slice-btn.slice-a[aria-selected="true"] { color: var(--accent); }
+    .scene-slice-btn.slice-a[aria-selected="true"] .slice-label { color: var(--accent); }
+    .scene-slice-btn.slice-b[aria-selected="true"] { color: var(--green); }
+    .scene-slice-btn.slice-b[aria-selected="true"] .slice-label { color: var(--green); }
+    .scene-slice-btn.slice-c[aria-selected="true"] { color: var(--amber); }
+    .scene-slice-btn.slice-c[aria-selected="true"] .slice-label { color: var(--amber); }
+
+    .scene-panels { position: relative; min-height: 280px; }
+
+    .scene-panel {
+      display: none;
+    }
+
+    .scene-panel.active {
+      display: block;
+      animation: scenePanelIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes scenePanelIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .scene-panel .branch-card { background: var(--card); box-shadow: var(--shadow); }
+
+    .scene-quote {
+      font-size: 0.92rem;
+      color: var(--text);
+      background: var(--bg);
+      border-left: 3px solid var(--line);
+      padding: 10px 14px;
+      margin: 0 18px 12px;
+      border-radius: 0 8px 8px 0;
+      font-style: normal;
+    }
+
+    .scene-panel.theme-blue .scene-quote { border-left-color: var(--accent); }
+    .scene-panel.theme-green .scene-quote { border-left-color: var(--green); }
+    .scene-panel.theme-amber .scene-quote { border-left-color: var(--amber); }
+
+    .panel-animate .scene-slice-btn {
+      opacity: 0;
+      animation: revealScale 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .panel-animate .scene-slices .scene-slice-btn:nth-child(1) { animation-delay: 0.06s; }
+    .panel-animate .scene-slices .scene-slice-btn:nth-child(2) { animation-delay: 0.14s; }
+    .panel-animate .scene-slices .scene-slice-btn:nth-child(3) { animation-delay: 0.22s; }
+
+    @media (max-width: 720px) {
+      .scene-slices {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+      .scene-slice-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-align: left;
+        padding: 10px 14px;
+      }
+      .scene-slice-btn .slice-label { margin-bottom: 0; flex-shrink: 0; }
+    }
+
+    /* 常用功能 · Bento 磁贴 + 时间线 */
+    .feature-tiles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .feature-tile {
+      position: relative;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.15s, background 0.2s;
+    }
+
+    .feature-tile:active { transform: scale(0.98); }
+
+    .feature-tile::before {
+      content: "";
+      display: block;
+      height: 3px;
+      background: var(--feature-accent, var(--accent));
+    }
+
+    .feature-tile-body {
+      padding: 12px 14px 14px;
+    }
+
+    .feature-tile-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .feature-tile-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--feature-accent, var(--accent));
+      flex-shrink: 0;
+    }
+
+    .feature-tile-label {
+      font-size: 0.9rem;
+      font-weight: 650;
+      color: var(--text);
+    }
+
+    .feature-tile-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .feature-tile-hint {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .feature-tile[aria-selected="true"] {
+      border-color: var(--feature-accent, var(--accent));
+      background: var(--feature-soft, var(--accent-soft));
+    }
+
+    .feature-tile[aria-selected="true"] .feature-tile-label {
+      color: var(--feature-accent, var(--accent));
+    }
+
+    .feature-tile.theme-blue { --feature-accent: var(--accent); --feature-soft: var(--accent-soft); }
+    .feature-tile.theme-green { --feature-accent: var(--green); --feature-soft: var(--green-soft); }
+    .feature-tile.theme-amber { --feature-accent: var(--amber); --feature-soft: var(--amber-soft); }
+    .feature-tile.theme-violet { --feature-accent: var(--violet); --feature-soft: var(--violet-soft); }
+    .feature-tile.theme-cyan { --feature-accent: var(--cyan); --feature-soft: var(--cyan-soft); }
+    .feature-tile.theme-rose { --feature-accent: var(--rose); --feature-soft: var(--rose-soft); }
+
+    .feature-details { position: relative; min-height: 200px; }
+
+    .feature-detail {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .feature-detail.active {
+      display: block;
+      animation: scenePanelIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .feature-detail-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--feature-soft, var(--bg));
+    }
+
+    .feature-detail-head h4 {
+      font-size: 1rem;
+      font-weight: 650;
+      margin-bottom: 4px;
+    }
+
+    .feature-detail-head p {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .feature-detail.theme-blue { --feature-accent: var(--accent); --feature-soft: var(--accent-soft); }
+    .feature-detail.theme-green { --feature-accent: var(--green); --feature-soft: var(--green-soft); }
+    .feature-detail.theme-amber { --feature-accent: var(--amber); --feature-soft: var(--amber-soft); }
+    .feature-detail.theme-violet { --feature-accent: var(--violet); --feature-soft: var(--violet-soft); }
+    .feature-detail.theme-cyan { --feature-accent: var(--cyan); --feature-soft: var(--cyan-soft); }
+    .feature-detail.theme-rose { --feature-accent: var(--rose); --feature-soft: var(--rose-soft); }
+
+    .timeline {
+      list-style: none;
+      padding: 18px 20px 8px;
+      margin: 0;
+    }
+
+    .timeline li {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 14px;
+      padding: 0 0 20px;
+      position: relative;
+      font-size: 0.88rem;
+      border: none;
+    }
+
+    .timeline li::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--feature-accent, var(--accent));
+      margin-top: 5px;
+      position: static;
+      counter-increment: none;
+      grid-column: 1;
+      grid-row: 1;
+      align-self: start;
+    }
+
+    .timeline li:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 18px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .timeline li strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 3px;
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    .timeline li span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      grid-column: 2;
+      grid-row: 2;
+      min-width: 0;
+    }
+
+    .feature-detail .highlight-box {
+      margin: 0 20px 18px;
+    }
+
+    @media (max-width: 720px) {
+      .feature-tiles {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .feature-tiles {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .tab-nav { padding: 12px 10px 0; }
+      .tab-btn {
+        flex: 0 0 auto;
+        min-width: 0;
+        font-size: 0.82rem;
+        padding: 10px 14px;
+      }
+      .tab-panel { padding: 20px 16px 24px; }
+    }
+
+    @media print {
+      body { background: #fff; padding: 16px; }
+      .tab-list { display: none; }
+      .tab-indicator { display: none; }
+      .tab-panel { display: block !important; page-break-inside: avoid; padding: 16px 0; border-top: 1px solid var(--line); }
+      .tab-panel::before { content: attr(data-print-title); display: block; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+      .scene-slices { display: none; }
+      .feature-tiles { display: none; }
+      .scene-panel { display: block !important; page-break-inside: avoid; margin-bottom: 20px; }
+      .feature-detail { display: block !important; page-break-inside: avoid; margin-bottom: 20px; }
+      .scene-panel[hidden] { display: block !important; }
+      .feature-detail[hidden] { display: block !important; }
+      .panel-animate .legend span,
+      .panel-animate .branch-card,
+      .panel-animate .principles li,
+      .panel-animate .branch-card .steps li,
+      .panel-animate .highlight-box,
+      .panel-animate .panel-intro,
+      .panel-animate .scene-slice-btn,
+      .panel-animate .scene-panels .scene-panel .branch-card,
+      .panel-animate .scene-panels .scene-panel .steps li,
+      #panel-overview.panel-animate .flow-node,
+      #panel-overview.panel-animate .flow-link,
+      #panel-overview.panel-animate .flow-node .tag,
+      #panel-overview.panel-animate .flow-node h3,
+      #panel-overview.panel-animate .flow-node p,
+      #panel-overview.panel-animate .flow-node .examples {
+        opacity: 1 !important;
+        animation: none !important;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>钉技能 · 操作流向图</h1>
+    </header>
+
+    <div class="tabs">
+      <nav class="tab-nav" aria-label="钉技能流程章节">
+        <div class="tab-list" role="tablist" data-active="scenes">
+          <div class="tab-indicator" id="tab-indicator" aria-hidden="true"></div>
+          <button class="tab-btn tab-scenes" role="tab" id="tab-scenes" aria-selected="true" aria-controls="panel-scenes">典型场景</button>
+          <button class="tab-btn tab-overview" role="tab" id="tab-overview" aria-selected="false" aria-controls="panel-overview">总览</button>
+          <button class="tab-btn tab-paths" role="tab" id="tab-paths" aria-selected="false" aria-controls="panel-paths">常用功能</button>
+          <button class="tab-btn tab-rules" role="tab" id="tab-rules" aria-selected="false" aria-controls="panel-rules">决策规则</button>
+        </div>
+      </nav>
+
+      <!-- 典型场景 -->
+      <div class="tab-panel active" role="tabpanel" id="panel-scenes" aria-labelledby="tab-scenes" data-print-title="三个典型场景">
+        <div class="scene-slices" role="tablist" aria-label="典型场景切片">
+          <button class="scene-slice-btn slice-a" role="tab" id="scene-tab-a" aria-selected="true" aria-controls="scene-panel-a" data-scene="a">
+            <span class="slice-label">场景 A</span>
+            <span class="slice-title">查资料库</span>
+          </button>
+          <button class="scene-slice-btn slice-b" role="tab" id="scene-tab-b" aria-selected="false" aria-controls="scene-panel-b" data-scene="b">
+            <span class="slice-label">场景 B</span>
+            <span class="slice-title">外网入库</span>
+          </button>
+          <button class="scene-slice-btn slice-c" role="tab" id="scene-tab-c" aria-selected="false" aria-controls="scene-panel-c" data-scene="c">
+            <span class="slice-label">场景 C</span>
+            <span class="slice-title">链接入库</span>
+          </button>
+        </div>
+
+        <div class="scene-panels">
+          <div class="scene-panel theme-blue active" role="tabpanel" id="scene-panel-a" aria-labelledby="scene-tab-a">
+            <div class="branch-card theme-blue">
+              <div class="branch-head">
+                <h4>场景 A · 查资料库</h4>
+              </div>
+              <p class="scene-quote">「钉一下：发票报销要哪些材料？」</p>
+              <ol class="steps">
+                <li><strong>识别为查资料库</strong><span>未提到外网，走默认路径</span></li>
+                <li><strong>语义搜索「报销」「发票」「材料」</strong><span>找到内规或制度文件相关段落</span></li>
+                <li><strong>必要时读完整笔记</strong><span>表格、清单类问题会补读全文</span></li>
+                <li><strong>回复并标注出处</strong><span>例：「根据《财务报销制度》第 3 页……」</span></li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="scene-panel theme-green" role="tabpanel" id="scene-panel-b" aria-labelledby="scene-tab-b" hidden>
+            <div class="branch-card theme-green">
+              <div class="branch-head">
+                <h4>场景 B · 外网入库</h4>
+              </div>
+              <p class="scene-quote">「帮我在 PubMed 找 CRISPR 最新论文，入库打标」</p>
+              <ol class="steps">
+                <li><strong>识别为外网 + 入库组合任务</strong><span>先 PubMed 检索（或您要求时先查库）</span></li>
+                <li><strong>整理论文清单</strong><span>题名、作者、期刊、链接</span></li>
+                <li><strong>下载并上传资料库</strong><span>确认存放文件夹</span></li>
+                <li><strong>双路合成笔记 + 打标签</strong><span>如「CRISPR」「基因编辑」</span></li>
+                <li><strong>校验完成后汇报</strong><span>告知文件编号与存放位置</span></li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="scene-panel theme-amber" role="tabpanel" id="scene-panel-c" aria-labelledby="scene-tab-c" hidden>
+            <div class="branch-card theme-amber">
+              <div class="branch-head">
+                <h4>场景 C · 链接入库</h4>
+              </div>
+              <p class="scene-quote">「把这个链接存进资料库：https://…」</p>
+              <ol class="steps">
+                <li><strong>识别为链接入库</strong></li>
+                <li><strong>打开网页并保存</strong><span>网页转 PDF 或下载原文件</span></li>
+                <li><strong>通读内容、起中文文件名</strong></li>
+                <li><strong>上传 → 等待提取 → 双路合成</strong></li>
+                <li><strong>校验写回、汇报文件编号与来源链接</strong></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 总览 -->
+      <div class="tab-panel" role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" hidden data-print-title="总览">
+        <div class="legend">
+          <span><i class="dot" style="background:var(--accent)"></i> 查资料库（默认）</span>
+          <span><i class="dot" style="background:var(--green)"></i> 外网检索</span>
+          <span><i class="dot" style="background:var(--amber)"></i> 入库整理</span>
+          <span><i class="dot" style="background:var(--violet)"></i> 链接入库</span>
+          <span><i class="dot" style="background:var(--cyan)"></i> 待处理 / Wiki</span>
+        </div>
+
+        <div class="flow">
+          <div class="node start flow-node flow-node-1">
+            <span class="tag" style="background:var(--accent);color:var(--on-accent)">开始</span>
+            <h3>您对智能体发出指令</h3>
+            <p>说「钉一下」「/ding」，或直接描述需求</p>
+            <div class="examples">
+              例：「钉一下：报销流程是什么？」「帮我把这篇 PubMed 文献入库」「整理待处理的文件」
+            </div>
+          </div>
+
+          <div class="arrow flow-link flow-link-1" aria-hidden="true"></div>
+
+          <div class="node flow-node flow-node-2">
+            <span class="tag" style="background:var(--tag-neutral);color:var(--on-accent)">准备</span>
+            <h3>确认能访问您的资料库</h3>
+            <p>智能体核对访问权限，并告知当前使用的是哪个账号的资料</p>
+          </div>
+
+          <div class="arrow flow-link flow-link-2" aria-hidden="true"></div>
+
+          <div class="node decision flow-node flow-node-3">
+            <span class="tag" style="background:var(--tag-neutral);color:var(--on-accent)">分岔</span>
+            <h3>理解您想做什么？</h3>
+            <p>根据您的说法，自动选择其中一条处理路径</p>
+            <div class="examples">
+              <strong>默认原则：</strong>查、问、找、总结 → 一律<strong>先查资料库</strong>，不会悄悄去网上搜。<br>
+              只有您明确说「外网 / 联网 / PubMed」等，才会走外网检索。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 常用功能 -->
+      <div class="tab-panel" role="tabpanel" id="panel-paths" aria-labelledby="tab-paths" hidden data-print-title="常用功能">
+        <div class="feature-tiles" role="tablist" aria-label="常用功能选择">
+          <button class="feature-tile theme-blue" type="button" role="tab" data-feature="kb" aria-selected="true" aria-controls="feature-kb">
+            <div class="feature-tile-body">
+              <div class="feature-tile-top">
+                <i class="feature-tile-dot"></i>
+                <span class="feature-tile-label">查资料库</span>
+                <span class="feature-tile-badge">默认</span>
+              </div>
+              <span class="feature-tile-hint">查一下、有没有、总结对比</span>
+            </div>
+          </button>
+          <button class="feature-tile theme-green" type="button" role="tab" data-feature="research" aria-selected="false" aria-controls="feature-research">
+            <div class="feature-tile-body">
+              <div class="feature-tile-top">
+                <i class="feature-tile-dot"></i>
+                <span class="feature-tile-label">外网检索</span>
+              </div>
+              <span class="feature-tile-hint">PubMed、联网、最新论文</span>
+            </div>
+          </button>
+          <button class="feature-tile theme-amber" type="button" role="tab" data-feature="maintain" aria-selected="false" aria-controls="feature-maintain">
+            <div class="feature-tile-body">
+              <div class="feature-tile-top">
+                <i class="feature-tile-dot"></i>
+                <span class="feature-tile-label">入库整理</span>
+              </div>
+              <span class="feature-tile-hint">上传、打标签、维护库</span>
+            </div>
+          </button>
+          <button class="feature-tile theme-violet" type="button" role="tab" data-feature="url" aria-selected="false" aria-controls="feature-url">
+            <div class="feature-tile-body">
+              <div class="feature-tile-top">
+                <i class="feature-tile-dot"></i>
+                <span class="feature-tile-label">链接入库</span>
+              </div>
+              <span class="feature-tile-hint">网页或 PDF 链接存库</span>
+            </div>
+          </button>
+          <button class="feature-tile theme-cyan" type="button" role="tab" data-feature="pending" aria-selected="false" aria-controls="feature-pending">
+            <div class="feature-tile-body">
+              <div class="feature-tile-top">
+                <i class="feature-tile-dot"></i>
+                <span class="feature-tile-label">待处理</span>
+              </div>
+              <span class="feature-tile-hint">无笔记、无标签清单</span>
+            </div>
+          </button>
+          <button class="feature-tile theme-rose" type="button" role="tab" data-feature="wiki" aria-selected="false" aria-controls="feature-wiki">
+            <div class="feature-tile-body">
+              <div class="feature-tile-top">
+                <i class="feature-tile-dot"></i>
+                <span class="feature-tile-label">Wiki</span>
+              </div>
+              <span class="feature-tile-hint">体检、断链、主题页</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="feature-details">
+          <div class="feature-detail theme-blue active" role="tabpanel" id="feature-kb">
+            <div class="feature-detail-head">
+              <h4>查资料库（最常见）</h4>
+              <p>查一下、有没有、帮我总结、对比……（未要求外网时）</p>
+            </div>
+            <ol class="timeline">
+              <li><strong>在资料库语义搜索</strong><span>按「意思」找相关段落，不是只搜文件名</span></li>
+              <li><strong>补读关联资料</strong><span>若资料之间有主题链接，会一并展开阅读</span></li>
+              <li><strong>整理证据、核对原文</strong><span>只依据库内真实内容，不用 AI 记忆瞎编</span></li>
+              <li><strong>带出处回复您</strong><span>回答中注明文件名、页码或段落位置，方便您核对</span></li>
+            </ol>
+            <div class="highlight-box warn">
+              <strong>资料库没找到？</strong><br>
+              会如实告诉您「库内未找到」，并<strong>询问</strong>是否要去外网搜索——不会擅自联网。
+            </div>
+          </div>
+
+          <div class="feature-detail theme-green" role="tabpanel" id="feature-research" hidden>
+            <div class="feature-detail-head">
+              <h4>外网 / 文献检索</h4>
+              <p>您明确说：外网、联网、PubMed、PMID、最新论文……</p>
+            </div>
+            <ol class="timeline">
+              <li><strong>（可选）先查一遍资料库</strong><span>若您说「库里查完再去外网」，会先查库</span></li>
+              <li><strong>在外网或 PubMed 搜索</strong><span>找到公开网页、论文、报告等来源</span></li>
+              <li><strong>整理成清单表格</strong><span>标题、来源、链接、摘要要点一目了然</span></li>
+              <li><strong>（可选）您确认后入库</strong><span>若要把外网资料存进库，再走「入库整理」流程</span></li>
+            </ol>
+          </div>
+
+          <div class="feature-detail theme-amber" role="tabpanel" id="feature-maintain" hidden>
+            <div class="feature-detail-head">
+              <h4>文件入库 / 整理</h4>
+              <p>上传、入库、打标签、整理、维护知识库……</p>
+            </div>
+            <ol class="timeline">
+              <li><strong>确认存放位置</strong><span>选哪个资料库、哪个文件夹；智能匹配或请您确认</span></li>
+              <li><strong>上传或接收文件</strong><span>PDF、Office、图片、文本等</span></li>
+              <li><strong>等待系统提取正文</strong><span>自动 OCR、解析表格与段落（复杂文件需稍等）</span></li>
+              <li><strong>双路合成笔记</strong><span>专员文案处理流程（系统自动提取正文）与专业审核修订流程（AI 通读原文并整理结构）并行，合并为带「## 总结」的结构化资料笔记</span></li>
+              <li><strong>打标签、写回资料库</strong><span>校验通过后，才向您汇报「入库完成」</span></li>
+            </ol>
+            <div class="highlight-box ok">
+              <strong>已有资料要整理？</strong><br>
+              若笔记末尾已有「## 总结」定稿标记 → 跳过重写，只补标签或移动位置。<br>
+              否则重新走双路合成，更新笔记。
+            </div>
+          </div>
+
+          <div class="feature-detail theme-violet" role="tabpanel" id="feature-url" hidden>
+            <div class="feature-detail-head">
+              <h4>链接入库</h4>
+              <p>给一个网页或 PDF 链接，存成库内资料</p>
+            </div>
+            <ol class="timeline">
+              <li><strong>打开链接、保存为文件</strong><span>网页会转成 PDF 保存；直链则直接下载</span></li>
+              <li><strong>通读内容、起中文文件名</strong><span>按内容命名，不用网址尾巴当文件名</span></li>
+              <li><strong>上传 + 双路合成笔记</strong><span>与「文件入库」相同：专员文案处理 + 专业审核修订 + 合并</span></li>
+              <li><strong>校验后汇报结果</strong><span>告知文件编号、存放位置、来源链接、标签</span></li>
+            </ol>
+          </div>
+
+          <div class="feature-detail theme-cyan" role="tabpanel" id="feature-pending" hidden>
+            <div class="feature-detail-head">
+              <h4>待处理清单</h4>
+              <p>看看还有哪些文件还没整理、没标签</p>
+            </div>
+            <ol class="timeline">
+              <li><strong>拉取待处理列表</strong><span>已上传但尚无笔记、无标签的文件</span></li>
+              <li><strong>逐篇等待提取完成</strong><span>PDF / Office 等需等系统解析完毕</span></li>
+              <li><strong>写笔记、打标签、归档</strong><span>按您的优先级一篇篇处理</span></li>
+              <li><strong>每步向您简短汇报</strong><span>让您知道进度，不必干等</span></li>
+            </ol>
+          </div>
+
+          <div class="feature-detail theme-rose" role="tabpanel" id="feature-wiki" hidden>
+            <div class="feature-detail-head">
+              <h4>Wiki 体检 / 主题页</h4>
+              <p>断链检查、互链整理、补建概念主题页</p>
+            </div>
+            <ol class="timeline">
+              <li><strong>Wiki 体检</strong><span>扫描断链、孤立页、缺失主题标识等问题</span></li>
+              <li><strong>向您说明发现</strong><span>列出问题清单，等您确认再修改</span></li>
+              <li><strong>（可选）修复链接 / 建主题页</strong><span>多篇资料共同引用某主题时，自动补建概念页</span></li>
+              <li><strong>记录维护日志</strong><span>方便日后追溯做了什么改动</span></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- 决策规则 -->
+      <div class="tab-panel" role="tabpanel" id="panel-rules" aria-labelledby="tab-rules" hidden data-print-title="一句话决策规则">
+        <div class="principles">
+          <ul>
+            <li><strong>查、问、找、总结</strong> → 默认先查<strong>您的资料库</strong>，带文件名与原文出处回复</li>
+            <li><strong>明确说外网 / PubMed / 联网</strong> → 走外网检索；库内与外网结果会<strong>分开标注</strong></li>
+            <li><strong>资料库没找到</strong> → 如实告知，<strong>询问</strong>是否扩到外网；不会悄悄联网或凭 AI 记忆作答</li>
+            <li><strong>上传 / 整理 / 入库</strong> → 选位置 → 提取 → 双路合成 → 打标签 → 校验完成</li>
+            <li><strong>给链接</strong> → 先保存网页 → 再按入库流程处理</li>
+            <li><strong>每完成一步</strong> → 智能体会向您简短汇报进度，不必全程盲等</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var lang = (params.get('lang') || '').toLowerCase();
+
+      function setText(selector, values) {
+        document.querySelectorAll(selector).forEach(function (node, index) {
+          if (values[index] !== undefined) node.textContent = values[index];
+        });
+      }
+
+      function setHtml(selector, values) {
+        document.querySelectorAll(selector).forEach(function (node, index) {
+          if (values[index] !== undefined) node.innerHTML = values[index];
+        });
+      }
+
+      function setAttr(selector, attr, value) {
+        var node = document.querySelector(selector);
+        if (node) node.setAttribute(attr, value);
+      }
+
+      if (lang === 'en') {
+        document.documentElement.lang = 'en';
+        document.title = 'Ding Skill Flow';
+        setText('header h1', ['Ding Skill Flow']);
+        setAttr('.tab-nav', 'aria-label', 'Ding skill flow sections');
+        setText('.tab-btn', ['Typical scenarios', 'Overview', 'Common actions', 'Decision rules']);
+        setAttr('#panel-scenes', 'data-print-title', 'Three typical scenarios');
+        setAttr('#panel-overview', 'data-print-title', 'Overview');
+        setAttr('#panel-paths', 'data-print-title', 'Common actions');
+        setAttr('#panel-rules', 'data-print-title', 'Decision rules');
+
+        setAttr('.scene-slices', 'aria-label', 'Typical scenario slices');
+        setText('.slice-label', ['Scenario A', 'Scenario B', 'Scenario C']);
+        setText('.slice-title', ['Search the library', 'Web-to-library', 'Link-to-library']);
+        setText('.scene-panel h4', [
+          'Scenario A · Search the library',
+          'Scenario B · Web-to-library',
+          'Scenario C · Link-to-library',
+        ]);
+        setText('.scene-quote', [
+          '"Ding: What materials are required for invoice reimbursement?"',
+          '"Find the latest CRISPR papers on PubMed, add them to the library, and tag them."',
+          '"Save this link to the library: https://..."',
+        ]);
+        setHtml('#scene-panel-a .steps li', [
+          '<strong>Classified as a library search</strong><span>No web request was mentioned, so the default path is used.</span>',
+          '<strong>Semantic search for "reimbursement", "invoice", and "materials"</strong><span>Finds relevant passages in policies or internal documents.</span>',
+          '<strong>Reads the full note when needed</strong><span>For tables or checklist questions, the agent reads the complete source.</span>',
+          '<strong>Replies with citations</strong><span>Example: "According to Financial Reimbursement Policy, page 3..."</span>',
+        ]);
+        setHtml('#scene-panel-b .steps li', [
+          '<strong>Classified as a web + library-ingest task</strong><span>Starts with PubMed search, or checks the library first if you ask.</span>',
+          '<strong>Prepares a paper list</strong><span>Title, authors, journal, and links.</span>',
+          '<strong>Downloads and uploads to the library</strong><span>Confirms the destination folder.</span>',
+          '<strong>Dual-path note synthesis + tagging</strong><span>For example: "CRISPR" and "gene editing".</span>',
+          '<strong>Reports after verification</strong><span>Includes the file ID and storage location.</span>',
+        ]);
+        setHtml('#scene-panel-c .steps li', [
+          '<strong>Classified as link-to-library ingest</strong>',
+          '<strong>Opens and saves the page</strong><span>Web pages are saved as PDFs; direct file links are downloaded.</span>',
+          '<strong>Reads the content and assigns a meaningful filename</strong>',
+          '<strong>Uploads → waits for extraction → runs dual-path synthesis</strong>',
+          '<strong>Verifies the write-back and reports the file ID plus source link</strong>',
+        ]);
+
+        setText('.legend span', [
+          ' Search the library (default)',
+          ' Web search',
+          ' Library ingest',
+          ' Link ingest',
+          ' Pending / Wiki',
+        ]);
+        setText('#panel-overview .tag', ['Start', 'Prepare', 'Branch']);
+        setText('#panel-overview .node h3', [
+          'You give the agent an instruction',
+          'Confirms library access',
+          'Understands what you want to do',
+        ]);
+        setText('#panel-overview .node p', [
+          'Say "Ding", "/ding", or describe the task directly.',
+          'The agent checks permissions and tells you which account data it is using.',
+          'Based on your wording, the agent automatically chooses one processing path.',
+        ]);
+        setHtml('#panel-overview .examples', [
+          'Examples: "Ding: what is the reimbursement process?", "Add this PubMed paper to the library", "Organize pending files."',
+          '<strong>Default rule:</strong> Search, ask, find, summarize → always <strong>search your library first</strong>; the agent will not silently search the web.<br>Only explicit wording such as "web", "online", or "PubMed" uses web search.',
+        ]);
+
+        setAttr('.feature-tiles', 'aria-label', 'Common action picker');
+        setText('.feature-tile-label', [
+          'Search library',
+          'Web search',
+          'Library ingest',
+          'Link ingest',
+          'Pending',
+          'Wiki',
+        ]);
+        setText('.feature-tile-badge', ['Default']);
+        setText('.feature-tile-hint', [
+          'Search, find, summarize, compare',
+          'PubMed, web, latest papers',
+          'Upload, tag, maintain library',
+          'Save a web or PDF link',
+          'No-note and no-tag queue',
+          'Health check, broken links, topics',
+        ]);
+        setText('.feature-detail-head h4', [
+          'Search the library (most common)',
+          'Web / literature search',
+          'File ingest / organization',
+          'Link ingest',
+          'Pending list',
+          'Wiki health check / topic pages',
+        ]);
+        setText('.feature-detail-head p', [
+          'Search, find, summarize, compare... when web search was not requested.',
+          'You explicitly mention web, online, PubMed, PMID, latest papers...',
+          'Upload, ingest, tag, organize, and maintain the knowledge library.',
+          'Save a web page or PDF link as a library file.',
+          'Review files that still need notes or tags.',
+          'Broken-link checks, cross-link cleanup, and concept topic pages.',
+        ]);
+        setHtml('#feature-kb .timeline li', [
+          '<strong>Semantic search in the library</strong><span>Finds relevant passages by meaning, not only by filename.</span>',
+          '<strong>Reads linked material</strong><span>If related notes have topic links, they are expanded and read together.</span>',
+          '<strong>Organizes evidence and checks sources</strong><span>Uses real library content, not AI memory.</span>',
+          '<strong>Replies with citations</strong><span>Includes filenames, pages, or paragraph locations so you can verify.</span>',
+        ]);
+        setHtml('#feature-kb .highlight-box', [
+          '<strong>Nothing found in the library?</strong><br>The agent tells you "not found in the library" and <strong>asks</strong> whether to search the web. It will not go online by itself.',
+        ]);
+        setHtml('#feature-research .timeline li', [
+          '<strong>(Optional) Search the library first</strong><span>If you ask to check the library before web search, it does that first.</span>',
+          '<strong>Search the web or PubMed</strong><span>Finds public pages, papers, reports, and other sources.</span>',
+          '<strong>Organize results as a table</strong><span>Title, source, link, and key summary points are easy to scan.</span>',
+          '<strong>(Optional) Add to the library after confirmation</strong><span>If you want external material saved, it follows the ingest flow.</span>',
+        ]);
+        setHtml('#feature-maintain .timeline li', [
+          '<strong>Confirm destination</strong><span>Chooses a library and folder; the agent matches intelligently or asks you to confirm.</span>',
+          '<strong>Upload or receive the file</strong><span>PDF, Office, images, text, and other formats.</span>',
+          '<strong>Wait for system extraction</strong><span>Automatic OCR plus table and paragraph parsing; complex files may take longer.</span>',
+          '<strong>Dual-path note synthesis</strong><span>Specialist copy processing and professional review run in parallel, then merge into a structured note with "## Summary".</span>',
+          '<strong>Tag and write back to the library</strong><span>The agent reports "ingest complete" only after verification passes.</span>',
+        ]);
+        setHtml('#feature-maintain .highlight-box', [
+          '<strong>Organizing existing material?</strong><br>If a note already ends with the "## Summary" final marker, rewriting is skipped and only tags or location are updated.<br>Otherwise, dual-path synthesis runs again and updates the note.',
+        ]);
+        setHtml('#feature-url .timeline li', [
+          '<strong>Open the link and save it as a file</strong><span>Web pages become PDFs; direct file links are downloaded.</span>',
+          '<strong>Read the content and name the file meaningfully</strong><span>Names are based on content, not URL tails.</span>',
+          '<strong>Upload + dual-path note synthesis</strong><span>Same as file ingest: specialist copy processing + professional review + merge.</span>',
+          '<strong>Verify and report the result</strong><span>Includes file ID, location, source link, and tags.</span>',
+        ]);
+        setHtml('#feature-pending .timeline li', [
+          '<strong>Fetch the pending list</strong><span>Files that were uploaded but still have no note or no tags.</span>',
+          '<strong>Wait for extraction file by file</strong><span>PDF and Office files must finish system parsing first.</span>',
+          '<strong>Write notes, tag, and archive</strong><span>Processes items one by one according to your priority.</span>',
+          '<strong>Briefly report each step</strong><span>You can see progress without waiting blindly.</span>',
+        ]);
+        setHtml('#feature-wiki .timeline li', [
+          '<strong>Wiki health check</strong><span>Scans for broken links, orphan pages, missing topic markers, and related issues.</span>',
+          '<strong>Explain findings</strong><span>Lists issues and waits for your confirmation before editing.</span>',
+          '<strong>(Optional) Fix links / create topic pages</strong><span>When multiple notes cite the same topic, a concept page can be created automatically.</span>',
+          '<strong>Record a maintenance log</strong><span>Makes later review and traceability easier.</span>',
+        ]);
+
+        setHtml('#panel-rules .principles li', [
+          '<strong>Search, ask, find, summarize</strong> → by default, search <strong>your library</strong> first and reply with filenames plus source citations.',
+          '<strong>Explicit web / PubMed / online wording</strong> → use web search; library and web results are <strong>clearly separated</strong>.',
+          '<strong>Nothing found in the library</strong> → say so and <strong>ask</strong> whether to expand to web search; no silent browsing or AI-memory answers.',
+          '<strong>Upload / organize / ingest</strong> → choose destination → extract → dual-path synthesis → tag → verify completion.',
+          '<strong>Given a link</strong> → save the web page first, then follow the ingest flow.',
+          '<strong>After each completed step</strong> → the agent briefly reports progress so you are not left waiting.',
+        ]);
+      }
+
+      var tabs = document.querySelectorAll('.tab-btn');
+      var panels = document.querySelectorAll('.tab-panel');
+      var indicator = document.getElementById('tab-indicator');
+      var tabList = document.querySelector('.tab-list');
+
+      function moveIndicator(tabBtn) {
+        if (!indicator || !tabBtn) return;
+        indicator.style.left = tabBtn.offsetLeft + 'px';
+        indicator.style.width = tabBtn.offsetWidth + 'px';
+        indicator.style.opacity = '1';
+        if (tabList) {
+          tabList.setAttribute('data-active', tabBtn.id.replace('tab-', ''));
+        }
+      }
+
+      function playPanelAnimation(panel, opts) {
+        if (!panel) return;
+        opts = opts || {};
+        panel.classList.remove('panel-animate', 'scene-switch');
+        void panel.offsetWidth;
+        if (opts.sceneSwitch) panel.classList.add('scene-switch');
+        panel.classList.add('panel-animate');
+      }
+
+      function activateScene(sceneId) {
+        var sceneTabs = document.querySelectorAll('.scene-slice-btn');
+        var scenePanels = document.querySelectorAll('.scene-panel');
+        sceneTabs.forEach(function (btn) {
+          var on = btn.getAttribute('data-scene') === sceneId;
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        scenePanels.forEach(function (sp) {
+          var on = sp.id === 'scene-panel-' + sceneId;
+          sp.classList.toggle('active', on);
+          sp.hidden = !on;
+        });
+        var scenesPanel = document.getElementById('panel-scenes');
+        if (scenesPanel && scenesPanel.classList.contains('active')) {
+          playPanelAnimation(scenesPanel, { sceneSwitch: true });
+        }
+      }
+
+      document.querySelectorAll('.scene-slice-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activateScene(btn.getAttribute('data-scene'));
+        });
+      });
+
+      function activateFeature(featureId) {
+        var featureTiles = document.querySelectorAll('.feature-tile');
+        var featurePanels = document.querySelectorAll('.feature-detail');
+        featureTiles.forEach(function (btn) {
+          var on = btn.getAttribute('data-feature') === featureId;
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        featurePanels.forEach(function (fp) {
+          var on = fp.id === 'feature-' + featureId;
+          fp.classList.toggle('active', on);
+          fp.hidden = !on;
+        });
+        var pathsPanel = document.getElementById('panel-paths');
+        if (pathsPanel && pathsPanel.classList.contains('active')) {
+          playPanelAnimation(pathsPanel, { sceneSwitch: true });
+        }
+      }
+
+      document.querySelectorAll('.feature-tile').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activateFeature(btn.getAttribute('data-feature'));
+        });
+      });
+
+      function activate(tabId) {
+        tabs.forEach(function (btn) {
+          var on = btn.id === tabId;
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+          if (on) moveIndicator(btn);
+        });
+        var targetPanelId = document.getElementById(tabId).getAttribute('aria-controls');
+        panels.forEach(function (panel) {
+          var match = panel.id === targetPanelId;
+          panel.classList.toggle('active', match);
+          panel.hidden = !match;
+          if (match) playPanelAnimation(panel);
+        });
+      }
+
+      tabs.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activate(btn.id);
+        });
+      });
+
+      window.addEventListener('resize', function () {
+        var active = document.querySelector('.tab-btn[aria-selected="true"]');
+        moveIndicator(active);
+      });
+
+      var hash = location.hash.slice(1);
+      if (hash && document.getElementById('tab-' + hash)) {
+        activate('tab-' + hash);
+      } else {
+        var firstPanel = document.getElementById('panel-scenes');
+        playPanelAnimation(firstPanel);
+        requestAnimationFrame(function () { moveIndicator(tabs[0]); });
+      }
+    })();
+  </script>
+</body>
+</html>

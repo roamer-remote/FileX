@@ -1,0 +1,244 @@
+/* ============================================================
+   FileX — Unified Button System (045)
+   Ant Design .ant-btn + native .fx-btn
+   ============================================================ */
+
+/* --- Ant Design base --- */
+.ant-btn {
+  font-family: var(--font-body);
+  font-weight: 400;
+  border-radius: var(--btn-radius, 4px) !important;
+  box-shadow: none !important;
+  transition:
+    color 0.2s var(--ease-out-expo),
+    background-color 0.2s var(--ease-out-expo),
+    border-color 0.2s var(--ease-out-expo),
+    box-shadow 0.2s var(--ease-out-expo),
+    transform 0.2s var(--ease-out-expo);
+}
+
+/* Default */
+.ant-btn-default:not(:disabled):not(.ant-btn-dangerous) {
+  background: var(--btn-bg-default) !important;
+  border-color: var(--btn-border-default) !important;
+  color: var(--btn-text-default) !important;
+}
+
+.ant-btn-default:not(:disabled):not(.ant-btn-dangerous):hover,
+.ant-btn-default:not(:disabled):not(.ant-btn-dangerous):focus-visible {
+  background: var(--btn-bg-default-hover) !important;
+  border-color: var(--btn-border-default-hover) !important;
+  color: var(--btn-hover-text-default) !important;
+  box-shadow: var(--btn-glow-default) !important;
+}
+
+/* Primary */
+.ant-btn-primary:not(:disabled):not(.ant-btn-dangerous) {
+  background: var(--btn-bg-primary) !important;
+  border-color: var(--btn-border-primary) !important;
+  color: var(--btn-text-primary) !important;
+}
+
+.ant-btn-primary:not(:disabled):not(.ant-btn-dangerous):hover,
+.ant-btn-primary:not(:disabled):not(.ant-btn-dangerous):focus-visible {
+  background: var(--btn-bg-primary-hover) !important;
+  border-color: var(--btn-border-primary-hover) !important;
+  color: var(--btn-hover-text-primary) !important;
+  box-shadow: var(--btn-glow-primary) !important;
+}
+
+/* Danger — default type */
+.ant-btn-default.ant-btn-dangerous:not(:disabled) {
+  background: var(--btn-bg-danger) !important;
+  border-color: var(--btn-border-danger) !important;
+  color: var(--btn-text-danger) !important;
+}
+
+.ant-btn-default.ant-btn-dangerous:not(:disabled):hover,
+.ant-btn-default.ant-btn-dangerous:not(:disabled):focus-visible {
+  background: var(--btn-bg-danger-hover) !important;
+  border-color: var(--btn-border-danger-hover) !important;
+  color: var(--btn-hover-text-danger) !important;
+  box-shadow: var(--btn-glow-danger) !important;
+}
+
+/* Danger — primary type */
+.ant-btn-primary.ant-btn-dangerous:not(:disabled) {
+  background: var(--btn-bg-danger-solid) !important;
+  border-color: var(--btn-border-danger-solid) !important;
+  color: var(--btn-text-danger-solid) !important;
+}
+
+.ant-btn-primary.ant-btn-dangerous:not(:disabled):hover,
+.ant-btn-primary.ant-btn-dangerous:not(:disabled):focus-visible {
+  background: var(--btn-bg-danger-solid-hover) !important;
+  border-color: var(--btn-border-danger-solid-hover) !important;
+  color: var(--btn-hover-text-danger-solid) !important;
+  box-shadow: var(--btn-glow-danger-solid) !important;
+}
+
+/* Text — compact variant */
+.ant-btn-text:not(:disabled):not(.ant-btn-dangerous) {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-text-text) !important;
+  box-shadow: none !important;
+}
+
+.ant-btn-text:not(:disabled):not(.ant-btn-dangerous):hover,
+.ant-btn-text:not(:disabled):not(.ant-btn-dangerous):focus-visible {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-hover-text-text) !important;
+  box-shadow: var(--btn-glow-text) !important;
+}
+
+.ant-btn-text.ant-btn-dangerous:not(:disabled) {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-text-danger) !important;
+  box-shadow: none !important;
+}
+
+.ant-btn-text.ant-btn-dangerous:not(:disabled):hover,
+.ant-btn-text.ant-btn-dangerous:not(:disabled):focus-visible {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-hover-text-danger) !important;
+  box-shadow: var(--btn-glow-danger) !important;
+}
+
+/* Link — compact variant */
+.ant-btn-link:not(:disabled):not(.ant-btn-dangerous) {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-text-link) !important;
+  box-shadow: none !important;
+}
+
+.ant-btn-link:not(:disabled):not(.ant-btn-dangerous):hover,
+.ant-btn-link:not(:disabled):not(.ant-btn-dangerous):focus-visible {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-hover-text-link) !important;
+  box-shadow: var(--btn-glow-link) !important;
+}
+
+.ant-btn-link.ant-btn-dangerous:not(:disabled) {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-text-danger) !important;
+  box-shadow: none !important;
+}
+
+.ant-btn-link.ant-btn-dangerous:not(:disabled):hover,
+.ant-btn-link.ant-btn-dangerous:not(:disabled):focus-visible {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-hover-text-danger) !important;
+  box-shadow: var(--btn-glow-danger) !important;
+}
+
+/* Disabled */
+.ant-btn:disabled,
+.ant-btn.ant-btn-disabled {
+  opacity: 0.45;
+  box-shadow: none !important;
+}
+
+/* Focus & active */
+.ant-btn:not(:disabled):focus-visible {
+  outline: var(--apple-focus-ring);
+  outline-offset: 2px;
+}
+
+.ant-btn-primary:not(:disabled):active,
+.ant-btn-default:not(:disabled):active,
+.ant-btn-link:not(:disabled):active,
+.ant-btn-text:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+/* Semantic: KB search uses default bordered look despite type=primary */
+.fl-kb-search-btn.ant-btn-primary:not(:disabled):not(.ant-btn-dangerous) {
+  background: var(--btn-bg-default) !important;
+  border-color: var(--btn-border-default) !important;
+  color: var(--btn-text-default) !important;
+}
+
+.fl-kb-search-btn.ant-btn-primary:not(:disabled):not(.ant-btn-dangerous):hover,
+.fl-kb-search-btn.ant-btn-primary:not(:disabled):not(.ant-btn-dangerous):focus-visible {
+  background: var(--btn-bg-default-hover) !important;
+  border-color: var(--btn-border-default-hover) !important;
+  color: var(--btn-hover-text-default) !important;
+  box-shadow: var(--btn-glow-default) !important;
+}
+
+/* --- Native .fx-btn (ThemeSwitcher, LanguageSwitcher, nav, etc.) --- */
+.fx-btn {
+  font-family: var(--font-body);
+  font-weight: 400;
+  border-radius: var(--btn-radius, 4px);
+  border: 1px solid var(--btn-border-default);
+  background: var(--btn-bg-default);
+  color: var(--btn-text-default);
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    color 0.2s var(--ease-out-expo),
+    background-color 0.2s var(--ease-out-expo),
+    border-color 0.2s var(--ease-out-expo),
+    box-shadow 0.2s var(--ease-out-expo),
+    transform 0.2s var(--ease-out-expo);
+}
+
+.fx-btn:not(:disabled):hover,
+.fx-btn:not(:disabled):focus-visible {
+  background: var(--btn-bg-default-hover);
+  border-color: var(--btn-border-default-hover);
+  color: var(--btn-hover-text-default);
+  box-shadow: var(--btn-glow-default);
+}
+
+.fx-btn:focus-visible {
+  outline: var(--apple-focus-ring);
+  outline-offset: 2px;
+}
+
+.fx-btn:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+.fx-btn:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.fx-btn--text {
+  border-color: transparent;
+  background: transparent;
+  color: var(--btn-text-text);
+}
+
+.fx-btn--text:not(:disabled):hover,
+.fx-btn--text:not(:disabled):focus-visible {
+  border-color: transparent;
+  background: transparent;
+  color: var(--btn-hover-text-text);
+  box-shadow: var(--btn-glow-text);
+}
+
+.fx-btn--primary {
+  border-color: var(--btn-border-primary);
+  background: var(--btn-bg-primary);
+  color: var(--btn-text-primary);
+}
+
+.fx-btn--primary:not(:disabled):hover,
+.fx-btn--primary:not(:disabled):focus-visible {
+  border-color: var(--btn-border-primary-hover);
+  background: var(--btn-bg-primary-hover);
+  color: var(--btn-hover-text-primary);
+  box-shadow: var(--btn-glow-primary);
+}

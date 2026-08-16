@@ -1,0 +1,6 @@
+# Backward-compatible aggregate for local tooling. Docker builds use the
+# split common/platform/runtime files so a MinerU version update does not
+# invalidate the CPU or GPU dependency base layer.
+-r requirements.common.txt
+-r requirements.cpu.txt
+-r requirements.mineru.txt

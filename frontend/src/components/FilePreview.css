@@ -1,0 +1,420 @@
+.pv-body {
+  text-align: center;
+  position: relative;
+}
+/* react-photo-view：缩略图（点击进入全屏手势预览） */
+.pv-photo-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  padding: 4px 0;
+}
+.pv-photo-thumb {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-product);
+  cursor: zoom-in;
+  vertical-align: middle;
+  background: var(--canvas-parchment);
+}
+[data-theme="dark"] .pv-photo-thumb {
+  background: #1a1a1a;
+}
+.pv-txt {
+  text-align: left;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+}
+.pv-txt pre {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: var(--text-primary);
+  margin: 0;
+}
+.pv-pdf {
+  width: 100%;
+  height: 70vh;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+.pv-html {
+  width: 100%;
+  height: 70vh;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--canvas-parchment);
+}
+[data-theme="dark"] .pv-html {
+  background: #1a1a1a;
+}
+.pv-pdf-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+.pv-fallback {
+  padding: 60px 0;
+  text-align: center;
+}
+.pv-fb-msg {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.224px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.pv-fb-sub {
+  font-size: 12px;
+  letter-spacing: -0.12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.pv-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  flex-wrap: wrap;
+}
+.pv-meta-item {
+  font-size: 12px;
+  letter-spacing: -0.12px;
+  color: var(--text-muted);
+}
+.pv-meta-sep {
+  color: var(--text-muted);
+  opacity: 0.4;
+  font-size: 12px;
+}
+.pv-md-link {
+  background: var(--surface-pearl);
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.12px;
+  color: var(--accent);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.pv-md-link:hover {
+  background: var(--canvas);
+  border-color: var(--accent);
+}
+.pv-md-link--idle {
+  cursor: not-allowed;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border-color: var(--hairline);
+  opacity: 0.9;
+}
+.pv-md-link--idle:hover {
+  background: var(--bg-surface);
+  border-color: var(--hairline);
+}
+.pv-md {
+  text-align: left;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  color: var(--text-primary);
+  line-height: 1.47;
+  letter-spacing: -0.224px;
+  font-size: 17px;
+}
+/* 标签锚点空 span 仅用于定位，不展示在正文中 */
+.pv-md span[id^="fba-"]:empty {
+  display: none;
+}
+.pv-md-empty {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.pv-md-content {
+  padding: 24px 32px;
+  line-height: 1.47;
+  letter-spacing: -0.224px;
+  color: var(--text-primary);
+  font-size: 17px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.pv-office-wrap {
+  position: relative;
+  min-height: 50vh;
+  text-align: left;
+}
+.pv-office-spin-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg-deep) 75%, transparent);
+  border-radius: var(--radius-md);
+}
+.pv-docx-wrap {
+  position: relative;
+  max-height: 70vh;
+  overflow: auto;
+  padding: 12px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+}
+.pv-docx-body {
+  text-align: left;
+}
+.pv-pptx-host {
+  min-height: 420px;
+  max-height: 70vh;
+  overflow: auto;
+  width: 100%;
+}
+
+.pv-xlsx-tabs .ant-tabs-nav {
+  margin-bottom: 10px;
+}
+.pv-xlsx-tabs .ant-tabs-content-holder {
+  overflow: hidden;
+}
+.pv-xlsx-sheet {
+  max-height: 65vh;
+  overflow: auto;
+  padding: 12px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  text-align: left;
+}
+.pv-xlsx-sheet table {
+  border-collapse: collapse;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.pv-xlsx-sheet td,
+.pv-xlsx-sheet th {
+  border: 1px solid var(--hairline);
+  padding: 6px 10px;
+}
+.pv-xlsx-sheet thead th {
+  background: var(--table-header);
+  font-weight: 600;
+}
+
+.pv-xlsx-sheet tbody tr:nth-child(odd) > td {
+  background: var(--table-row-odd);
+}
+
+.pv-xlsx-sheet tbody tr:nth-child(even) > td {
+  background: var(--table-row-even);
+}
+
+
+/* 预览 Modal — 标题与圆角（DESIGN.md） */
+.pv-root-modal .ant-modal-content {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.pv-root-modal .ant-modal-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--hairline);
+}
+.pv-root-modal .ant-modal-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0 !important;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.374px;
+  line-height: 1.24;
+}
+.pv-header-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding-inline-end: 8px;
+}
+.pv-header-title-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.374px;
+  line-height: 1.24;
+  color: inherit;
+}
+.pv-header-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: end;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+.pv-header-link-stat {
+  justify-self: end;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.pv-header-link-stat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-pearl);
+  cursor: pointer;
+  font: inherit;
+  color: var(--accent);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.pv-header-link-stat-btn:hover {
+  background: var(--canvas);
+  border-color: var(--accent);
+}
+.pv-header-link-stat-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pv-header-pipeline-trace {
+  flex-shrink: 0;
+}
+
+.pv-header-pipeline-trace__icon {
+  color: #6366f1;
+  font-size: 14px;
+}
+
+[data-theme='dark'] .pv-header-pipeline-trace__icon {
+  color: #818cf8;
+}
+
+.pv-wiki-link-dropdown {
+  z-index: 1200;
+}
+
+/* 资料笔记预览：与 pv-root-modal 同款，仅提高层级叠在文件预览之上 */
+.pv-note-modal {
+  z-index: 1100;
+}
+.pv-note-body {
+  text-align: left;
+}
+.pv-note-body .pv-md {
+  max-width: none;
+  margin: 0;
+}
+.pv-meta-item--sub {
+  font-weight: 500;
+  color: var(--accent);
+  opacity: 0.9;
+}
+
+.pv-md-sidecar-hint {
+  text-align: left;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 24px 20px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+}
+.pv-md-sidecar-hint p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.14px;
+  color: var(--text-secondary);
+}
+
+.pv-wiki-backlink-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+.pv-wiki-backlink-btn:hover {
+  text-decoration: underline;
+}
+.pv-wiki-backlink-broken {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--danger);
+}
+
+/* Markdown 笔记分栏预览与全站主题变量对齐 */
+.pv-note-body .mdsv-panes {
+  background: var(--bg-deep);
+}
+
+.pv-note-body .pv-md {
+  background: var(--md-pane-preview-bg);
+}
+
+.pv-tabs {
+  text-align: left;
+}
+.pv-tabs .ant-tabs-content {
+  min-height: min(62vh, 560px);
+}
+
+.pv-md-source-readonly,
+.pv-md-theme-preview {
+  text-align: left;
+  min-height: min(62vh, 560px);
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  padding: 4px 8px;
+}
+
+.pv-md-source-readonly--loading,
+.pv-md-theme-preview--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pv-md-source-readonly .pv-md,
+.pv-md-theme-preview .pv-md {
+  background: var(--md-pane-preview-bg, transparent);
+}

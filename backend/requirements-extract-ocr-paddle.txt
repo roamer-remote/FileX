@@ -1,0 +1,8 @@
+# Optional PaddleOCR for kb-extract legacy path (103 FR-P1-003)
+# Install: pip install -r requirements-extract-ocr-paddle.txt
+# Env: KB_OCR_ENGINE=paddle
+# Paddle init failure falls back to RapidOCR (existing behavior).
+
+paddleocr>=2.7.0
+paddlepaddle>=2.6.0
+opencv-python-headless>=4.8.0

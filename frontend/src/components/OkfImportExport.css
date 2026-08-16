@@ -1,0 +1,77 @@
+.okf-ie-panel {
+  padding: var(--space-lg, 24px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hairline);
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.okf-ie-intro {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.okf-ie-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.okf-ie-section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.okf-ie-section-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.okf-ie-meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.okf-ie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.okf-ie-upload {
+  max-width: 480px;
+}
+
+.okf-ie-upload .ant-upload-drag {
+  border-color: var(--hairline);
+  background: var(--bg-subtle, var(--bg-card));
+}
+
+.okf-ie-result {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.okf-ie-result li + li {
+  margin-top: 4px;
+}
+
+.okf-ie-warnings {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 13px;
+  color: var(--text-muted);
+}

@@ -1,0 +1,237 @@
+/* 资料库工作区共用布局：Drawer 内容区 + /knowledge-base 全页 */
+
+.knowledge-workspace-page {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* —— Tabs 导航与 flex 高度链 —— */
+.knowledge-workspace-tabs {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.knowledge-workspace-tabs .ant-tabs-nav {
+  margin: 0 0 12px;
+  flex: 0 0 auto;
+  background: transparent;
+}
+
+.knowledge-workspace-tabs .ant-tabs-nav::before {
+  border-bottom-color: color-mix(in srgb, var(--text-primary) 8%, transparent) !important;
+}
+
+.knowledge-workspace-tabs .ant-tabs-nav-wrap {
+  flex: 0 1 auto;
+}
+
+.knowledge-workspace-tabs > .ant-tabs-content-holder {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+
+.knowledge-workspace-tabs .ant-tabs-content {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.knowledge-workspace-tabs .ant-tabs-tabpane-active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.knowledge-workspace-tabs .ant-tabs-tabpane {
+  min-width: 0;
+}
+
+.knowledge-workspace-tabs .ant-tabs-tab-btn:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.knowledge-workspace-tabs .ant-tabs-ink-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent) !important;
+}
+
+.knowledge-workspace-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--accent);
+}
+
+.knowledge-workspace-tabs--nested .ant-tabs-nav {
+  margin-bottom: 0;
+}
+
+.knowledge-workspace-tabs--nested > .ant-tabs-content-holder {
+  padding-top: 4px;
+  margin-top: 0;
+}
+
+.knowledge-workspace-tabs .ant-tabs-extra-content {
+  display: flex;
+  align-items: center;
+  padding-inline-start: 12px;
+}
+
+/* —— Tab 栏右侧工具区 —— */
+.knowledge-workspace-tabs-extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.knowledge-workspace-tabs-refresh.ant-btn {
+  color: var(--text-secondary);
+}
+
+.knowledge-workspace-tabs-refresh.ant-btn:hover {
+  color: var(--accent);
+}
+
+/* —— 文件名搜索条（Drawer 顶栏 / Tab 工具区） —— */
+.knowledge-panel-filename-search-bar.knowledge-lobby-google-bar,
+.knowledge-panel-drawer-head__filename-bar.knowledge-lobby-google-bar {
+  min-height: 24px;
+  padding: 0 4px 0 8px;
+  border-radius: 12px;
+  gap: 2px;
+}
+
+.knowledge-panel-filename-search-bar.knowledge-lobby-google-bar--filename,
+.knowledge-panel-drawer-head__filename-bar.knowledge-lobby-google-bar--filename {
+  background: var(--google-bar-bg);
+  border-color: var(--google-bar-border);
+  box-shadow: var(--google-bar-glow);
+}
+
+.knowledge-panel-filename-search-bar.knowledge-lobby-google-bar--filename:hover,
+.knowledge-panel-filename-search-bar.knowledge-lobby-google-bar--filename:focus-within,
+.knowledge-panel-drawer-head__filename-bar.knowledge-lobby-google-bar--filename:hover,
+.knowledge-panel-drawer-head__filename-bar.knowledge-lobby-google-bar--filename:focus-within {
+  background: var(--google-bar-bg);
+  border-color: color-mix(in srgb, var(--accent) 55%, #fff);
+  box-shadow: var(--google-bar-glow-hover);
+}
+
+.knowledge-panel-filename-search-bar .knowledge-filename-search.ant-input-affix-wrapper,
+.knowledge-panel-drawer-head__filename-bar.knowledge-lobby-google-bar--filename .knowledge-filename-search.ant-input-affix-wrapper {
+  min-height: 24px;
+  height: 24px;
+}
+
+.knowledge-panel-filename-search-bar .knowledge-filename-search .ant-input,
+.knowledge-panel-drawer-head__filename-bar.knowledge-lobby-google-bar--filename .knowledge-filename-search .ant-input {
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.knowledge-panel-filename-search-bar .knowledge-filename-search__prefix-btn,
+.knowledge-panel-drawer-head__filename-bar.knowledge-lobby-google-bar--filename .knowledge-filename-search__prefix-btn {
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+}
+
+.knowledge-panel-drawer-head__after-title .knowledge-panel-filename-search-bar,
+.knowledge-panel-drawer-head__after-title .knowledge-panel-drawer-head__filename-bar,
+.knowledge-panel-drawer-head__after-title .knowledge-filename-search {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.knowledge-workspace-tabs-extra .knowledge-panel-filename-search-bar {
+  width: min(420px, 42vw);
+  min-width: 180px;
+  flex: 0 1 auto;
+}
+
+.knowledge-panel-drawer-head__after-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: min(420px, 42vw);
+}
+
+/* —— 工作区内容壳（对齐 knowledge-panel-shell） —— */
+.knowledge-workspace-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.knowledge-workspace-pane--padded {
+  padding: 0 var(--space-lg, 24px) var(--space-lg, 24px);
+}
+
+/* 全页工作区（/knowledge-base）：对齐 admin-panel 全幅贴边 */
+.knowledge-workspace-page > .knowledge-workspace-tabs > .ant-tabs-nav {
+  margin: 0;
+  padding: var(--space-lg) var(--space-xl) 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.knowledge-workspace-page > .knowledge-workspace-tabs > .ant-tabs-content-holder {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.knowledge-workspace-page .knowledge-workspace-tabs--nested .ant-tabs-nav {
+  margin: 0;
+  padding: 0 var(--table-shell-pad-inline);
+}
+
+.knowledge-workspace-page .knowledge-workspace-tabs--nested > .ant-tabs-content-holder {
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.knowledge-workspace-page .kb-index-prose {
+  padding: var(--space-md) var(--space-xl) 0;
+  flex: 0 0 auto;
+}
+
+.knowledge-workspace-page .kb-index-wiki-alert {
+  margin: var(--table-shell-pad-block) var(--table-shell-pad-inline) 0;
+}
+
+.knowledge-workspace-page .okf-ie-panel {
+  padding: var(--space-lg) var(--space-xl);
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.knowledge-workspace-page .kb-index-empty {
+  padding: var(--space-lg) var(--space-xl);
+}
+
+.knowledge-workspace-pane .kb-index-table-shell {
+  flex: 1;
+  min-height: 0;
+}
+
+.knowledge-panel-shell.kb-index-preview > .knowledge-workspace-tabs--nested {
+  flex: 1;
+  min-height: 0;
+}

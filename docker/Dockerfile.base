@@ -1,0 +1,107 @@
+# FileX 统一 Python 底层镜像：filex-os-base → app / extract / mineru 专用 base
+# 各业务 Dockerfile 仅 COPY 代码；避免重复拉取 python:slim 与共用 apt 层
+ARG PYTHON_IMAGE=python:3.13-slim
+ARG FILEX_OS_BASE_IMAGE=filex-os-base
+
+FROM ${PYTHON_IMAGE} AS filex-os-base
+
+WORKDIR /app
+
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || true
+
+# filex / kb-indexer / kb-extract / mineru 共用运行库
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    libjpeg-dev \
+    zlib1g-dev \
+    libgl1 \
+    libglib2.0-0 \
+    libgomp1 \
+    fonts-dejavu-core \
+    fonts-wqy-zenhei \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV TZ=Asia/Shanghai
+ENV FILEX_LOG_TIMEZONE=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip install --no-cache-dir --upgrade pip
+
+FROM ${FILEX_OS_BASE_IMAGE} AS filex-app-base
+
+WORKDIR /app
+
+COPY backend/requirements.txt .
+
+# 服务端 PPT/PPTX → PDF 预览（仅此一处；app/Dockerfile 不再重复安装）
+RUN apt-get update && apt-get install -y --no-install-recommends     libreoffice-impress     && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+FROM ${FILEX_OS_BASE_IMAGE} AS filex-extract-base
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libreoffice-writer \
+    libreoffice-calc \
+    libreoffice-impress \
+    imagemagick \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY backend/requirements.txt backend/requirements-extract.txt ./
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-extract.txt
+
+FROM ${FILEX_OS_BASE_IMAGE} AS filex-mineru-base
+
+WORKDIR /app/sidecar
+
+RUN set -eux; \
+    apt-get update; \
+    for attempt in 1 2 3 4 5; do \
+      apt-get install -y --no-install-recommends \
+        gcc g++ build-essential tesseract-ocr \
+      && break; \
+      echo "apt install attempt ${attempt} failed, retrying..." >&2; \
+      sleep 10; \
+      apt-get update; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
+
+COPY docker/mineru-sidecar/requirements.common.txt \
+     docker/mineru-sidecar/requirements.cpu.txt ./
+RUN pip install --no-cache-dir \
+    -r requirements.common.txt \
+    -r requirements.cpu.txt
+
+FROM ${FILEX_OS_BASE_IMAGE} AS filex-docling-base
+
+WORKDIR /app/sidecar
+
+RUN set -eux; \
+    apt-get update; \
+    for attempt in 1 2 3 4 5; do \
+      apt-get install -y --no-install-recommends \
+        gcc g++ build-essential \
+      && break; \
+      echo "apt install attempt ${attempt} failed, retrying..." >&2; \
+      sleep 10; \
+      apt-get update; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
+
+COPY docker/docling-sidecar/requirements.txt ./
+# Docker Desktop on Apple Silicon runs this Linux/ARM64 sidecar without access
+# to Apple's Metal/MPS device.  Install the matching CPU wheels first so
+# Docling's standard extra cannot resolve the generic Linux torch package and
+# pull the NVIDIA CUDA runtime into the local image.
+RUN pip install --no-cache-dir \
+      --index-url https://download.pytorch.org/whl/cpu \
+      --no-deps \
+      torch==2.7.0+cpu \
+      torchvision==0.22.0
+RUN pip install --no-cache-dir -r requirements.txt

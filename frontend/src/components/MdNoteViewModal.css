@@ -1,0 +1,94 @@
+/* 笔记分栏弹窗：80% 宽、固定 94vh，内容在分栏内滚动 */
+.md-note-view-modal .ant-modal-content {
+  height: 94vh;
+  max-height: 94vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.md-note-view-modal .ant-modal-body {
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 24px 24px !important;
+}
+
+.md-note-view-modal-body {
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Modal body 子级须参与 flex 高度链，否则 MdSplitView 分栏无法滚到底 */
+.md-note-view-modal .pv-body {
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  text-align: left;
+}
+
+.pv-note-modal-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--hairline);
+  margin-top: 12px;
+}
+
+.pv-note-modal-footer-l {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.pv-note-modal-footer-delete {
+  flex: 0 0 auto;
+  min-width: 9.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pv-note-modal-footer-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.pv-note-modal-footer-meta .extract-engine-footer {
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.pv-note-modal-footer-meta .extract-engine-footer__meta {
+  flex-basis: auto;
+}
+
+.pv-note-modal-footer-r {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.md-note-view-modal .ant-modal-footer {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 24px 20px !important;
+  border-top: none;
+}

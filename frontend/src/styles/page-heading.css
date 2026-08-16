@@ -1,0 +1,54 @@
+/**
+ * 窗体主标题 + 副标题：同一行展示，副标题缩小跟在主标题后方。
+ * 使用 .ah-title-group（或 .page-title-group）包裹标题与副标题元素。
+ */
+.page-title-group,
+.ah-title-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35em 0.625em;
+  min-width: 0;
+}
+
+.page-title-group > .page-title,
+.page-title-group > .ah-title,
+.page-title-group > h1,
+.page-title-group > h2,
+.page-title-group > h3,
+.ah-title-group > .page-title,
+.ah-title-group > .ah-title,
+.ah-title-group > h1,
+.ah-title-group > h2,
+.ah-title-group > h3,
+.ah-title-group > .ant-typography.admin-title {
+  margin: 0 !important;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.page-title-group > .page-subtitle,
+.page-title-group > .ah-sub,
+.ah-title-group > .page-subtitle,
+.ah-title-group > .ah-sub,
+.ah-title-group > .admin-subtitle {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  color: var(--text-muted);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ah-title-group > .ant-typography.admin-subtitle {
+  margin: 0 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 400 !important;
+  line-height: 1.43 !important;
+  letter-spacing: -0.224px;
+  color: var(--text-muted) !important;
+  flex: 1 1 auto;
+  min-width: 0;
+}

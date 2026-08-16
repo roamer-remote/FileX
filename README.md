@@ -1,321 +1,346 @@
-# FileX · 面向智能体的企业知识底座
+# FileX
 
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)]()
-[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python)]()
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)]()
+AI 智能体资料库：个人 / 集团知识空间、RAG 检索、正文提取与向量索引、Wiki 互联、钉技能集成。
 
-> **AI Knowledge Base for Agents** — Turn scattered documents into searchable, traceable, Agent-readable knowledge assets.
->
-> **AI 智能体资料库** — 让团队文件变成可检索、可追踪、可被智能体调用的结构化知识资产。
-
-[**中文版**](README.md) · [English](README.en.md)
+- **正式站点**：`https://ding.yyyou.top`（对外产品名「钉」）
+- **开发规范与文档索引**：[`BestPractice.md`](BestPractice.md)（Codex 入口 [`AGENTS.md`](AGENTS.md)）
+- **Backlog**：[`specs/_project/project-todo.md`](specs/_project/project-todo.md)
 
 ---
 
-## 目录
+## 核心能力
 
-- [产品概述](#产品概述)
-- [产品亮点](#产品亮点)
-- [核心功能](#核心功能)
-  - [登录](#login)
-  - [知识库总览](#kb-overview)
-  - [知识库管理](#kb-management)
-    - [原始资料列表](#file-list)
-    - [原件预览](#file-preview)
-    - [智能体笔记](#agent-note)
-    - [OKF 互操作](#okf)
-    - [流程追踪](#process-trace)
-    - [多样处理与重新索引](#multi-process)
-    - [RAPTOR 后处理](#raptor)
-    - [知识库多维度分析](#kb-analysis)
-      - [查看知识库整体概况](#kb-metrics)
-      - [文档关联图谱](#wiki-graph)
-      - [标签热点分析](#tag-heatmap)
-  - [处理过程可视化](#process-viz)
-  - [智能体调用追踪](#agent-trace)
-  - [系统配置中心](#settings)
-  - [在线帮助文档](#help-docs)
-- [技术栈](#技术栈)
-  - [前端](#前端)
-  - [后端](#后端)
-  - [基础设施](#基础设施)
-- [架构概览](#架构概览)
-- [获取与部署](#获取与部署)
-- [项目状态](#项目状态)
-- [许可证](#许可证)
+| 能力 | 说明 |
+|------|------|
+| **资料管理** | 文件夹、workspace 隔离、MD5 去重、预览与 Markdown 笔记 |
+| **正文提取** | Office / PDF / 图片等多格式 → 结构化笔记（legacy / Docling / MinerU / Insavlo 等路由） |
+| **向量索引** | RabbitMQ 异步流水线；Ollama `bge-m3` 嵌入；pgvector HNSW + FTS hybrid |
+| **RAG 检索** | hybrid RRF、TEI rerank、查询缓存、蒙特卡洛采样、文件名/ID 检索 |
+| **Wiki 互联** | 标签关系图、wiki-path 补全、Agent 检索 hints |
+| **钉技能** | 标准 Skill 包对接 OpenClaw / Claude Code / Codex 等；HTTP API Key 鉴权 |
+| **企业能力** | 共享空间、组织/角色/目录 ACL（059，生产默认 S1 legacy grants） |
+| **OKF 互操作** | Google OKF bundle 导入/导出/校验（064） |
 
-## <a id="产品概述"></a>产品概述 [↑](#目录)
-
-FileX 是一个面向团队和个人的 AI 增强型知识管理平台。它把文档管理、正文提取、语义检索、知识图谱与智能体工具调用整合在一起，帮助组织从分散文件中构建可复用的知识资产。
-
-**产品形态**：FileX 提供资料库网站；钉 / Ding 是面向智能体的技能与入口。
-
-**演示体验**：[ding.yyyou.top](https://ding.yyyou.top) — 仅供体验，请勿上传隐私数据。数据库可能随时清理，请注意备份。
-
-**联系作者**：微信 `roamerxv` · 邮箱 [roamerxv@163.com](mailto:roamerxv@163.com)
-
-**国际化 i18n**：内置国际化支持（i18next），默认中英双语，可扩展至更多语言。
+**架构原则**：FileX 后端提供**确定性检索 API**，不在 FastAPI 内嵌 Chat LLM 或 Agent 编排框架；ReAct / LangGraph 运行在**钉 Agent 宿主侧**。
 
 ---
 
-## <a id="产品亮点"></a>产品亮点 [↑](#目录)
+## 快速开始（本地）
 
-- **多引擎文档流水线** — [Docling](https://github.com/IBM/docling)（IBM）、[MinerU](https://github.com/opendatalab/MinerU)（OpenDataLab）、Insavlo 多套解析引擎按文档类型自动路由，覆盖 Office、PDF、图片等格式。流水线全程可视化，每个环节的状态与耗时均可回溯。
-- **RAPTOR 分层检索** — 引入斯坦福大学 [RAPTOR 算法](https://arxiv.org/abs/2401.18059)对已索引文档做递归抽象与分层摘要，构建树形语义结构，大幅提升长文档与多文档场景下的检索精度。
-- **文档关联图谱** — 以 [Andrej Karpathy 资料库](https://github.com/karpathy)为例，自动构建文档间的引用与标签关系网络，可视化知识单元的拓扑连接，辅助发现隐式关联与知识孤岛。
-- **智能体可编辑笔记** — OCR 与解析结果自动生成结构化的 Markdown 笔记，供智能体直接阅读。用户可随时修改、补充内容，将机器提取结果转化为团队知识沉淀。
-- **跨平台一键部署** — Docker Compose 单服务器即可拉起全部依赖（PostgreSQL、RabbitMQ、Redis、Ollama 等），macOS / Linux / Windows 全平台支持。
-- **热插拔配置** — LLM 模型路由、嵌入引擎、解析策略等系统参数集中管理，配置变更即时生效，无需重启服务。
+```bash
+./start.sh                                    # Docker: postgres/rabbitmq/redis/ollama/filex/kb-indexer 等；kb-extract 宿主机
+cd frontend && npm run dev                    # :5173 → 代理 /api :8000
+cd backend && alembic upgrade head            # 若未走 start.sh 迁移
+cd frontend && npm run build && cd ../backend && pytest   # 常见验证
+```
 
----
+**技术栈**：FastAPI + PostgreSQL（pgvector + zhparser）+ Alembic + RabbitMQ + Redis | React 19 + Vite + Ant Design 5 | Workers：`kb-indexer`、`kb-extract`、`kb-rerank`、`filex-mineru`、`filex-docling` | 嵌入：`filex-ollama`（Compose 内网 `http://filex-ollama:11434`）
 
-## <a id="核心功能"></a>核心功能 [↑](#目录)
+**Compose 文件**：
 
-<a id="login"></a>**登录** [↑](#目录)
+| 文件 | 用途 |
+|------|------|
+| [`docker/docker-compose.yml`](docker/docker-compose.yml) | 默认服务定义 |
+| [`docker/docker-compose.local.yml`](docker/docker-compose.local.yml) | 本地端口与路径 overlay |
+| [`docker/docker-compose.prod.yml`](docker/docker-compose.prod.yml) | 生产 secrets overlay |
 
-支持账号密码登录与企业认证，提供安全的用户鉴权与工作空间切换入口。
-
-<p align="center">
-  <img src="screenshots/login.png" alt="登录界面" width="700">
-</p>
-
-<a id="kb-overview"></a>**知识库总览** [↑](#目录)
-
-资料库的总体视图，支持自定义维护的目录结构与分类管理。
-
-<p align="center">
-  <img src="screenshots/kb.jpg" alt="知识库总览" width="700">
-</p>
-
-<a id="kb-management"></a>**知识库管理** [↑](#目录)
-
-<a id="file-list"></a>- 显示用户所有的上传的原始资料列表 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/kb-overview.jpg" alt="原始资料列表" width="700">
-</p>
-
-<a id="file-preview"></a>- 预览资料的原始内容 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/file-preview.png" alt="文档原件预览" width="700">
-</p>
-
-<a id="agent-note"></a>- 智能体笔记：文档经过 OCR 或解析处理后生成的 Markdown 笔记，供智能体阅读使用。用户可随时修改、补充内容，类似在线笔记。 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/file-markdown.png" alt="文档识别后的 Agent Markdown" width="700">
-</p>
-
-<a id="okf"></a>- OKF 互操作：支持 Google OKF（Open Knowledge Format）规范的导入、导出与校验，实现跨平台知识资产交换。 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/file-okf.png" alt="OKF 导入导出" width="700">
-</p>
-
-<a id="process-trace"></a>- 流程追踪：文档从上传、OCR 解析、向量索引到检索匹配的完整流水线，每个环节的状态均可实时查看与回溯。 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/file-show-process.png" alt="流程追踪" width="700">
-</p>
-
-<a id="multi-process"></a>- 多样处理与重新索引：支持 Docling、MinerU、Insavlo 等多套解析引擎，可根据文档类型灵活路由；分块策略可调，支持对指定文件重新提取与索引。 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/file-multi-redo.png" alt="多样处理" width="700">
-</p>
-
-<p align="center">
-  <img src="screenshots/multi-processor.png" alt="多种处理方法" width="700">
-</p>
-
-<a id="raptor"></a>- RAPTOR 后处理：采用斯坦福 RAPTOR 算法对已索引文档进行递归抽象与分层摘要，构建树形语义结构，提升长文档与多文档场景下的检索精度与知识库质量。 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/raptor.png" alt="RAPTOR 后处理" width="700">
-</p>
-
-<a id="kb-analysis"></a>- 知识库多维度分析 [↑](#目录)
-  <a id="kb-metrics"></a>  - 查看知识库整体概况：从文件列表、索引状态、检索质量等多角度审视知识库，辅助评估与优化知识资产结构。 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/kb-overview.png" alt="知识库多维分析" width="700">
-</p>
-
-  <a id="wiki-graph"></a>  - 文档关联图谱：以 Andrej Karpathy 资料库为例，自动构建文档间的引用与标签关系网络，可视化知识单元的拓扑连接，辅助发现隐式关联与知识孤岛。 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/wiki-relation.png" alt="Wiki 关系图" width="700">
-</p>
-
-  <a id="tag-heatmap"></a>  - 标签热点分析：基于文档标签的使用频率与关联强度生成标签云与热点图，直观呈现知识库的主题分布，辅助快速定位高频话题与内容盲区。 [↑](#目录)
-
-<p align="center">
-  <img src="screenshots/tag.png" alt="标签热点图" width="700">
-</p>
-
-<a id="process-viz"></a>**处理过程可视化** [↑](#目录)
-
-文档处理流水线的全程可视化看板，实时展示上传、提取、索引、检索等各环节的状态与耗时。支持对异常任务进行手动重试、死信队列排空与索引重建，帮助运维人员快速定位瓶颈与修复故障。
-
-<p align="center">
-  <img src="screenshots/process-view.png" alt="处理过程可视化" width="700">
-</p>
-
-<a id="agent-trace"></a>**智能体调用追踪** [↑](#目录)
-
-智能体请求的完整调用链路追踪，记录每次 Agent 推理的输入、中间思考、工具调用及最终输出。支持按会话回溯执行过程，便于调试与效果评估。
-
-<p align="center">
-  <img src="screenshots/agent-log-1.png" alt="智能体调用日志" width="700">
-</p>
-
-<p align="center">
-  <img src="screenshots/agent-log-2.png" alt="智能体调用详情" width="700">
-</p>
-
-<a id="settings"></a>**系统配置中心** [↑](#目录)
-
-所有系统参数集中管理，涵盖 LLM 模型路由、嵌入引擎、解析策略、缓存规则等模块。配置变更即时生效，无需重启服务或重新部署，支持热插拔式切换后端服务（Ollama / OpenAI / Azure 等）。
-
-<p align="center">
-  <img src="screenshots/params.png" alt="系统配置中心" width="700">
-</p>
-
-<a id="help-docs"></a>**在线帮助文档** [↑](#目录)
-
-内置完善的帮助系统，覆盖从入门到高级运维的全部操作指引，包括资料管理、检索调优、Agent 技能开发、系统配置等主题。支持全文搜索与版本对照，用户可随时查阅，降低学习与运维门槛。
-
-<p align="center">
-  <img src="screenshots/help.png" alt="在线帮助文档" width="700">
-</p>
+本地 API 默认 `http://127.0.0.1:8000`（`start.sh` 容器映射 `:8001→8000` 时访问 `:8001`）。
 
 ---
 
-## <a id="技术栈"></a>技术栈 [↑](#目录)
+## 文档索引
 
-### <a id="前端"></a>前端 [↑](#目录)
-
-| 类别 | 技术 |
-|---|---|
-| 框架 | React 19 + TypeScript |
-| 构建 | Vite |
-| 组件库 | Ant Design 5 |
-| 状态管理 | Zustand |
-| 路由 | React Router 6 |
-| 国际化 | i18next |
-| 文档预览 | docx-preview, pptx-preview, xlsx, KaTeX |
-| 图表 | ECharts |
-| HTTP | Axios |
-
-### <a id="后端"></a>后端 [↑](#目录)
-
-| 类别 | 技术 |
-|---|---|
-| 运行时 | Python 3.13 |
-| 框架 | FastAPI |
-| 数据库 | PostgreSQL 16 + pgvector |
-| AI/ML | Ollama / OpenAI / Azure 兼容模型，Embedding 模型 |
-| OCR | Docling, MinerU |
-| Agent | 钉技能；LangGraph 可在外部 Agent 宿主侧编排 |
-| 异步任务 | RabbitMQ + Redis，多 worker 流水线 |
-| 搜索 | 全文检索 + 向量检索；可外接重排序服务 |
-
-### <a id="基础设施"></a>基础设施 [↑](#目录)
-
-- Docker Compose 部署
-- MinIO / S3 对象存储
-- Nginx 反向代理 + SSL
+| 需要什么 | 去哪 |
+|----------|------|
+| 功能规格与任务 | `specs/<feature-id>/{spec,plan,tasks}.md` |
+| 部署 / 生产运维 | [`specs/_project/deployment-checklist.md`](specs/_project/deployment-checklist.md) |
+| 提取与索引流水线 | [`specs/_project/extract-index-pipeline.md`](specs/_project/extract-index-pipeline.md) |
+| KB 流水线系统日志 | [`specs/067-kb-pipeline-operation-logs/spec.md`](specs/067-kb-pipeline-operation-logs/spec.md) 附录 A |
+| 智能体 HTTP API | [`skill/ding/references/filex-agent-api.md`](skill/ding/references/filex-agent-api.md) |
+| 钉 LangGraph 运维 | [`specs/_project/ding-langgraph-host-ops-checklist.md`](specs/_project/ding-langgraph-host-ops-checklist.md) |
+| Docker 构建细节 | [`docker/BUILD.md`](docker/BUILD.md) |
+| 架构 / 跨模块探索 | `graphify query` 或 `graphify-out/wiki/index.md` |
 
 ---
 
-## <a id="架构概览"></a>架构概览 [↑](#目录)
+## Agentic 检索（028）与 LangGraph（055 / 057）
 
-详细架构说明见 [docs/architecture.md](docs/architecture.md)。
+FileX **已实现** Agentic 检索增强（[`specs/028-kb-agentic-retrieval/`](specs/028-kb-agentic-retrieval/spec.md)），但 **未在 FastAPI 内**使用 LangGraph / LangChain / LlamaIndex。编排发生在 **钉 Agent 宿主**；FileX 只提供 **HTTP Tool**（无服务端 Chat LLM）。
+
+### 028 三模块（FileX 后端）
+
+| 模块 | 说明 | 实现位置 |
+|------|------|----------|
+| **A** 查询缓存 | 语义相近 query 复用 chunk 级 search 快照 | `backend/services/kb_search_cache_service.py` |
+| **B** 蒙特卡洛采样 | 长 md 笔记在线随机窗口采样 | `backend/services/kb_evidence_sampler.py` |
+| **C** ReAct 多轮检索 | 证据不足时 think→act→observe，最多 3 轮 search | [`skill/ding/modules/kb-search.md`](skill/ding/modules/kb-search.md) 阶段 1.R |
+
+### 编排形态
+
+| 形态 | 状态 | 说明 |
+|------|------|------|
+| **Prompt ReAct**（默认） | 生产可用 | Agent 读 `kb-search.md` + curl FileX API |
+| **LangGraph KB 编排**（055） | **Closed** | Agent 宿主机 `filex_langgraph_kb_orchestrator.py`；FileX API 不变 |
+| **Intent Router 对话图**（057） | **Closed** | 上层 intent 路由；FileX 后端不引入 LangGraph |
 
 ```mermaid
 flowchart TB
-    subgraph User["用户层"]
-        SPA["Web App (React SPA)"] 
-        API["DingTalk Integration"]
-    end
-    subgraph Gateway["网关层"]
-        Nginx["Nginx (Reverse Proxy + SSL)"]
-    end
-    subgraph Service["服务层"]
-        FastAPI["FastAPI Backend"]
-        Skill["Ding Skill / Agent Host"]
-        Queue["Worker Pipeline (RabbitMQ/Redis)"]
-    end
-    subgraph AI["AI 能力层"]
-        LLM["LLM Router"]
-        Embed["Embedding Service"]
-        OCR["OCR Pipeline (Docling/MinerU)"]
-    end
-    subgraph Data["数据层"]
-        PG[("PostgreSQL + pgvector")]
-        Redis[("Redis")]
-        S3[("MinIO / S3")]
-    end
+  subgraph Agent["钉 Agent 宿主（LLM + Skill / LangGraph 可选）"]
+    UserQ["用户问题"]
+    Skill["kb-search.md / LangGraph 055+057"]
+    ReAct["ReAct ≤3 轮"]
+    Answer["整合证据 → 作答"]
+    UserQ --> Skill
+    Skill -->|证据不足| ReAct --> Answer
+    Skill -->|证据足够| Answer
+  end
 
-    User --> Gateway
-    Gateway --> Service
-    Service --> AI
-    AI --> Data
+  subgraph FileX["FileX 后端（FastAPI，无 Agent 框架）"]
+    API["POST /api/knowledge-base/search"]
+    Cache{"use_query_cache?"}
+    Search["search_kb：embed + hybrid + rerank"]
+    MC{"monte_carlo?"}
+    Sampler["kb_evidence_sampler"]
+    Resp["items + meta"]
+    API --> Cache
+    Cache -->|miss| Search --> MC
+    Cache -->|hit| Resp
+    MC -->|yes| Sampler --> Resp
+    MC -->|no| Resp
+  end
+
+  Skill -->|Bearer API Key| API
+  ReAct -->|改写 query / cache / monte_carlo| API
 ```
+
+**LangGraph 集成边界**：运行在 Agent 宿主机或外部服务；FileX 继续作 Tool 提供方（`POST /search`、`GET /files/{id}/md`、`wiki-context` 等），**不**打入 `filex/app` 镜像。
+
+### 相关文档
+
+- 028 规格：[`specs/028-kb-agentic-retrieval/spec.md`](specs/028-kb-agentic-retrieval/spec.md)
+- 055 LangGraph KB 编排（**Closed**）：[`specs/055-langgraph-ding-orchestrator/`](specs/055-langgraph-ding-orchestrator/spec.md)
+- 057 Intent Router（**Closed**）：[`specs/057-ding-intent-router/spec.md`](specs/057-ding-intent-router/spec.md)
+- 示例代码：[`skill/ding/agent/filex_langgraph_kb_orchestrator.py.example`](skill/ding/agent/filex_langgraph_kb_orchestrator.py.example)
+- 钉技能检索流程：[`skill/ding/modules/kb-search.md`](skill/ding/modules/kb-search.md)
+- 多模态与缓存注意：[`specs/_project/multimodal-rag-failure-modes.md`](specs/_project/multimodal-rag-failure-modes.md)
 
 ---
 
-## <a id="获取与部署"></a>获取与部署 [↑](#目录)
+## 资料库存储架构：SQL 域与向量域（062）
 
-本仓库提供 FileX 的 Docker 发行安装包。用户可以通过 `git pull` 获取最新部署文件，再用 Docker Compose 拉起完整服务栈。仓库不包含应用源码；运行时通过预构建镜像安装。FileX 主服务、知识抽取服务、定制 PostgreSQL 与 MinerU CPU 镜像均同时支持 AMD64 和 ARM64，Docker 会按主机架构自动选择；默认启用 MinerU 文档解析链路，Cross-Encoder rerank 服务默认关闭。
+FileX 使用**单一 PostgreSQL** 实例，逻辑上拆成两域：
 
-<p align="center">
-  <img src="screenshots/docker.png" alt="Docker 部署" width="700">
-</p>
+| 域 | 表 / 模块 | 职责 |
+|----|-----------|------|
+| **SQL 域** | `kb_chunks` + `files` | 分块文本、zhparser FTS（`text_search`）、元数据、ACL 过滤 |
+| **向量域** | `kb_chunk_vectors` + `VectorIndexBackend` | ANN 向量读写；默认 `PgVectorBackend`（pgvector HNSW） |
 
-快速安装：
-
-```bash
-git clone https://github.com/roamer-remote/FileX.git
-cd FileX
-cp .env.example .env
+```mermaid
+flowchart TB
+  Indexer["kb_index_service"] --> Chunks["kb_chunks"]
+  Indexer --> Backend["VectorIndexBackend"]
+  Search["kb_search_service"] --> Chunks
+  Search --> Backend
+  Backend --> Vectors["kb_chunk_vectors"]
 ```
 
-编辑 `.env`，至少设置 `FILEX_BOOTSTRAP_PASSWORD`。如镜像仓库未公开，先执行 `docker login ghcr.io`。
+- **索引**：写入 chunk 元数据后 `upsert_many` 同步向量；删文件时先删向量域再删 SQL 域（详见下节）。
+- **检索**：FTS / hybrid RRF 走 `kb_chunks`；向量路经 `search_scored_rows` JOIN 两表并套用 ACL filter。
+- **可插拔**：`KB_VECTOR_BACKEND=pgvector`（默认）；业务层禁止直接 SQL 访问 `embedding` 列。
+- **迁移**：`alembic upgrade head` 自动建表、backfill、自 `kb_chunks` 移除 `embedding` 列。
 
-```bash
-./scripts/install.sh
-```
-
-默认访问地址：
-
-```text
-http://127.0.0.1:8000
-```
-
-常用升级：
-
-```bash
-git pull
-docker compose pull
-docker compose up -d
-```
-
-完整安装、MinerU CPU/GPU 镜像矩阵与可选 rerank 接入说明见 [Docker 安装指南](docs/docker-install.md)。公开演示站仅供体验，请勿上传隐私数据。
-
-NVIDIA GPU 主机请使用独立的 MinerU GPU 镜像 tag，并叠加
-`docker-compose.gpu.yml`；默认 `latest` 保持为 CPU 多架构镜像。具体命令见
-[Docker 安装指南](docs/docker-install.md)。
+规格：[`specs/062-kb-vector-index-backend/spec.md`](specs/062-kb-vector-index-backend/spec.md)。
 
 ---
 
-## <a id="项目状态"></a>项目状态 [↑](#目录)
+## 删除资料与索引清理
 
-FileX 处于活跃开发阶段，功能持续迭代。
+调用 `DELETE /api/files/{file_id}`（`backend/routers/files.py` → `delete_file`）时，**该资料对应的检索索引会一并清除**，不会在库里留下可检索的 chunk。
 
+**结论**：删除文档后，其 `kb_chunks`（分块）、`kb_chunk_vectors`（向量）、`kb_doc_entity_edge`（文档实体边）、`kb_events` / `kb_event_entities`（077 SAG event 索引，若已抽取）及关联检索数据均被删除；`kb_index.md` 索引表会在提交后通过 `auto_sync_kb_index` 同步移除对应行。
+
+### 清理顺序（实现）
+
+1. 磁盘：原文件、缩略图、侧车 Markdown（若有）
+2. 关联：`share_links`、`file_tags`、MD 标签锚点（`delete_anchors_for_file`）
+3. 索引：`delete_chunks_for_file`（`backend/services/kb_index_service.py`）
+   - `kb_doc_entity_edge`（`delete_doc_entity_edges_for_file`）
+   - `kb_events` / `kb_event_entities`（`delete_sag_events_for_file`，077 P0）
+   - `kb_chunk_vectors`（`VectorIndexBackend.delete_by_file_id`）
+   - `kb_chunks` 行
+4. Wiki：`delete_wiki_links_for_file`
+5. 删除 `files` 行；外键 `ON DELETE CASCADE` 级联清理 `kb_index_jobs`、`kb_extract_jobs`、`file_wiki_link`、`file_md_version` 等
+6. `auto_sync_kb_index` 更新工作区 `kb_index.md`
+
+### 数据项对照
+
+| 数据 | 删除 | 方式 |
+|------|------|------|
+| `kb_chunks` | ✅ | `delete_chunks_for_file` 显式删除 |
+| `kb_chunk_vectors` | ✅ | `delete_by_file_id` |
+| `kb_doc_entity_edge` | ✅ | `delete_doc_entity_edges_for_file` |
+| `kb_events` / `kb_event_entities` | ✅ | `delete_sag_events_for_file`（077；默认未抽取则无行） |
+| Wiki 链接 / MD 锚点 | ✅ | 专用 delete 服务 |
+| `kb_index_jobs` / `kb_extract_jobs` | ✅ | `files` 外键 CASCADE |
+| `kb_index.md` AUTO 表行 | ✅ | 删文件后 `auto_sync_kb_index` |
 ---
 
-## <a id="许可证"></a>许可证 [↑](#目录)
+## 生产环境 Docker 架构
 
-本项目为专有软件，保留所有权利。
+生产通过 **Bamboo CI/CD** 构建镜像，在宿主机用 `docker compose` 拉起全栈（**勿** SSH 手动 `git pull` / `docker build` 发布）。
+
+**Compose 入口**：[`docker/docker-compose.yml`](docker/docker-compose.yml) + [`docker/docker-compose.prod.yml`](docker/docker-compose.prod.yml)
+
+**路径约定**
+
+| 用途 | 宿主机路径 |
+|------|------------|
+| Bamboo CI 检出与构建 | `/root/docker/important/FileX/product/` |
+| 持久化数据（卷挂载） | `/root/important/FileX/product/`（`uploads/`、`logs/`、`postgres/data`、`mineru/`、`docling/`、`ollama/`、`secrets/` 等） |
+
+### 运行时服务
+
+| Compose 服务 | 容器名 | 镜像 | 说明 |
+|--------------|--------|------|------|
+| `filex` | `filex` | `filex/app:*` | FastAPI + 静态前端，对外 `:8001→8000` |
+| `kb-indexer` | `filex-kb-indexer` | **同上 `filex/app:*`** | MQ 消费向量索引 |
+| `kb-extract` | `filex-kb-extract` | `filex/kb-extract:*` | 正文提取 MQ 消费者 |
+| `filex-mineru` | `filex-mineru` | `filex-filex-mineru:*` | MinerU PDF 结构化（`kb.mineru` RPC） |
+| `filex-docling` | `filex-docling` | `filex-filex-docling:*` | Docling 文档解析（`kb.docling` MQ） |
+| `filex-ollama` | `filex-ollama` | `ollama/ollama:latest` | 嵌入模型 `bge-m3`；**11434 不映射宿主机** |
+| `kb-rerank` | `filex-kb-rerank` | `filex/tei-rerank:cpu-1.9.3` | TEI Cross-Encoder 重排序 |
+| `postgres` | `filex-postgres` | `filex-postgres:pg16-zh` | PostgreSQL + pgvector + zhparser |
+| `rabbitmq` | `filex-rabbitmq` | RabbitMQ 3 | 索引 / 提取 / 笔记侧队列 |
+| `redis` | `filex-redis` | Redis 7 | 钉技能等 |
+
+`filex` / `kb-indexer` 经 Compose 内网 `http://filex-ollama:11434` 做向量嵌入；管理端 Ollama 参数可在系统设置中配置（069）。
+
+### 镜像分层
+
+Python 业务镜像共用 `docker/Dockerfile.base` 中的 **`filex/os-base`**：
+
+```
+python:3.13-slim
+    └── filex/os-base:py3.13
+            ├── filex/app-base → filex/app:*        → filex、kb-indexer
+            ├── filex/kb-extract-base → kb-extract:*
+            ├── filex/mineru-base → filex-mineru:*
+            └── filex/docling-base → filex-docling:*
+
+ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.3 → filex/tei-rerank:cpu-1.9.3
+
+独立构建：filex-postgres:pg16-zh（docker/Dockerfile.postgres）
+```
+
+日常**仅改 Python/前端代码**时，构建脚本按依赖指纹跳过未变的 base 层。详见 [`docker/BUILD.md`](docker/BUILD.md)。
+
+### Bamboo 构建与发布
+
+在 CI 检出目录执行（须先设置 `FILEX_APP_BUILD_VERSION`）：
+
+```bash
+cd /root/docker/important/FileX/product
+export FILEX_APP_BUILD_VERSION="$(TZ=Asia/Shanghai date +%Y-%m-%d)-$(git rev-parse --short=7 HEAD)"
+
+./scripts/deploy/bamboo-compose.sh build
+./scripts/deploy/bamboo-compose.sh up -d --no-build filex kb-indexer kb-post kb-extract filex-mineru filex-docling
+```
+
+常用子命令：
+
+```bash
+./scripts/deploy/bamboo-compose.sh build-app-and-up-workers  # partial：filex + kb-indexer + kb-post
+./scripts/deploy/bamboo-compose.sh build-app                 # 仅构建 filex/app 镜像
+./scripts/deploy/bamboo-compose.sh up-app-workers            # 仅重建 filex + kb-indexer + kb-post
+./scripts/deploy/bamboo-compose.sh build-extract             # 仅 kb-extract
+./scripts/deploy/bamboo-compose.sh build-mineru              # 仅 MinerU 笔记侧
+./scripts/deploy/bamboo-compose.sh build-docling             # 仅 Docling 笔记侧
+./scripts/deploy/bamboo-compose.sh build-core                # 首次部署或核心依赖全量刷新
+```
+
+### MinerU 生产更新
+
+生产环境 **不运行** [`scripts/update_minerU.sh`](scripts/update_minerU.sh)：该脚本只用于本地开发，会加载 `docker/docker-compose.local.yml` 并使用本地 `docker/data/mineru/` 挂载。
+
+生产更新流程：
+
+```bash
+# 1. 通过 Renovate PR 或人工 PR 修改 docker/mineru-sidecar/requirements.mineru.txt
+#    例如：mineru[torch]==4.0.0a6（MinerU 4.0.0a6 起 basic extra 改名为 torch）
+
+# 2. CI/CD 在检出目录构建 MinerU 镜像
+cd /root/docker/important/FileX/product
+export FILEX_APP_BUILD_VERSION="$(TZ=Asia/Shanghai date +%Y-%m-%d)-$(git rev-parse --short=7 HEAD)"
+./scripts/check-mineru-version.py --fail-when-outdated
+./scripts/deploy/bamboo-compose.sh build-mineru
+
+# 3. 生产宿主机只重建/重启 MinerU 笔记侧；kb-extract 保持同一 compose 网络内访问 filex-mineru:8080
+./scripts/deploy/bamboo-compose.sh up -d --force-recreate --no-build filex-mineru
+
+# 4. 验证运行态版本与健康状态
+docker exec filex-mineru python -m pip show mineru
+docker ps --filter name=filex-mineru --format '{{.Names}} {{.Image}} {{.Status}}'
+```
+
+若同时变更了 `kb-extract` 与 MinerU 的 RPC/返回结构兼容性，应一起构建并发布：
+
+```bash
+./scripts/deploy/bamboo-compose.sh build-extract
+./scripts/deploy/bamboo-compose.sh build-mineru
+./scripts/deploy/bamboo-compose.sh up -d --force-recreate --no-build kb-extract filex-mineru
+```
+
+`build-mineru` 会分别检查平台依赖 base 指纹与 MinerU runtime 指纹。只修改 `docker/mineru-sidecar/requirements.mineru.txt` 时通常复用 base，但一定重建 runtime；修改 common/CPU/GPU requirements 或对应 Dockerfile 时才重建 base。模型与解析缓存仍挂载在 `/root/important/FileX/product/mineru/`，不会随镜像重建清空。完整 CPU/GPU 流程见 [`specs/_project/mineru-upgrade-deployment.md`](specs/_project/mineru-upgrade-deployment.md)。
+
+生产密钥：`/root/important/FileX/product/secrets/filex.env`（由 `docker-compose.prod.yml` 的 `env_file` 挂载，**不要**放在 CI 检出目录）。
+
+### RAGAS 在线评估（135）
+
+RAGAS 在线评估对 Agent 完成的每条 RAG 回答自动采集 `faithfulness` 与 `context_precision` 分数，结果在管理端 `/admin/kb-search-eval` 仪表盘查看。**默认关闭**，需手动开启。
+
+**环境变量**
+
+| 变量 | 默认 | 说明 |
+|------|------|------|
+| `KB_RAGAS_ONLINE_EVAL_ENABLED` | `false` | 总开关；设 `true` 开启 |
+| `KB_RAGAS_ONLINE_EVAL_SAMPLE_RATE` | `1.0` | 采样率 `0.0–1.0`，线上可调低减负 |
+| `KB_RAGAS_ONLINE_EVAL_TIMEOUT_SECONDS` | `30` | RAGAS LLM 评测超时 |
+
+> 评分 LLM 复用 KB 后处理 LLM 配置（管理端 `/admin/settings` → KB 流水线 → 后处理 LLM）。默认 **Ollama**（自动取 `OLLAMA_BASE_URL` + `OLLAMA_CHAT_MODEL`）；若用 OpenAI-compatible 须在管理端配置 base_url / model / API key。
+
+**本地开发开启**
+
+`docker/docker-compose.local.yml` 已声明三个变量，改默认值或 shell 导出即可：
+
+```bash
+export KB_RAGAS_ONLINE_EVAL_ENABLED=true
+./start.sh
+```
+
+**生产环境开启**
+
+生产经 `env_file` 持久化目录注入（Bamboo 不会删除），**不要**用 `export`（Bamboo 会话结束即失效）：
+
+```bash
+# 1. 编辑持久化密钥文件（仅需一次，跨部署持久）
+vi /root/docker/important/FileX/secrets/filex.env
+#   追加/修改：
+#   KB_RAGAS_ONLINE_EVAL_ENABLED=true
+
+# 2. 重新部署 filex（常规 Bamboo 发布即可，无需特殊构建）
+./scripts/deploy/bamboo-compose.sh build-app-and-up-workers
+# 或仅重启 filex 容器：
+./scripts/deploy/bamboo-compose.sh up -d --no-build filex
+```
+
+> 变量通过 `docker-compose.prod.yml` 的 `env_file` 注入 filex 容器，Bamboo 重建镜像 / 检出不会覆盖 `secrets/filex.env`。模板见 [`scripts/deploy/filex-secrets.env.example`](scripts/deploy/filex-secrets.env.example)。
+
+**验证**
+
+重启后访问 `/admin/kb-search-eval`，状态标签由「未启用」变为「已启用」；Agent 完成 RAG 回答后仪表盘开始累积样本。
+
+### 进一步阅读
+
+- 构建细节与故障排查：[`docker/BUILD.md`](docker/BUILD.md)
+- 部署自检与 Bamboo 说明：[`specs/_project/deployment-checklist.md`](specs/_project/deployment-checklist.md)
+- 生产运维（SSH、日志、常用 compose 命令）：见 [`.cursor/rules/production-ops.mdc`](.cursor/rules/production-ops.mdc)

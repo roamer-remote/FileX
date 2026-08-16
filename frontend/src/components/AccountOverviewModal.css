@@ -1,0 +1,9 @@
+.account-overview-modal .account-overview--embedded .account-overview-shell {
+  padding: var(--space-md) 0 0;
+  border: none;
+  background: transparent;
+}
+
+.account-overview-modal .account-overview--embedded {
+  min-width: 0;
+}

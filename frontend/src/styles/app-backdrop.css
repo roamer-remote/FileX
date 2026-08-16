@@ -1,0 +1,32 @@
+/* 全站统一全屏背景（filex-bg.jpg） */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--canvas-parchment);
+}
+
+.app-backdrop__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+  opacity: 1;
+}
+
+[data-theme='dark'] .app-backdrop {
+  background: #0a0a0e;
+}
+
+/* 全站无遮罩，背景图原样展示 */
+.app-backdrop__scrim--auth,
+.app-backdrop__scrim--app {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}

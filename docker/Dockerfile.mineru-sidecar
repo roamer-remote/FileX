@@ -1,0 +1,60 @@
+# MinerU CPU 笔记侧运行层；依赖见 docker/Dockerfile.base（filex-mineru-base）
+ARG MINERU_BASE_IMAGE=filex-mineru-base
+FROM ${MINERU_BASE_IMAGE} AS mineru-runtime
+
+WORKDIR /app/sidecar
+
+# Keep the Python 3.10 MinerU compatibility shim in the runtime layer too.
+# Ubuntu's system sitecustomize is imported before venv site-packages, so the
+# shim must be appended to the system module rather than installed under a
+# second sitecustomize.py in the venv.
+COPY docker/mineru-sidecar/sitecustomize.py /tmp/filex-sitecustomize.py
+RUN python3 - <<'PY'
+import pathlib
+import sysconfig
+
+target = pathlib.Path(sysconfig.get_path("stdlib")) / "sitecustomize.py"
+shim = pathlib.Path("/tmp/filex-sitecustomize.py").read_text()
+existing = target.read_text() if target.exists() else ""
+marker = "# FileX MinerU Python 3.10 compatibility"
+if marker not in existing:
+    target.write_text(existing.rstrip() + "\n\n" + marker + "\n" + shim)
+PY
+
+# Keep the versioned MinerU install in the runtime layer. CPU/GPU base images
+# already contain their platform and common dependencies, so changing the
+# MinerU pin does not invalidate the large torch dependency layer.
+COPY docker/mineru-sidecar/requirements.mineru.txt ./
+RUN pip install --no-cache-dir -r requirements.mineru.txt
+
+COPY docker/mineru-sidecar/main.py \
+     docker/mineru-sidecar/mq_consumer.py \
+     docker/mineru-sidecar/lifecycle_state.py \
+     docker/mineru-sidecar/mineru_runner.py \
+     docker/mineru-sidecar/mineru_v4_runner.py \
+     docker/mineru-sidecar/table_rotation.py \
+     docker/mineru-sidecar/entrypoint.sh \
+     ./
+COPY backend/logging_setup.py ./logging_setup.py
+
+RUN chmod +x entrypoint.sh && mkdir -p /app/logs
+
+ENV MINERU_MODELS_DIR=/models \
+    MINERU_MODEL_BASE_DIR=/models \
+    MINERU_MODEL_SOURCE=local \
+    MINERU_MODEL_STACK=full \
+    MINERU_CACHE_DIR=/cache \
+    MINERU_TOOLS_CONFIG_JSON=/models/mineru.json \
+    MINERU_MAX_CONCURRENT=1
+
+# Docker 健康检查
+# - 依赖 /health 返回 HTTP 200
+# - /health 现在会返回模型就绪状态（见 main.py）：
+#     "models_ready": true/false
+#     "models_dir": "/models"
+#   便于运维快速判断 pipeline 模型（含 PP-DocLayoutV2）是否完整。
+HEALTHCHECK CMD curl -f http://127.0.0.1:8080/health || exit 1
+
+EXPOSE 8080
+
+ENTRYPOINT ["./entrypoint.sh"]

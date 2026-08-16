@@ -1,0 +1,245 @@
+.agent-run-flow {
+  --agent-flow-canvas: color-mix(in srgb, var(--surface) 96%, var(--surface-elevated));
+  --agent-flow-node: color-mix(in srgb, var(--surface) 94%, transparent);
+  --agent-flow-border: color-mix(in srgb, var(--success) 58%, var(--text-muted));
+  --agent-flow-line: color-mix(in srgb, var(--accent) 68%, var(--success));
+  --agent-flow-line-output: var(--accent);
+  --agent-flow-success: var(--success);
+  --agent-flow-muted: color-mix(in srgb, var(--text-muted) 85%, var(--text));
+  width: 100%;
+  overflow-x: auto;
+  padding: 0;
+}
+
+.agent-run-flow,
+.agent-run-flow * {
+  box-sizing: border-box;
+}
+
+.agent-run-flow__trace-canvas {
+  position: relative;
+  min-width: min(100%, 720px);
+  overflow: visible;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 18%, transparent);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 48% 30%, color-mix(in srgb, var(--agent-flow-line) 5%, transparent), transparent 28%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--agent-flow-canvas) 98%, transparent),
+      color-mix(in srgb, var(--surface-elevated) 72%, var(--agent-flow-canvas))
+    );
+}
+
+.agent-run-flow__caption {
+  position: absolute;
+  top: 28px;
+  right: 32px;
+  z-index: 4;
+  color: var(--agent-flow-muted);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.agent-run-flow__lane {
+  position: absolute;
+  top: 86px;
+  left: 34px;
+  z-index: 5;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--text-muted) 12%, var(--surface));
+  color: color-mix(in srgb, var(--text) 78%, var(--text-muted));
+  font-size: 18px;
+  font-weight: 780;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-muted) 16%, transparent);
+}
+
+.agent-run-flow__lane--l2 {
+  top: 286px;
+}
+
+.agent-run-flow__svg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.agent-run-flow__flow-path {
+  fill: none;
+  stroke: var(--agent-flow-line);
+  stroke-width: 4;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  opacity: 0.72;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--agent-flow-line) 72%, transparent));
+}
+
+.agent-run-flow__flow-path--active {
+  opacity: 1;
+  stroke-width: 4.5;
+}
+
+.agent-run-flow__flow-path--output {
+  stroke: var(--agent-flow-line-output);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--agent-flow-line-output) 58%, transparent));
+}
+
+.agent-run-flow__svg marker path {
+  fill: var(--agent-flow-line);
+}
+
+#agent-run-flow-arrow-blue path {
+  fill: var(--agent-flow-line-output);
+}
+
+.agent-run-flow__flow-pulse {
+  fill: none;
+  stroke: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke-width: 1.8;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-dasharray: 24 50;
+  opacity: 0.82;
+  animation: agent-run-flow-current 1.2s linear infinite;
+}
+
+.agent-run-flow__node-card {
+  position: absolute;
+  z-index: 3;
+  padding: 16px 16px 13px;
+  border: 2px solid var(--agent-flow-border);
+  border-radius: 10px;
+  background: var(--agent-flow-node);
+  box-shadow: 0 11px 26px color-mix(in srgb, var(--text) 10%, transparent);
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
+}
+
+.agent-run-flow__node-card--wide {
+  padding: 18px 17px 15px;
+}
+
+.agent-run-flow__node-card--active {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent),
+    0 12px 30px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.agent-run-flow__node-card--done {
+  border-color: var(--agent-flow-border);
+}
+
+.agent-run-flow__node-card--error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.agent-run-flow__node-card--output {
+  border-color: var(--accent);
+}
+
+.agent-run-flow__node-title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 780;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.agent-run-flow__node-card--output .agent-run-flow__node-title {
+  color: var(--accent);
+}
+
+.agent-run-flow__state-icon {
+  width: 23px;
+  height: 23px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 3px solid color-mix(in srgb, var(--agent-flow-success) 78%, var(--text-muted));
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--agent-flow-success) 88%, var(--text));
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.agent-run-flow__node-card--active .agent-run-flow__state-icon,
+.agent-run-flow__node-card:not(.agent-run-flow__node-card--done):not(.agent-run-flow__node-card--error) .agent-run-flow__state-icon {
+  border-color: color-mix(in srgb, var(--accent) 44%, var(--text-muted));
+  border-top-color: var(--accent);
+  animation: agent-run-flow-spin 1s linear infinite;
+}
+
+.agent-run-flow__node-card--error .agent-run-flow__state-icon {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.agent-run-flow__task-key {
+  display: inline-flex;
+  max-width: 100%;
+  margin-top: 16px;
+  padding: 4px 9px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--agent-flow-success) 26%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--agent-flow-success) 10%, var(--surface));
+  color: color-mix(in srgb, var(--agent-flow-success) 86%, var(--text));
+  font-size: 13px;
+  font-weight: 760;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-run-flow__node-meta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 14px;
+  color: var(--agent-flow-muted);
+  font-size: 14px;
+  font-weight: 620;
+  white-space: nowrap;
+}
+
+.agent-run-flow__node-card--wide .agent-run-flow__node-meta {
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@keyframes agent-run-flow-current {
+  from {
+    stroke-dashoffset: 74;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes agent-run-flow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-run-flow__flow-pulse,
+  .agent-run-flow__state-icon {
+    animation: none;
+  }
+}

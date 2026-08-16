@@ -1,0 +1,156 @@
+# ============================================================
+# FileX GPU base 镜像（NVIDIA CUDA）
+# 仅覆盖需要 GPU 的服务：MinerU / Docling / Ollama / TEI rerank
+# filex / kb-indexer / kb-post / kb-extract 保持 CPU 镜像不变
+#
+# Target 链：os-base-gpu → mineru-base-gpu / docling-base-gpu
+# ============================================================
+
+ARG CUDA_BASE_IMAGE=nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+
+# PyTorch CUDA wheel index。默认官方源（download.pytorch.org/whl/cu118）。
+# CUDA 11.8 + PyTorch 2.6.0 保留 sm_61，兼容 Pascal/GTX 10xx；CUDA 12.x
+# 的新 wheel 不包含 sm_61，会导致 GTX 1080 运行时回退 CPU。
+# 如需指向可用镜像源，构建时传 --build-arg PYTORCH_INDEX_URL=<url> 覆盖。
+ARG PYTORCH_INDEX_URL=https://download.pytorch.org/whl/cu118
+
+# ============================================================
+# Stage 1: filex-os-base-gpu — GPU 共用底层
+# ============================================================
+FROM ${CUDA_BASE_IMAGE} AS filex-os-base-gpu
+
+WORKDIR /app
+
+# Ubuntu 22.04 apt 源 → 阿里云（与 Debian Dockerfile.base 的 debian.sources 不同）
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list 2>/dev/null || true
+
+# 共用运行库（libgl1 / libglib2.0-0 等与 Debian base 对齐，Ubuntu 包名一致）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libjpeg-dev \
+    zlib1g-dev \
+    libgl1 \
+    libglib2.0-0 \
+    libgomp1 \
+    fonts-dejavu-core \
+    fonts-wqy-zenhei \
+    tzdata \
+    python3 \
+    python3-pip \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Ubuntu 24.04 自带 pip 已满足构建需求；避免升级 Debian 管理的 pip。
+
+ENV TZ=Asia/Shanghai
+ENV FILEX_LOG_TIMEZONE=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Keep the GPU image compatible with both Ubuntu 22.04's older pip and newer
+# base images. The venv also prevents pip from mutating the OS Python package
+# set, so the same build works on every CUDA base used by this Dockerfile.
+RUN python3 -m venv /opt/filex-venv
+ENV PATH="/opt/filex-venv/bin:${PATH}"
+
+# MinerU 4 declares Python 3.10 support but imports datetime.UTC,
+# introduced in Python 3.11. Keep the cp310 CUDA wheels used by the GTX 1080
+# image and install the narrowly-scoped compatibility alias into Python's
+# system sitecustomize. Ubuntu already ships /usr/lib/python3.10/sitecustomize.py;
+# placing a second module only in the venv site-packages does not override it.
+COPY docker/mineru-sidecar/sitecustomize.py /tmp/filex-sitecustomize.py
+RUN python3 - <<'PY'
+import pathlib
+import sysconfig
+
+target = pathlib.Path(sysconfig.get_path("stdlib")) / "sitecustomize.py"
+shim = pathlib.Path("/tmp/filex-sitecustomize.py").read_text()
+existing = target.read_text() if target.exists() else ""
+marker = "# FileX MinerU Python 3.10 compatibility"
+if marker not in existing:
+    target.write_text(existing.rstrip() + "\n\n" + marker + "\n" + shim)
+PY
+
+# GPU build host uses Aliyun's PyPI mirror for ordinary dependencies; this
+# avoids slow files.pythonhosted.org redirects while CUDA wheels remain pinned
+# to explicit, verified URLs in requirements.gpu.txt.
+RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+
+# ============================================================
+# Stage 2: filex-mineru-base-gpu — MinerU GPU base
+# ============================================================
+FROM filex-os-base-gpu AS filex-mineru-base-gpu
+
+WORKDIR /app/sidecar
+
+RUN set -eux; \
+    apt-get update; \
+    for attempt in 1 2 3 4 5; do \
+      apt-get install -y --no-install-recommends \
+        gcc g++ build-essential tesseract-ocr \
+      && break; \
+      echo "apt install attempt ${attempt} failed, retrying..." >&2; \
+      sleep 10; \
+      apt-get update; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
+
+# PyTorch CUDA 版：requirements.gpu.txt 已固定为可验证的 CUDA wheel URL。
+# MinerU 的普通依赖必须只从国内 PyPI 镜像解析；不能把 PyTorch 的 simple
+# index 作为 extra-index 传给整次 pip install，否则它会把 sympy 等普通包
+# 指向 files.pythonhosted.org，WHB 构建时容易在公网下载阶段超时。
+COPY docker/mineru-sidecar/requirements.common.txt \
+     docker/mineru-sidecar/requirements.gpu.txt ./
+ARG PYTORCH_INDEX_URL
+RUN python3 -m pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ \
+      --timeout 600 --retries 10 \
+      -r requirements.common.txt -r requirements.gpu.txt
+
+# 构建时 CUDA 探测：BuildKit 默认不向构建容器暴露 GPU，此处仅打印、不阻断构建；
+# 真正的 CUDA 可用性由容器运行时（HEALTHCHECK + 模型加载）验证。
+RUN python3 -c "import torch; print('build-time torch:', torch.__version__, 'cuda:', torch.version.cuda)"
+
+# ============================================================
+# Stage 3: filex-docling-base-gpu — Docling GPU base
+# ============================================================
+FROM filex-os-base-gpu AS filex-docling-base-gpu
+
+WORKDIR /app/sidecar
+
+RUN set -eux; \
+    apt-get update; \
+    for attempt in 1 2 3 4 5; do \
+      apt-get install -y --no-install-recommends \
+        gcc g++ build-essential \
+      && break; \
+      echo "apt install attempt ${attempt} failed, retrying..." >&2; \
+      sleep 10; \
+      apt-get update; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
+
+# PyTorch CUDA 版
+COPY docker/docling-sidecar/requirements.txt ./
+ARG PYTORCH_INDEX_URL
+# Docling's broad torch requirement may otherwise resolve to a CPU wheel from
+# the ordinary PyPI mirror. Install the verified CUDA 11.8 wheel first; the
+# remaining requirements then reuse this installed version.
+RUN python3 -m pip install --no-cache-dir \
+    --index-url https://download.pytorch.org/whl/cu118 \
+    --timeout 600 \
+    --retries 10 \
+    torch==2.6.0+cu118 \
+    torchvision==0.21.0+cu118
+RUN printf 'torch==2.6.0+cu118\ntorchvision==0.21.0+cu118\n' \
+    > /tmp/docling-gpu-constraints.txt
+RUN python3 -m pip install --no-cache-dir \
+    --index-url https://mirrors.aliyun.com/pypi/simple/ \
+    --extra-index-url ${PYTORCH_INDEX_URL} \
+    --constraint /tmp/docling-gpu-constraints.txt \
+    --timeout 600 \
+    --retries 10 \
+    -r requirements.txt
+
+# 构建时 CUDA 探测：BuildKit 默认不向构建容器暴露 GPU，此处仅打印、不阻断构建；
+# 真正的 CUDA 可用性由容器运行时（HEALTHCHECK + 模型加载）验证。
+RUN python3 -c "import torch; print('build-time CUDA available:', torch.cuda.is_available())"

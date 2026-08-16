@@ -1,0 +1,406 @@
+# 本地开发：./start.sh 合并本 overlay 与 docker-compose.yml。
+# API（filex）、kb-indexer、kb-post、kb-ragas-eval、filex-ollama 均在 Compose 内网；Ollama 11434 不映射宿主机。
+# 同网容器经 http://filex-ollama:11434 做向量嵌入与管理端探活；kb-extract 仍在宿主机。
+# 生产部署请只用 docker-compose.yml，不要叠加本文件。
+#
+# 本地数据持久化：docker/data/ 下分子目录（已 gitignore），勿用命名卷。
+# MinerU sidecar 启动时会通过 entrypoint 自动确保 pipeline 模型完整（含 PP-DocLayoutV2 等）。
+# 模型持久化在 docker/data/mineru/models/，首次下载后重启/重建容器不会重复下载。
+# 如需强制重新下载： docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml
+#   run --rm -e FORCE_MINERU_MODEL_DOWNLOAD=1 filex-mineru
+# （或直接 rm docker/data/mineru/models/.pipeline_complete 后重启）。
+#
+# 本地资源变量（start.sh 调用 docker/scripts/tune-local-docker.sh 自动导出）：
+#   FILEX_MINERU_MEM_LIMIT / FILEX_MINERU_SHM_SIZE / FILEX_MINERU_THREADS / FILEX_MINERU_CPUS
+#   FILEX_KB_RERANK_MEM_LIMIT / FILEX_KB_RERANK_CPUS
+#   OLLAMA_NUM_PARALLEL（T-1.2，Ollama 侧 embedding 并行度）
+# 详见 docker/BUILD.md「本地 Mac 资源调优」及 compose 内 098 注释。
+
+services:
+  filex-ollama:
+    volumes: !override
+      # 本地模型目录；首次 pull 后保留，重启/重建容器不会重下（勿 rm -rf docker/data/ollama）
+      - ./data/ollama:/root/.ollama
+      - ./scripts/ollama-entrypoint.sh:/entrypoint.sh:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      # T-1.2 本地开发可轻松覆盖 Ollama 并行度（与生产对齐）
+      # 例：export OLLAMA_NUM_PARALLEL=8; ./start.sh
+      # Admin 设置中的 ollama_num_parallel 是目标记录值；需在宿主机导出同名 env 后重启 filex-ollama 生效。
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-4}
+      # 宿主机 shell 中 http_proxy/http_proxy=127.0.0.1:7890 会被 Docker Compose
+      # 自动注入所有容器；容器内 127.0.0.1 是容器自身 loopback，非宿主机。
+      # 显式覆盖为 host.docker.internal 以正确到达宿主机 7890 代理。
+      HTTP_PROXY: http://host.docker.internal:7890
+      HTTPS_PROXY: http://host.docker.internal:7890
+
+# 本地 kb-indexer：复用 filex/app:latest + 挂载 ../backend，无需每次 --build
+# Ollama 连接与模型参数以 system_settings 为准（DB > compose env 回退）
+  kb-indexer:
+    depends_on: !override
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      filex-ollama:
+        condition: service_started
+    volumes: !override
+      - ${UPLOAD_DIR:-../backend/uploads}:/app/uploads
+      - ./data/logs:/app/logs
+      - ../backend:/app
+      - /etc/localtime:/etc/localtime:ro
+    environment: !override
+      TZ: Asia/Shanghai
+      FILEX_LOG_TIMEZONE: Asia/Shanghai
+      FILEX_ENV: development
+      NO_PROXY: localhost,127.0.0.1,host.docker.internal,filex-ollama,postgres,rabbitmq,redis,kb-rerank
+      no_proxy: localhost,127.0.0.1,host.docker.internal,filex-ollama,postgres,rabbitmq,redis,kb-rerank
+      OLLAMA_BASE_URL: http://filex-ollama:11434
+      OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-bge-m3:latest}
+      OLLAMA_EMBED_DIM: ${OLLAMA_EMBED_DIM:-1024}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-qwen3.5:cloud}
+      OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
+      OLLAMA_EMBED_BATCH_SIZE: ${OLLAMA_EMBED_BATCH_SIZE:-8}
+      # 098 优化参考（本地开发可按需覆盖为 48/4/6，与生产对齐）：
+      # OLLAMA_EMBED_BATCH_SIZE, OLLAMA_EMBED_CONCURRENCY, KB_INDEX_CONCURRENCY
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      FILEX_LOG_FORMAT: console
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: kb-indexer
+
+# 本地 kb-post：与 kb-indexer 同镜像 + 挂载 ../backend（114 后处理 MQ 消费）
+# partial restart 须与 filex/kb-indexer 一并 force-recreate，见 scripts/dev/restart-app-workers.sh
+  kb-post:
+    depends_on: !override
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      filex-ollama:
+        condition: service_started
+    volumes: !override
+      - ${UPLOAD_DIR:-../backend/uploads}:/app/uploads
+      - ./data/logs:/app/logs
+      - ../backend:/app
+      - /etc/localtime:/etc/localtime:ro
+    environment: !override
+      TZ: Asia/Shanghai
+      FILEX_LOG_TIMEZONE: Asia/Shanghai
+      FILEX_ENV: development
+      NO_PROXY: localhost,127.0.0.1,host.docker.internal,filex-ollama,postgres,rabbitmq,redis,kb-rerank
+      no_proxy: localhost,127.0.0.1,host.docker.internal,filex-ollama,postgres,rabbitmq,redis,kb-rerank
+      OLLAMA_BASE_URL: http://filex-ollama:11434
+      OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-bge-m3:latest}
+      OLLAMA_EMBED_DIM: ${OLLAMA_EMBED_DIM:-1024}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-qwen3.5:cloud}
+      OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      KB_POST_CONCURRENCY: ${KB_POST_CONCURRENCY:-1}
+      FILEX_LOG_FORMAT: console
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: kb-post
+
+  # 本地 RAGAS 评测 Worker：复用 app 镜像并挂载 backend，独立消费 PostgreSQL 作业队列。
+  kb-ragas-eval:
+    depends_on: !override
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes: !override
+      - ${UPLOAD_DIR:-../backend/uploads}:/app/uploads
+      - ./data/logs:/app/logs
+      - ../backend:/app
+      - /etc/localtime:/etc/localtime:ro
+    environment: !override
+      TZ: Asia/Shanghai
+      FILEX_LOG_TIMEZONE: Asia/Shanghai
+      FILEX_ENV: development
+      NO_PROXY: localhost,127.0.0.1,host.docker.internal,filex-ollama,postgres,rabbitmq,redis,kb-rerank
+      no_proxy: localhost,127.0.0.1,host.docker.internal,filex-ollama,postgres,rabbitmq,redis,kb-rerank
+      OLLAMA_BASE_URL: http://filex-ollama:11434
+      OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-bge-m3:latest}
+      OLLAMA_EMBED_DIM: ${OLLAMA_EMBED_DIM:-1024}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-qwen3.5:cloud}
+      OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      FILEX_LOG_FORMAT: console
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: kb-ragas-eval
+
+  # 本地 filex API：与生产一致在容器内；挂载 backend + frontend/dist 支持热更新
+  filex:
+    depends_on: !override
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      filex-ollama:
+        condition: service_started
+      kb-indexer:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes: !override
+      - ${UPLOAD_DIR:-../backend/uploads}:/app/uploads
+      - ./data/logs:/app/logs
+      - ../backend:/app
+      - ../frontend/dist:/frontend/dist
+      - /etc/localtime:/etc/localtime:ro
+    environment: !override
+      TZ: Asia/Shanghai
+      FILEX_LOG_TIMEZONE: Asia/Shanghai
+      FILEX_ENV: development
+      NO_PROXY: localhost,127.0.0.1,host.docker.internal,filex-ollama,postgres,rabbitmq,redis,kb-rerank
+      no_proxy: localhost,127.0.0.1,host.docker.internal,filex-ollama,postgres,rabbitmq,redis,kb-rerank
+      FILEX_SECRET_KEY: ${FILEX_SECRET_KEY:?set FILEX_SECRET_KEY}
+      FILEX_BOOTSTRAP_USERNAME: ${FILEX_BOOTSTRAP_USERNAME:-admin}
+      FILEX_BOOTSTRAP_PASSWORD: ${FILEX_BOOTSTRAP_PASSWORD:-}
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/0
+      KB_EXTRACT_MINERU_URL: http://filex-mineru:8080
+      KB_RERANK_URL: ${KB_RERANK_URL:-http://kb-rerank:80/rerank}
+      OLLAMA_BASE_URL: http://filex-ollama:11434
+      OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-bge-m3:latest}
+      OLLAMA_EMBED_DIM: ${OLLAMA_EMBED_DIM:-1024}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-qwen3.5:cloud}
+      OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-120}
+      OLLAMA_EMBED_BATCH_SIZE: ${OLLAMA_EMBED_BATCH_SIZE:-8}
+      # 135 RAGAS 在线评估（默认关闭；设 true 开启，复用 KB 后处理 LLM 配置）
+      KB_RAGAS_ONLINE_EVAL_ENABLED: ${KB_RAGAS_ONLINE_EVAL_ENABLED:-false}
+      KB_RAGAS_ONLINE_EVAL_SAMPLE_RATE: ${KB_RAGAS_ONLINE_EVAL_SAMPLE_RATE:-1.0}
+      KB_RAGAS_ONLINE_EVAL_TIMEOUT_SECONDS: ${KB_RAGAS_ONLINE_EVAL_TIMEOUT_SECONDS:-600}
+      FILEX_LOG_FORMAT: console
+      FILEX_LOG_DIR: /app/logs
+      FILEX_ASSET_SIGNING_SECRET: ${FILEX_ASSET_SIGNING_SECRET:?set FILEX_ASSET_SIGNING_SECRET}
+      FILEX_EXTRACT_ASSET_SIGN_TTL_SECONDS: ${FILEX_EXTRACT_ASSET_SIGN_TTL_SECONDS:-1800}
+      FILEX_EXTRACT_ASSET_SIGN_MAX_KEYS: ${FILEX_EXTRACT_ASSET_SIGN_MAX_KEYS:-64}
+      FILEX_EXTRACT_ASSET_HINT_CACHE_SIZE: ${FILEX_EXTRACT_ASSET_HINT_CACHE_SIZE:-256}
+    command:
+      - sh
+      - -c
+      - >-
+        python -c "from database import wait_for_database; wait_for_database()"
+        && alembic upgrade head
+        && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  redis:
+    volumes:
+      - ./data/redis:/data
+      - /etc/localtime:/etc/localtime:ro
+
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_USER: filebox
+      RABBITMQ_DEFAULT_PASS: filebox
+      TZ: Asia/Shanghai
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+      - /etc/localtime:/etc/localtime:ro
+
+  postgres:
+    # 仅本地回环暴露，供宿主机 Alembic/pytest 使用；不对局域网开放。
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: filebox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: filebox
+      TZ: Asia/Shanghai
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+
+  # Cross-Encoder 重排序（TEI）；./start.sh 拉起并设置 KB_RERANK_URL
+  # 模型目录：docker/data/kb-rerank/bge-reranker-base/（prefetch 脚本可设 KB_RERANK_MODEL_DIR）
+  # TEI 官方镜像无 linux/arm64，Apple Silicon 本地用 amd64 仿真拉取
+  kb-rerank:
+    image: filex/tei-rerank:cpu-1.9.3
+    platform: linux/amd64
+    container_name: filex-kb-rerank
+    restart: unless-stopped
+    cpus: ${FILEX_KB_RERANK_CPUS:-4}
+    mem_limit: ${FILEX_KB_RERANK_MEM_LIMIT:-3g}
+    # 勿用 /data/model（TEI 会误当作 Hub 仓库名）
+    command: --model-id /data/bge-reranker-base --port 80
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ./data/kb-rerank:/data
+      - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # kb-extract：宿主机 kb_extract worker 的容器版本。
+  # 依赖 filex-extract-base（含 requirements-extract.txt）。
+  # start.sh 构建后通过 docker compose up -d 启动。
+  kb-extract:
+    image: filex/extract-base:${FILEX_BASE_VERSION:-py3.13}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.base
+      target: filex-extract-base
+      args:
+        FILEX_OS_BASE_IMAGE: filex/os-base:${FILEX_BASE_VERSION:-py3.13}
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.13-slim
+    profiles:
+      - build-base
+    container_name: filex-kb-extract
+    restart: unless-stopped
+    depends_on: !override
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes: !override
+      - ../backend:/app
+      - ${UPLOAD_DIR:-../backend/uploads}:/app/uploads
+      - ./data/logs:/app/logs
+      - /etc/localtime:/etc/localtime:ro
+    environment: !override
+      TZ: Asia/Shanghai
+      FILEX_LOG_TIMEZONE: Asia/Shanghai
+      FILEX_ENV: development
+      FILEX_SERVICE_NAME: kb-extract
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/0
+      PYTHONPATH: /app
+      KB_EXTRACT_CONCURRENCY: "1"
+      FILEX_ENABLE_MINERU_PROVIDER: ${FILEX_ENABLE_MINERU_PROVIDER:-1}
+      KB_EXTRACT_MINERU_USE_MQ: ${KB_EXTRACT_MINERU_USE_MQ:-1}
+      KB_EXTRACT_MINERU_URL: ${KB_EXTRACT_MINERU_URL:-http://filex-mineru:8080}
+      KB_EXTRACT_MINERU_TIMEOUT_SEC: ${KB_EXTRACT_MINERU_TIMEOUT_SEC:-900}
+      KB_EXTRACT_DOCLING_USE_MQ: ${KB_EXTRACT_DOCLING_USE_MQ:-1}
+      KB_EXTRACT_DOCLING_TIMEOUT_SEC: ${KB_EXTRACT_DOCLING_TIMEOUT_SEC:-600}
+      KB_EXTRACT_DOCLING_HTTP_TIMEOUT_SEC: ${KB_EXTRACT_DOCLING_HTTP_TIMEOUT_SEC:-630}
+      KB_EXTRACT_DOCLING_CACHE_MOUNT: ${KB_EXTRACT_DOCLING_CACHE_MOUNT:-/docling-cache}
+      KB_PDF_INSPECTOR_MODE: ${KB_PDF_INSPECTOR_MODE:-extract}
+      KB_PDF_INSPECTOR_TIMEOUT_SEC: ${KB_PDF_INSPECTOR_TIMEOUT_SEC:-120}
+    command: ["python", "-m", "workers.kb_extract"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # MinerU CPU 笔记侧（032）；宿主机 kb-extract 经 kb.mineru MQ RPC 调用。
+  # UPLOAD_DIR 须与 start.sh 导出值一致（同路径 bind mount，供笔记侧读取 file_path）。
+  filex-mineru:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.mineru-sidecar
+      target: mineru-runtime
+      extra_hosts:
+        - host.docker.internal:host-gateway
+      args:
+        MINERU_BASE_IMAGE: ${FILEX_MINERU_DEPS_IMAGE:-filex/mineru-base:${FILEX_BASE_VERSION:-py3.13}}
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.11-slim
+    # Apple Silicon 原生 arm64（勿设 platform: linux/amd64）
+    container_name: filex-mineru
+    restart: unless-stopped
+    cpus: ${FILEX_MINERU_CPUS:-8}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes: !override
+      - ./data/mineru/models:/models
+      - ./data/mineru/cache:/cache
+      - ./data/logs:/app/logs
+      # 本地同时提供 /uploads（生产常见逻辑路径）和与 host UPLOAD_DIR 一致的路径
+      # 解决 host kb-extract 发送 /uploads/1/... 时 sidecar FileNotFound
+      # 使用与原文件相同的 ../backend 相对（从 docker/ 目录解析到项目 backend）
+      - ${UPLOAD_DIR:-../backend/uploads}:/uploads:ro
+      - ${UPLOAD_DIR:-../backend/uploads}:${UPLOAD_DIR:-/uploads}:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment: !override
+      TZ: Asia/Shanghai
+      FILEX_LOG_FORMAT: console
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: filex-mineru
+      MINERU_LOG_CLI: "1"
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      MINERU_MAX_CONCURRENT: "1"
+      MINERU_MODELS_DIR: /models
+      MINERU_CACHE_DIR: /cache
+      MINERU_MODEL_SOURCE: local
+      MINERU_TOOLS_CONFIG_JSON: /models/mineru.json
+      MINERU_PARSE_TIMEOUT_SEC: "850"
+      OMP_NUM_THREADS: ${FILEX_MINERU_THREADS:-8}
+      MKL_NUM_THREADS: ${FILEX_MINERU_THREADS:-8}
+      OPENBLAS_NUM_THREADS: ${FILEX_MINERU_THREADS:-8}
+      TORCH_NUM_THREADS: ${FILEX_MINERU_THREADS:-8}
+      KB_EXTRACT_TABLE_AUTO_ROTATE: "0"
+      KB_EXTRACT_TABLE_ROTATE_MAX_TABLES: "8"
+      KB_EXTRACT_TABLE_ROTATE_TIMEOUT_SEC: "30"
+    shm_size: ${FILEX_MINERU_SHM_SIZE:-1gb}
+    # 本地默认 8g（测试用）；生产 32G 分配见 docker-compose.yml + 管理端 MinerU 设置
+    # 生产推荐：mem_limit 32g / shm 8gb，DB 设置 ceiling=112、chunk_pages=64、parse=1200
+    mem_limit: ${FILEX_MINERU_MEM_LIMIT:-8g}
+    # 健康检查使用 /health。
+    # /health 现在会同时返回 models_ready（模型是否完整）和 models_dir（持久化目录）。
+    # start_period 给本地首次下载 pipeline 模型（含 PP-DocLayoutV2）留出充足时间。
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s
+
+  # Docling 笔记侧（070）；宿主机 kb-extract 经 kb.docling MQ RPC 调用。
+  filex-docling:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.docling-sidecar
+      target: docling-runtime
+      extra_hosts:
+        - host.docker.internal:host-gateway
+      args:
+        DOCLING_BASE_IMAGE: ${FILEX_DOCLING_DEPS_IMAGE:-filex/docling-base:${FILEX_BASE_VERSION:-py3.13}}
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.11-slim
+    container_name: filex-docling
+    restart: unless-stopped
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes: !override
+      - ./data/docling/models:/models
+      - ./data/docling/cache:/cache
+      - ./data/logs:/app/logs
+      - ${UPLOAD_DIR:-../backend/uploads}:${UPLOAD_DIR:-../backend/uploads}:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment: !override
+      TZ: Asia/Shanghai
+      DOCLING_HTTP_PROXY: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+      HTTP_PROXY: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+      HTTPS_PROXY: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+      http_proxy: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+      https_proxy: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+      NO_PROXY: localhost,127.0.0.1,.local,.internal,host.docker.internal,rabbitmq
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: filex-docling
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      DOCLING_MAX_CONCURRENT: "1"
+      DOCLING_MODELS_DIR: /models
+      DOCLING_CACHE_DIR: /cache
+      DOCLING_PARSE_TIMEOUT_SEC: "550"
+      UPLOAD_DIR: ${UPLOAD_DIR:-../backend/uploads}
+    shm_size: ${FILEX_DOCLING_SHM_SIZE:-2gb}
+    mem_limit: ${FILEX_DOCLING_MEM_LIMIT:-16g}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s

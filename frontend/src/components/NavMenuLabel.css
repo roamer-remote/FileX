@@ -1,0 +1,121 @@
+.nav-menu-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.nav-menu-label__icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-menu-label__text {
+  color: inherit;
+}
+
+/* 顶栏菜单：每项固定品牌色图标 */
+.nav-menu-label--kbPreferences .nav-menu-label__icon { color: #0071e3; }
+.nav-menu-label--myFiles .nav-menu-label__icon { color: #0071e3; }
+.nav-menu-label--knowledgeIndex .nav-menu-label__icon { color: #5856d6; }
+.nav-menu-label--workspaces .nav-menu-label__icon { color: #af52de; }
+.nav-menu-label--userRegistry .nav-menu-label__icon { color: #ff9500; }
+.nav-menu-label--allFiles .nav-menu-label__icon { color: #32ade6; }
+.nav-menu-label--lobby .nav-menu-label__icon { color: var(--warning); }
+.nav-menu-label--systemLogs .nav-menu-label__icon { color: #34c759; }
+.nav-menu-label--skillEditor .nav-menu-label__icon { color: #bf5af2; }
+.nav-menu-label--systemSettings .nav-menu-label__icon { color: #ffd60a; }
+.nav-menu-label--mqMonitor .nav-menu-label__icon { color: #ff3b30; }
+.nav-menu-label--organization .nav-menu-label__icon { color: #5856d6; }
+.nav-menu-label--enterpriseRoles .nav-menu-label__icon { color: #ff9500; }
+.nav-menu-label--enterpriseData .nav-menu-label__icon { color: #af52de; }
+.nav-menu-label--adminOps .nav-menu-label__icon { color: #64d2ff; }
+
+[data-theme='dark'] .nav-menu-label--organization .nav-menu-label__icon { color: #a78bfa; }
+[data-theme='dark'] .nav-menu-label--enterpriseRoles .nav-menu-label__icon { color: #ffb340; }
+[data-theme='dark'] .nav-menu-label--enterpriseData .nav-menu-label__icon { color: #d4a5ff; }
+[data-theme='dark'] .nav-menu-label--adminOps .nav-menu-label__icon { color: #7dd3fc; }
+
+.global-nav .nav-link:hover .nav-menu-label__icon,
+.global-nav .nav-link.active .nav-menu-label__icon,
+.global-nav .kfm-trigger:hover .nav-menu-label__icon,
+.global-nav .kfm-trigger.active .nav-menu-label__icon,
+.global-nav .nav-submenu-trigger:hover .nav-menu-label__icon,
+.global-nav .nav-submenu-trigger.active .nav-menu-label__icon {
+  opacity: 1;
+}
+
+.global-nav .nav-link:not(:hover):not(.active) .nav-menu-label__icon,
+.global-nav .kfm-trigger:not(:hover):not(.active) .nav-menu-label__icon,
+.global-nav .nav-submenu-trigger:not(:hover):not(.active) .nav-menu-label__icon {
+  opacity: 0.92;
+}
+
+/* 方案 B：选中态底部指示条（跟随菜单图标品牌色） */
+.global-nav .nav-link.active:has(.nav-menu-label--lobby)::after {
+  background: linear-gradient(90deg, var(--warning), #ffb340);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--knowledgeIndex)::after,
+.global-nav .nav-link.active:has(.nav-menu-label--organization)::after {
+  background: linear-gradient(90deg, #5856d6, #7c7aff);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--kbPreferences)::after,
+.global-nav .nav-link.active:has(.nav-menu-label--myFiles)::after {
+  background: linear-gradient(90deg, #0071e3, #47a3ff);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--userRegistry)::after,
+.global-nav .nav-link.active:has(.nav-menu-label--enterpriseRoles)::after {
+  background: linear-gradient(90deg, #ff9500, #ffb340);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--allFiles)::after {
+  background: linear-gradient(90deg, #32ade6, #64d2ff);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--systemLogs)::after {
+  background: linear-gradient(90deg, #34c759, #5dd879);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--skillEditor)::after {
+  background: linear-gradient(90deg, #bf5af2, #d4a5ff);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--systemSettings)::after {
+  background: linear-gradient(90deg, #ffd60a, #ffe066);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--workspaces)::after,
+.global-nav .nav-link.active:has(.nav-menu-label--enterpriseData)::after {
+  background: linear-gradient(90deg, #af52de, #d4a5ff);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--adminOps)::after {
+  background: linear-gradient(90deg, #64d2ff, #5ac8fa);
+}
+
+.global-nav .nav-link.active:has(.nav-menu-label--mqMonitor)::after {
+  background: linear-gradient(90deg, #ff3b30, #ff6961);
+}
+
+[data-theme='dark'] .global-nav .nav-link.active:has(.nav-menu-label--organization)::after {
+  background: linear-gradient(90deg, #a78bfa, #c4b5fd);
+}
+
+[data-theme='dark'] .global-nav .nav-link.active:has(.nav-menu-label--enterpriseRoles)::after {
+  background: linear-gradient(90deg, #ffb340, #ffd099);
+}
+
+[data-theme='dark'] .global-nav .nav-link.active:has(.nav-menu-label--enterpriseData)::after,
+[data-theme='dark'] .global-nav .nav-link.active:has(.nav-menu-label--workspaces)::after {
+  background: linear-gradient(90deg, #d4a5ff, #e9d5ff);
+}
+
+[data-theme='dark'] .global-nav .nav-link.active:has(.nav-menu-label--adminOps)::after {
+  background: linear-gradient(90deg, #7dd3fc, #bae6fd);
+}

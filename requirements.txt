@@ -1,0 +1,10 @@
+# 使用清华镜像加快安装：pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+sqlalchemy>=2.0.0
+python-jose[cryptography]>=3.3.0
+python-multipart>=0.0.5
+aiofiles>=23.0.0
+alembic>=1.13.0
+scalar-fastapi>=1.0.0
+Pillow>=10.0.0

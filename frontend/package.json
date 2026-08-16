@@ -1,0 +1,53 @@
+{
+  "name": "filex-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:evidence:mq-factory": "vite --config vite.evidence.config.ts",
+    "build": "tsc --noEmit && vite build",
+    "build:evidence:mq-factory": "vite build --config vite.evidence.config.ts",
+    "test": "vitest run",
+    "preview": "vite preview"
+  },
+  "overrides": {
+    "uuid": "^14.0.0"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.5.2",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/utilities": "^3.2.2",
+    "antd": "^5.23.0",
+    "axios": "^1.7.9",
+    "docx-preview": "^0.3.7",
+    "echarts": "^5.6.0",
+    "highlight.js": "^11.11.1",
+    "i18next": "^24.2.0",
+    "isomorphic-dompurify": "^3.16.0",
+    "katex": "^0.17.0",
+    "marked": "^12.0.0",
+    "marked-katex-extension": "^5.1.10",
+    "pptx-preview": "^1.0.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-i18next": "^15.4.0",
+    "react-photo-view": "^1.2.7",
+    "react-router-dom": "^7.1.1",
+    "vis-data": "^8.0.4",
+    "vis-network": "^10.1.0",
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.5",
+    "@types/katex": "^0.16.8",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react-swc": "^3.7.3",
+    "playwright": "^1.49.1",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.5",
+    "vitest": "^3.2.4"
+  }
+}

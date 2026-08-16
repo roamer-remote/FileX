@@ -1,0 +1,200 @@
+/* 大厅 → 面板：随机进入动效
+ * rc-drawer 将 rootClassName 与 ant-drawer-open 放在同一节点，须用并列类选择器。 */
+
+.knowledge-panel-drawer--fx-slide-up.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-slide-up-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.knowledge-panel-drawer--fx-slide-down.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-slide-down-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.knowledge-panel-drawer--fx-slide-right.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-slide-right-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.knowledge-panel-drawer--fx-slide-left.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-slide-left-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.knowledge-panel-drawer--fx-zoom-in.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-zoom-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.knowledge-panel-drawer--fx-zoom-out.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-zoom-out-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.knowledge-panel-drawer--fx-fade-rise.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-fade-rise-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.knowledge-panel-drawer--fx-blur-fade.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-blur-fade-in 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.knowledge-panel-drawer--fx-rotate-in.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-rotate-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: center center;
+}
+
+.knowledge-panel-drawer--fx-bounce-up.ant-drawer-open .ant-drawer-content {
+  animation: kb-panel-fx-bounce-up-in 0.62s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+}
+
+.knowledge-panel-drawer[class*='--fx-'].ant-drawer-open .ant-drawer-mask {
+  animation: kb-panel-mask-in 0.36s ease both;
+}
+
+@keyframes kb-panel-mask-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes kb-panel-fx-slide-up-in {
+  from {
+    opacity: 0.55;
+    transform: translate3d(0, 36px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes kb-panel-fx-slide-down-in {
+  from {
+    opacity: 0.55;
+    transform: translate3d(0, -36px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes kb-panel-fx-slide-right-in {
+  from {
+    opacity: 0.55;
+    transform: translate3d(48px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes kb-panel-fx-slide-left-in {
+  from {
+    opacity: 0.55;
+    transform: translate3d(-48px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes kb-panel-fx-zoom-in {
+  from {
+    opacity: 0.5;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes kb-panel-fx-zoom-out-in {
+  from {
+    opacity: 0.45;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes kb-panel-fx-fade-rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes kb-panel-fx-blur-fade-in {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes kb-panel-fx-rotate-in {
+  from {
+    opacity: 0.4;
+    transform: rotate(-2.5deg) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes kb-panel-fx-bounce-up-in {
+  0% {
+    opacity: 0.5;
+    transform: translate3d(0, 52px, 0);
+  }
+  68% {
+    opacity: 1;
+    transform: translate3d(0, -6px, 0);
+  }
+  86% {
+    transform: translate3d(0, 2px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (max-width: 768px) {
+  .knowledge-panel-drawer--fx-slide-right.ant-drawer-open .ant-drawer-content,
+  .knowledge-panel-drawer--fx-slide-left.ant-drawer-open .ant-drawer-content,
+  .knowledge-panel-drawer--fx-slide-down.ant-drawer-open .ant-drawer-content {
+    animation-name: kb-panel-fx-slide-up-in;
+  }
+}
+
+.app-main:has(> .knowledge-panel-drawer.ant-drawer-open) .library-lobby__stage {
+  transform: scale(0.982);
+  filter: brightness(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .knowledge-panel-drawer[class*='--fx-'].ant-drawer-open .ant-drawer-content,
+  .knowledge-panel-drawer[class*='--fx-'].ant-drawer-open .ant-drawer-mask {
+    animation: none !important;
+  }
+
+  .app-main:has(> .knowledge-panel-drawer.ant-drawer-open) .library-lobby__stage {
+    transform: none;
+    filter: none;
+  }
+}

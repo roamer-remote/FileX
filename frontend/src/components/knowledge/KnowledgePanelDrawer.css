@@ -1,0 +1,210 @@
+.knowledge-panel-drawer.ant-drawer {
+  position: absolute;
+}
+
+.knowledge-panel-drawer .ant-drawer-content-wrapper {
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.knowledge-panel-drawer .ant-drawer-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.knowledge-panel-drawer .ant-drawer-header {
+  flex-shrink: 0;
+  border-bottom: none;
+}
+
+.knowledge-panel-drawer--eval .ant-drawer-header {
+  align-items: stretch;
+  padding: 10px 16px 14px;
+}
+
+.knowledge-panel-drawer--eval .ant-drawer-header-title {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: end;
+  column-gap: 8px;
+  row-gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.knowledge-panel-drawer--eval .ant-drawer-close {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  margin: 0;
+  margin-inline-end: 0;
+}
+
+.knowledge-panel-drawer--eval .ant-drawer-title,
+.knowledge-panel-drawer--eval .knowledge-panel-drawer-head__toolbar-slot,
+.knowledge-panel-drawer--eval .kb-retrieval-eval-toolbar {
+  display: contents;
+}
+
+.knowledge-panel-drawer--eval .kb-retrieval-eval-toolbar-search {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.knowledge-panel-drawer--eval .kb-retrieval-eval-toolbar-switches {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.knowledge-panel-drawer-head__sr-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.knowledge-panel-drawer-head__toolbar-inline {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 15px;
+  box-sizing: border-box;
+}
+
+.knowledge-panel-drawer--fullscreen .ant-drawer-content-wrapper {
+  max-width: 100% !important;
+}
+
+.knowledge-panel-drawer .ant-drawer-body {
+  padding: 12px 16px 16px;
+  flex: 1 1 0%;
+  height: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.knowledge-panel-drawer--fullscreen .ant-drawer-body {
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .knowledge-panel-drawer .ant-drawer-content-wrapper {
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.16);
+  }
+}
+
+.knowledge-panel-drawer--eval.ant-drawer .ant-drawer-content-wrapper,
+.knowledge-panel-drawer--fullscreen.ant-drawer .ant-drawer-content-wrapper {
+  inset-inline-start: 0 !important;
+  inset-inline-end: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+.app-main > .knowledge-panel-drawer.ant-drawer {
+  inset: 0;
+  z-index: 12;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.app-main > .knowledge-panel-drawer.ant-drawer .ant-drawer-content-wrapper {
+  box-shadow: none;
+  border-left: none;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.app-main > .knowledge-panel-drawer.ant-drawer .ant-drawer-content {
+  border-radius: 0;
+}
+
+.knowledge-lobby-stage-wrap > .knowledge-panel-drawer.ant-drawer {
+  inset: 0;
+}
+
+.knowledge-lobby-stage-wrap > .knowledge-panel-drawer.ant-drawer .ant-drawer-content-wrapper {
+  box-shadow: none;
+  border-left: none;
+}
+
+.knowledge-panel-drawer .ant-drawer-header-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.knowledge-panel-drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 12px 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.knowledge-panel-drawer-head__title {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.knowledge-panel-drawer__title-row {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.knowledge-panel-drawer-head .panel-title-row {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.knowledge-panel-drawer-head__actions {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.knowledge-panel-drawer .ant-drawer-extra .wlg-toolbar-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .knowledge-panel-drawer-head {
+    flex-wrap: wrap;
+  }
+
+  .knowledge-panel-drawer-head__after-title {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .knowledge-panel-drawer-head__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

@@ -1,0 +1,983 @@
+/* ============================================================
+   FileX — Apple Design System
+   Inspired by apple.com design language
+   ============================================================ */
+
+/* --- Inter Font (open-source SF Pro equivalent) --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* ============================================================
+   Theme-Invariant CSS Custom Properties
+   ============================================================ */
+:root {
+  --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Noto Sans SC', sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Noto Sans SC', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Noto Sans SC', monospace;
+
+  /* Border radius — Apple scale (50% of original) */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================
+   Structural Variables — Light Theme (Apple Signature)
+   ============================================================ */
+[data-theme="light"] {
+  --accent: #0071e3;
+  --accent-rgb: 0, 113, 227;
+  --accent-dim: rgba(0, 113, 227, 0.1);
+  --accent-hover: #0077ed;
+  --accent-on-dark: #2997ff;
+
+  --cta-primary: #0071e3;
+  --cta-primary-hover: #0077ed;
+
+  --ink: #2c2c2e;
+  --text-primary: #2c2c2e;
+  --text-secondary: #5c5c5e;
+  --text-muted: #8e8e93;
+
+  --canvas: #ffffff;
+  --canvas-parchment: #f7f8fa;
+  --surface-pearl: #ffffff;
+
+  /* 右侧主内容区渐变画布（Hero + Tabs + 正文一体） */
+  --main-panel-bg: #e8ecf2;
+  --main-panel-gradient:
+    radial-gradient(ellipse 84% 58% at 92% -4%, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0) 54%),
+    radial-gradient(ellipse 52% 44% at 4% 20%, rgba(0, 113, 227, 0.08) 0%, rgba(0, 113, 227, 0) 56%),
+    radial-gradient(ellipse 118% 72% at 50% 112%, rgba(44, 44, 46, 0.07) 0%, rgba(44, 44, 46, 0) 54%),
+    linear-gradient(168deg, #fdfefe 0%, #f8fafc 30%, #f1f5f9 62%, #e6ebf2 100%);
+  --main-panel-border: rgba(255, 255, 255, 0.72);
+  --main-panel-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  --main-panel-shadow: 0 26px 60px -34px rgba(44, 44, 46, 0.16);
+
+  --surface-tile-1: #272729;
+  --surface-tile-2: #2a2a2c;
+  --surface-tile-3: #252527;
+  --surface-black: #000000;
+
+  --bg-void: #ffffff;
+  --bg-deep: #f0efed;
+  --bg-surface: #fafaf9;
+  --bg-glass: rgba(255, 255, 255, 0.88);
+  --bg-card: #ffffff;
+  --table-header: #e8f4fc;
+  --table-row-odd: var(--bg-card);
+  --table-row-even: #e8eaed;
+  --table-row-hover: color-mix(in srgb, var(--accent) 8%, var(--bg-card));
+  --table-row-selected: color-mix(in srgb, var(--accent) 14%, var(--bg-card));
+
+  --divider-soft: rgba(44, 44, 46, 0.06);
+  --hairline: rgba(44, 44, 46, 0.08);
+  --border-subtle: rgba(44, 44, 46, 0.06);
+  --bezel-shell: rgba(44, 44, 46, 0.04);
+
+  --success: #0071e3;
+  --success-rgb: 0, 113, 227;
+  --fl-ops-filled: #34c759;
+  --warning: #ff9f0a;
+  --warning-rgb: 255, 159, 10;
+  --danger: #ff453a;
+  --danger-rgb: 255, 69, 58;
+  --danger-dim: rgba(255, 69, 58, 0.08);
+  --danger-strong: #d70015;
+
+  --shadow-card: 0 8px 32px rgba(44, 44, 46, 0.06);
+  --shadow-elevated: 0 16px 48px rgba(44, 44, 46, 0.08);
+  --shadow-inset-soft: inset 0 1px 1px rgba(255, 255, 255, 0.65);
+  --shadow-product: var(--apple-shadow-product);
+  --overlay-bg: rgba(0, 0, 0, 0.3);
+  --form-bg: rgba(255, 255, 255, 0.96);
+
+  --sidebar-group-bg: transparent;
+  --sidebar-group-bg-hover: rgba(44, 44, 46, 0.04);
+  --sidebar-item-text: #3a3a3c;
+  --sidebar-item-text-muted: #8e8e93;
+  --sidebar-item-hover-bg: rgba(44, 44, 46, 0.05);
+  --sidebar-item-active-bg: rgba(44, 44, 46, 0.08);
+  --sidebar-item-active-text: #2c2c2e;
+  --sidebar-tree-line: rgba(44, 44, 46, 0.1);
+
+  /* Tooltip — 全局 3D 浮层（Ant Design + ECharts + Element Plus 共用） */
+  --tooltip-bg: #e8f4fc;
+  --tooltip-bg-top: #f4f9fd;
+  --tooltip-text: #1d1d1f;
+  --tooltip-border: rgba(0, 113, 227, 0.22);
+  --tooltip-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  --tooltip-shadow:
+    0 1px 2px rgba(0, 113, 227, 0.1),
+    0 6px 16px rgba(44, 44, 46, 0.1),
+    0 14px 36px -8px rgba(44, 44, 46, 0.16);
+
+  /* Markdown 分栏：源码编辑区 / 渲染预览区 */
+  --md-pane-editor-bg: var(--bg-surface);
+  --md-pane-preview-bg: color-mix(in srgb, var(--accent) 7.5%, var(--bg-void));
+  --md-pane-code-bg: var(--bg-surface);
+
+  /* Button tokens — unified bordered style */
+  --btn-radius: 4px;
+  --btn-bg-default: var(--bg-card);
+  --btn-bg-default-hover: var(--canvas-parchment);
+  --btn-border-default: var(--hairline);
+  --btn-border-default-hover: color-mix(in srgb, var(--accent) 35%, var(--hairline));
+  --btn-text-default: var(--text-primary);
+  --btn-hover-text-default: var(--accent);
+  --btn-glow-default: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+  --btn-bg-primary: var(--accent);
+  --btn-bg-primary-hover: var(--accent-hover);
+  --btn-border-primary: var(--accent);
+  --btn-border-primary-hover: var(--accent-hover);
+  --btn-text-primary: #ffffff;
+  --btn-hover-text-primary: #ffffff;
+  --btn-glow-primary: 0 0 0 3px rgba(var(--accent-rgb), 0.35);
+  --btn-bg-danger: var(--danger-dim);
+  --btn-bg-danger-hover: color-mix(in srgb, var(--danger) 14%, var(--bg-card));
+  --btn-border-danger: var(--danger);
+  --btn-border-danger-hover: var(--danger);
+  --btn-text-danger: var(--danger);
+  --btn-hover-text-danger: var(--danger-strong);
+  --btn-glow-danger: 0 0 0 3px rgba(var(--danger-rgb), 0.25);
+  --btn-bg-danger-solid: var(--danger);
+  --btn-bg-danger-solid-hover: var(--danger-strong);
+  --btn-border-danger-solid: var(--danger);
+  --btn-border-danger-solid-hover: var(--danger-strong);
+  --btn-text-danger-solid: #ffffff;
+  --btn-hover-text-danger-solid: #ffffff;
+  --btn-glow-danger-solid: 0 0 0 3px rgba(var(--danger-rgb), 0.35);
+  --btn-text-text: var(--text-secondary);
+  --btn-hover-text-text: var(--accent);
+  --btn-glow-text: 0 0 0 2px rgba(var(--accent-rgb), 0.12);
+  --btn-text-link: var(--accent);
+  --btn-hover-text-link: var(--accent-hover);
+  --btn-glow-link: 0 0 0 2px rgba(var(--accent-rgb), 0.12);
+}
+
+/* ============================================================
+   Structural Variables — Dark Theme
+   ============================================================ */
+[data-theme="dark"] {
+  --cta-primary: #f5f5f7;
+  --cta-primary-hover: #ffffff;
+  --table-header: #1a2838;
+  --table-row-odd: var(--bg-card);
+  --table-row-even: color-mix(in srgb, var(--text-primary) 12%, var(--bg-card));
+  --table-row-hover: color-mix(in srgb, var(--accent) 14%, var(--bg-card));
+  --table-row-selected: color-mix(in srgb, var(--accent) 22%, var(--bg-card));
+  --bezel-shell: rgba(255, 255, 255, 0.06);
+  --shadow-inset-soft: inset 0 1px 1px rgba(255, 255, 255, 0.06);
+  --accent: #2997ff;
+  --accent-rgb: 41, 151, 255;
+  --accent-dim: rgba(41, 151, 255, 0.1);
+  --accent-hover: #40a9ff;
+  --accent-on-dark: #2997ff;
+
+  --ink: #f5f5f7;
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-muted: #6e6e73;
+
+  --canvas: #1c1c1e;
+  --canvas-parchment: #2c2c2e;
+  --surface-pearl: #3a3a3c;
+
+  --main-panel-bg: #14161c;
+  --main-panel-gradient:
+    radial-gradient(ellipse 78% 52% at 88% -6%, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0) 54%),
+    radial-gradient(ellipse 48% 40% at 6% 18%, rgba(41, 151, 255, 0.1) 0%, rgba(41, 151, 255, 0) 56%),
+    radial-gradient(ellipse 110% 68% at 50% 108%, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0) 52%),
+    linear-gradient(168deg, #1a1c22 0%, #14161c 38%, #101218 100%);
+  --main-panel-border: rgba(255, 255, 255, 0.08);
+  --main-panel-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --main-panel-shadow: 0 28px 64px -36px rgba(0, 0, 0, 0.55);
+
+  --surface-tile-1: #272729;
+  --surface-tile-2: #2a2a2c;
+  --surface-tile-3: #252527;
+  --surface-black: #000000;
+
+  --bg-void: #000000;
+  --bg-deep: #1c1c1e;
+  --bg-surface: #2c2c2e;
+  --bg-glass: rgba(28, 28, 30, 0.82);
+  --bg-card: #2c2c2e;
+
+  --divider-soft: rgba(255, 255, 255, 0.06);
+  --hairline: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  --success: #30d158;
+  --success-rgb: 48, 209, 88;
+  --fl-ops-filled: #30d158;
+  --warning: #ff9f0a;
+  --warning-rgb: 255, 159, 10;
+  --danger: #ff453a;
+  --danger-rgb: 255, 69, 58;
+  --danger-dim: rgba(255, 69, 58, 0.12);
+  --danger-strong: #ff6961;
+
+  --shadow-card: none;
+  --shadow-elevated: none;
+  --shadow-product: var(--apple-shadow-product);
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+  --form-bg: rgba(44, 44, 46, 0.9);
+
+  /* 侧栏层级菜单 */
+  --sidebar-group-bg: #2d2d2d;
+  --sidebar-group-bg-hover: #363636;
+  --sidebar-item-text: #e8e8ed;
+  --sidebar-item-text-muted: #98989d;
+  --sidebar-item-hover-bg: rgba(255, 255, 255, 0.06);
+  --sidebar-item-active-bg: #0066cc;
+  --sidebar-item-active-text: #ffffff;
+  --sidebar-tree-line: #444444;
+
+  --md-pane-editor-bg: var(--bg-deep);
+  --md-pane-preview-bg: var(--bg-surface);
+  --md-pane-code-bg: var(--canvas-parchment);
+
+  /* Button tokens — unified bordered style */
+  --btn-radius: 4px;
+  --btn-bg-default: var(--bg-card);
+  --btn-bg-default-hover: color-mix(in srgb, var(--accent) 8%, var(--bg-card));
+  --btn-border-default: var(--hairline);
+  --btn-border-default-hover: color-mix(in srgb, var(--accent) 40%, var(--hairline));
+  --btn-text-default: var(--text-primary);
+  --btn-hover-text-default: var(--accent);
+  --btn-glow-default: 0 0 0 3px rgba(var(--accent-rgb), 0.22);
+  --btn-bg-primary: var(--accent);
+  --btn-bg-primary-hover: var(--accent-hover);
+  --btn-border-primary: var(--accent);
+  --btn-border-primary-hover: var(--accent-hover);
+  --btn-text-primary: #ffffff;
+  --btn-hover-text-primary: #ffffff;
+  --btn-glow-primary: 0 0 0 3px rgba(var(--accent-rgb), 0.4);
+  --btn-bg-danger: var(--danger-dim);
+  --btn-bg-danger-hover: color-mix(in srgb, var(--danger) 18%, var(--bg-card));
+  --btn-border-danger: var(--danger);
+  --btn-border-danger-hover: var(--danger-strong);
+  --btn-text-danger: var(--danger);
+  --btn-hover-text-danger: var(--danger-strong);
+  --btn-glow-danger: 0 0 0 3px rgba(var(--danger-rgb), 0.3);
+  --btn-bg-danger-solid: var(--danger);
+  --btn-bg-danger-solid-hover: var(--danger-strong);
+  --btn-border-danger-solid: var(--danger);
+  --btn-border-danger-solid-hover: var(--danger-strong);
+  --btn-text-danger-solid: #ffffff;
+  --btn-hover-text-danger-solid: #ffffff;
+  --btn-glow-danger-solid: 0 0 0 3px rgba(var(--danger-rgb), 0.4);
+  --btn-text-text: var(--text-secondary);
+  --btn-hover-text-text: var(--accent);
+  --btn-glow-text: 0 0 0 2px rgba(var(--accent-rgb), 0.18);
+  --btn-text-link: var(--accent);
+  --btn-hover-text-link: var(--accent-hover);
+  --btn-glow-link: 0 0 0 2px rgba(var(--accent-rgb), 0.18);
+
+  --tooltip-bg: #323234;
+  --tooltip-bg-top: #3a3a3c;
+  --tooltip-text: #f5f5f7;
+  --tooltip-border: rgba(255, 255, 255, 0.14);
+  --tooltip-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  --tooltip-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 20px rgba(0, 0, 0, 0.42),
+    0 18px 44px -10px rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================================
+   Base Reset & Body
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss03" 1;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* 在 html 尚未写入 data-theme 前的短暂回退 */
+  background-color: var(--canvas-parchment);
+}
+
+/* 页面底层：纯色（DESIGN.md — 无装饰性渐变） */
+[data-theme='light'] body {
+  background-color: var(--canvas-parchment);
+  background-image: none;
+}
+
+[data-theme='dark'] body {
+  background-color: var(--bg-deep);
+  background-image: none;
+}
+
+#root, #app {
+  height: 100%;
+  min-width: 0;
+  background: transparent;
+}
+
+/* 全站最大宽度：宽屏两侧展示背景图，主界面居中 */
+:root {
+  --app-shell-max: 1400px;
+}
+
+.app-viewport {
+  position: relative;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+[data-theme='dark'] .app-viewport {
+  background: transparent;
+}
+
+.app-shell {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  width: 100%;
+  max-width: var(--app-shell-max);
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: transparent;
+}
+
+@media (min-width: 1401px) {
+  .app-shell {
+    box-shadow: 0 0 0 1px var(--hairline);
+  }
+
+  [data-theme='dark'] .app-shell {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* --- Selection --- */
+::selection {
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   Animations — Keyframes
+   ============================================================ */
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  0% { opacity: 0; transform: translateX(8px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================================
+   Element Plus Global Overrides — Apple Style
+   ============================================================ */
+
+/* --- Overlay --- */
+.el-overlay {
+  background-color: var(--overlay-bg) !important;
+  backdrop-filter: blur(20px);
+  z-index: 3000 !important;
+}
+
+/* --- Dialog / Modal --- */
+.el-dialog {
+  background: var(--bg-glass) !important;
+  backdrop-filter: blur(40px);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+.el-dialog__header {
+  padding: 20px 24px 0 !important;
+  margin: 0 !important;
+}
+.el-dialog__title {
+  font-family: var(--font-display) !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.374px;
+}
+.el-dialog__headerbtn {
+  top: 18px !important;
+  right: 20px !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+.el-dialog__headerbtn .el-dialog__close {
+  color: var(--text-muted) !important;
+  font-size: 18px !important;
+  transition: all 0.2s ease;
+}
+.el-dialog__headerbtn .el-dialog__close:hover {
+  color: var(--text-primary) !important;
+}
+.el-dialog__body {
+  padding: 16px 24px 20px !important;
+  color: var(--text-primary) !important;
+}
+.el-dialog__footer {
+  padding: 0 24px 20px !important;
+}
+
+/* --- Input / Textarea — Apple Style --- */
+.el-input__wrapper {
+  background: var(--form-bg) !important;
+  border: 1px solid var(--hairline) !important;
+  border-radius: var(--radius-pill) !important;
+  box-shadow: none !important;
+  transition: all 0.25s var(--ease-out-expo) !important;
+  padding: 0 16px !important;
+  height: 44px;
+}
+.el-input__wrapper:hover {
+  border-color: var(--text-muted) !important;
+}
+.el-input__wrapper.is-focus,
+.el-input__wrapper:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15) !important;
+}
+.el-input__inner {
+  font-family: var(--font-body) !important;
+  font-size: 17px !important;
+  color: var(--text-primary) !important;
+  background: transparent !important;
+  height: 42px !important;
+}
+.el-input__inner::placeholder {
+  color: var(--text-muted) !important;
+}
+.el-form-item__label {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: var(--text-secondary) !important;
+  letter-spacing: -0.224px;
+  padding-bottom: 4px !important;
+}
+.el-form-item.is-error .el-input__wrapper {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(var(--danger-rgb), 0.15) !important;
+}
+
+/* --- Table — Clean Apple Style --- */
+.ant-table-thead > tr > th,
+.ant-table-thead > tr > td {
+  background: var(--table-header) !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500;
+  border-bottom-color: var(--hairline) !important;
+}
+
+.ant-table-thead > tr > th.ant-table-cell-fix-sticky,
+.ant-table-thead > tr > td.ant-table-cell-fix-sticky {
+  background: var(--table-header) !important;
+}
+
+/* 全站表格奇偶行底色（Ant Design）— 用 :nth-child(odd of .ant-table-row) 忽略 measure 行 */
+.ant-table-tbody > tr.ant-table-row:nth-child(odd of .ant-table-row) > td,
+.ant-table-tbody > tr.ant-table-row:nth-child(odd of .ant-table-row) > td.ant-table-cell-fix-left,
+.ant-table-tbody > tr.ant-table-row:nth-child(odd of .ant-table-row) > td.ant-table-cell-fix-right {
+  background: var(--table-row-odd) !important;
+}
+
+.ant-table-tbody > tr.ant-table-row:nth-child(even of .ant-table-row) > td,
+.ant-table-tbody > tr.ant-table-row:nth-child(even of .ant-table-row) > td.ant-table-cell-fix-left,
+.ant-table-tbody > tr.ant-table-row:nth-child(even of .ant-table-row) > td.ant-table-cell-fix-right {
+  background: var(--table-row-even) !important;
+}
+
+.ant-table-tbody > tr.ant-table-measure-row > td,
+.ant-table-tbody > tr.ant-table-placeholder > td {
+  background: transparent !important;
+}
+
+.ant-table-tbody > tr:hover:not(.ant-table-measure-row):not(.ant-table-placeholder) > td,
+.ant-table-tbody > tr:hover:not(.ant-table-measure-row):not(.ant-table-placeholder) > td.ant-table-cell-fix-left,
+.ant-table-tbody > tr:hover:not(.ant-table-measure-row):not(.ant-table-placeholder) > td.ant-table-cell-fix-right {
+  background: var(--table-row-hover) !important;
+}
+
+.ant-table-tbody > tr.ant-table-row-selected > td,
+.ant-table-tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-left,
+.ant-table-tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-right {
+  background: var(--table-row-selected) !important;
+}
+
+.el-table {
+  --el-table-bg-color: transparent !important;
+  --el-table-tr-bg-color: transparent !important;
+  --el-table-header-bg-color: var(--table-header) !important;
+  --el-table-border-color: var(--hairline) !important;
+  --el-table-row-hover-bg-color: var(--table-row-hover) !important;
+  background: transparent !important;
+  font-family: var(--font-body) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.el-table th.el-table__cell {
+  background: var(--table-header) !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  letter-spacing: 0;
+  text-transform: none;
+  border-bottom: 1px solid var(--divider-soft) !important;
+  padding: 10px 12px !important;
+}
+.el-table td.el-table__cell {
+  border-bottom: 1px solid var(--divider-soft) !important;
+  font-size: 14px !important;
+  color: var(--text-primary) !important;
+  padding: 10px 12px !important;
+}
+.el-table tr {
+  transition: background 0.15s ease;
+}
+
+.el-table__body tr:nth-child(odd) td.el-table__cell {
+  background: var(--table-row-odd) !important;
+}
+
+.el-table__body tr:nth-child(even) td.el-table__cell {
+  background: var(--table-row-even) !important;
+}
+
+.el-table__body tr:hover td.el-table__cell {
+  background: var(--table-row-hover) !important;
+}
+
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background: var(--table-row-even) !important;
+}
+
+.el-table__body tr.el-table__row:hover td {
+  background: var(--table-row-hover) !important;
+}
+
+/* --- Dropdown --- */
+.el-dropdown-menu {
+  background: var(--bg-glass) !important;
+  backdrop-filter: blur(40px);
+  border: 1px solid var(--hairline) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-elevated) !important;
+  padding: 6px !important;
+}
+.el-dropdown-menu__item {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  color: var(--text-secondary) !important;
+  border-radius: var(--radius-xs) !important;
+  padding: 7px 12px !important;
+  transition: all 0.15s ease !important;
+}
+.el-dropdown-menu__item:hover {
+  background: var(--accent-dim) !important;
+  color: var(--accent) !important;
+}
+.el-dropdown-menu__item--divided {
+  border-top: 1px solid var(--hairline) !important;
+}
+
+/* --- Menu --- */
+.el-menu {
+  background: transparent !important;
+  border: none !important;
+}
+.el-menu-item {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: var(--text-secondary) !important;
+  border-radius: var(--radius-xs) !important;
+  margin: 2px 8px !important;
+  transition: all 0.15s ease !important;
+  height: 36px !important;
+  line-height: 36px !important;
+}
+.el-menu-item:hover {
+  background: var(--accent-dim) !important;
+  color: var(--accent) !important;
+}
+.el-menu-item.is-active {
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+  background: var(--accent-dim) !important;
+}
+.el-menu-item [class*="el-icon"] { font-size: 16px; }
+
+/* --- Select --- */
+.el-select .el-input__wrapper {
+  background: var(--form-bg) !important;
+}
+.el-select-dropdown {
+  background: var(--bg-glass) !important;
+  backdrop-filter: blur(40px);
+  border: 1px solid var(--hairline) !important;
+  border-radius: var(--radius-md) !important;
+}
+.el-select-dropdown__item {
+  font-family: var(--font-body) !important;
+  color: var(--text-secondary) !important;
+}
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background: var(--accent-dim) !important;
+  color: var(--accent) !important;
+}
+.el-select-dropdown__item.selected {
+  color: var(--accent) !important;
+}
+
+/* --- Tag --- */
+.el-tag {
+  font-family: var(--font-mono) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-xs) !important;
+  letter-spacing: 0;
+  padding: 0 8px !important;
+  height: 22px !important;
+  line-height: 20px !important;
+}
+.el-tag--warning {
+  background: rgba(var(--warning-rgb), 0.1) !important;
+  border-color: rgba(var(--warning-rgb), 0.2) !important;
+  color: var(--warning) !important;
+}
+.el-tag--info {
+  background: var(--accent-dim) !important;
+  border-color: transparent !important;
+  color: var(--accent) !important;
+}
+.el-tag--small {
+  padding: 0 6px !important;
+  height: 18px !important;
+  line-height: 18px !important;
+  font-size: 11px !important;
+}
+
+/* --- Pagination --- */
+.el-pagination {
+  font-family: var(--font-body) !important;
+  color: var(--text-secondary) !important;
+}
+.el-pagination button {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  min-width: 28px !important;
+  height: 28px !important;
+}
+.el-pagination button:hover {
+  color: var(--accent) !important;
+}
+.el-pagination .el-pager li {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  border-radius: var(--radius-pill) !important;
+}
+.el-pagination .el-pager li:hover {
+  color: var(--accent) !important;
+}
+.el-pagination .el-pager li.is-active {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* --- Radio Button --- */
+.el-radio-button__inner {
+  background: transparent !important;
+  border: 1px solid var(--hairline) !important;
+  color: var(--text-secondary) !important;
+  font-size: 13px !important;
+  padding: 6px 14px !important;
+}
+.el-radio-button__inner:hover {
+  color: var(--accent) !important;
+}
+.el-radio-button.is-active .el-radio-button__inner {
+  background: var(--accent-dim) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: none !important;
+}
+
+/* --- Message --- */
+.el-message {
+  background: var(--bg-glass) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--hairline) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-elevated) !important;
+  min-width: 280px !important;
+  padding: 12px 16px !important;
+}
+.el-message--success {
+  border-color: var(--success) !important;
+}
+.el-message--error {
+  border-color: var(--danger) !important;
+}
+.el-message .el-message__content {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+}
+
+/* --- Message Box --- */
+.el-message-box {
+  background: var(--bg-glass) !important;
+  backdrop-filter: blur(40px);
+  border: 1px solid var(--hairline) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-elevated) !important;
+}
+.el-message-box__title {
+  font-family: var(--font-display) !important;
+  font-size: 15px !important;
+  color: var(--text-primary) !important;
+}
+.el-message-box__message {
+  font-family: var(--font-body) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* --- Tooltip — 全局 3D 浮层（Ant Design / ECharts / Element Plus） --- */
+.ant-tooltip {
+  --antd-arrow-background-color: var(--tooltip-bg, #e8f4fc) !important;
+}
+
+.ant-tooltip .ant-tooltip-inner {
+  background: linear-gradient(
+    180deg,
+    var(--tooltip-bg-top, var(--tooltip-bg)) 0%,
+    var(--tooltip-bg, #e8f4fc) 100%
+  ) !important;
+  color: var(--tooltip-text, #1d1d1f) !important;
+  border: 1px solid var(--tooltip-border, rgba(0, 113, 227, 0.22)) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--tooltip-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.92)), var(--tooltip-shadow) !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.el-tooltip__popper {
+  background: linear-gradient(
+    180deg,
+    var(--tooltip-bg-top, var(--tooltip-bg)) 0%,
+    var(--tooltip-bg, #e8f4fc) 100%
+  ) !important;
+  color: var(--tooltip-text, #1d1d1f) !important;
+  border: 1px solid var(--tooltip-border, rgba(0, 113, 227, 0.22)) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--tooltip-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.92)), var(--tooltip-shadow) !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+/* --- Input Number --- */
+.el-input-number .el-input__wrapper {
+  background: var(--form-bg) !important;
+}
+
+/* --- Checkbox --- */
+.el-checkbox__label {
+  font-family: var(--font-body) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ============================================================
+   Utility Classes
+   ============================================================ */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(40px);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.surface-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+/* 面板标题行：主标题 + 同行 subTitle（资料库各 Tab 等可复用） */
+.panel-title-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  min-width: 0;
+}
+
+.panel-title-row > .ant-typography,
+.panel-title-row > h1,
+.panel-title-row > h2,
+.panel-title-row > h3,
+.panel-title-row > h4,
+.panel-title-row > h5,
+.panel-title-row > span {
+  margin: 0;
+}
+
+.panel-subtitle {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  font-weight: 400;
+  color: var(--text-muted);
+  max-width: min(100%, 42rem);
+}
+
+[data-theme='dark'] .panel-subtitle {
+  color: var(--text-secondary);
+}
+
+/* 指标卡标题 + 问号说明（Statistic title 等可复用） */
+.stat-label-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.stat-label-with-help__text {
+  line-height: 1.35;
+}
+
+.stat-label-with-help__btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1;
+  cursor: help;
+  transition: color 0.15s ease;
+}
+
+.stat-label-with-help__btn:hover {
+  color: var(--accent);
+}
+
+.stat-label-with-help__btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.double-bezel-shell {
+  padding: 6px;
+  border-radius: calc(var(--radius-xl) + 4px);
+  background: var(--bezel-shell, rgba(0, 0, 0, 0.04));
+  box-shadow: var(--shadow-elevated);
+}
+
+.double-bezel-inner {
+  border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-inset-soft, inset 0 1px 1px rgba(255, 255, 255, 0.15));
+}
+
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--text-muted); }
+.text-body { font-family: var(--font-body); }
+.text-mono { font-family: var(--font-mono); }
+
+/* Ant Design — 卡片无投影（DESIGN.md 阴影仅用于产品图） */
+.app-shell .ant-card {
+  box-shadow: none !important;
+}
+
+/* Ant Design Input.TextArea：矩形，不与单行 Input 共用全圆角 token */
+textarea.ant-input,
+.ant-input-textarea textarea.ant-input {
+  border-radius: 0 !important;
+}
+
+.ant-input-outlined.ant-input-css-var:has(> textarea.ant-input) {
+  border-radius: 0 !important;
+}
+

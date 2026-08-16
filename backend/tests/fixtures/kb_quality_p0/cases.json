@@ -1,0 +1,14 @@
+{
+  "version": "187.1",
+  "fixture_note": "PDF files are byte-level input placeholders; extraction outputs are supplied by the mocked provider detail in the runner.",
+  "cases": [
+    {"id": "extract_text_layer_success", "fixture": "text_layer.pdf", "provider": "mineru"},
+    {"id": "extract_scanned_pdf_manifest", "fixture": "scanned.pdf", "provider": "ocr"},
+    {"id": "extract_table_manifest", "fixture": "table.pdf", "provider": "docling"},
+    {"id": "search_no_hit_trace", "query": "no-hit", "return_search_trace": true},
+    {"id": "search_acl_filtered_trace", "visible_file_ids": [7], "hidden_file_ids": [8]},
+    {"id": "search_cache_hit_trace", "cache_hit": true},
+    {"id": "search_known_fallback_trace", "fallback_mode": "known", "fallback_reason": "provider_unavailable"},
+    {"id": "citation_gate_reuses_167", "dataset": "citation_integrity"}
+  ]
+}

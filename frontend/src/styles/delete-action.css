@@ -1,0 +1,13 @@
+/* 全站删除操作图标：统一红色垃圾桶轮廓 */
+.fx-delete-icon {
+  color: var(--danger);
+}
+
+.ant-btn-primary.ant-btn-dangerous:not(:disabled) .fx-delete-icon {
+  color: currentColor;
+}
+
+.ant-dropdown-menu-item-danger .fx-delete-icon,
+.ant-dropdown-menu-item-danger .anticon-delete {
+  color: var(--danger) !important;
+}

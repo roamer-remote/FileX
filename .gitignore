@@ -1,6 +1,77 @@
-# Showcase repo - no source code
-.DS_Store
-*.local
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+.pytest_cache/
+.venv/
+venv/
+
+# Node
+node_modules/
+.vite/
+frontend/dist/
+
+# Database
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite3
+
+# Environment
 .env
-data/
-logs/
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+**/.DS_Store
+Thumbs.db
+
+
+
+# Uploaded files
+backend/uploads/
+backend/test_uploads/
+
+# Project-specific generated dirs
+pubmed-research-workspace/
+skill/*
+!skill/ding/
+!skill/ding/**
+
+# 钉技能目录被上面 un-ignore 后，仍排除字节码（须在 !skill/ding/** 之后）
+skill/ding/**/__pycache__/
+skill/ding/**/*.pyc
+skill/ding/**/*.pyo
+
+# macOS junk under negated paths (must follow un-ignore rules)
+**/.DS_Store
+
+# Logs
+*.log
+# 旧版 SQLite（已废弃）
+backend/filebox.db
+*.db-journal
+
+# 本地 Docker 持久化数据（docker-compose.local.yml bind mount）
+docker/data/
+
+.playwright-mcp/
+.codex-watch/
+.worktrees/
+daemon.pid
+graphify-out/.rebuild.lock
+.workbuddy
+docker/docker-compose.override.yml
+
+# 164 T-9 WHB 验收本地证据（提交归档时改放入 specs/164-*/reviews/）
+specs/164-mineru-raptor-gpu-scheduling/whb-evidence/

@@ -1,0 +1,68 @@
+.knowledge-tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.2;
+}
+
+/* 资料库总览子 Tab：图标与文字仅留一字宽间距 */
+.knowledge-workspace-tabs--nested.ant-tabs .ant-tabs-tab .knowledge-tab-label {
+  gap: 4px;
+}
+
+/* 覆盖 Ant Design Tab 内 anticon 默认 12px 右间距 */
+.knowledge-workspace-tabs--nested.ant-tabs .ant-tabs-tab .knowledge-tab-label .anticon:not(:last-child) {
+  margin-inline-end: 0;
+}
+
+.knowledge-tab-label__icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.knowledge-tab-label__text {
+  color: inherit;
+}
+
+/* 每项固定品牌色图标（对齐顶栏 NavMenuLabel 方案） */
+.knowledge-tab-label--files .knowledge-tab-label__icon { color: #0071e3; }
+.knowledge-tab-label--wikiPages .knowledge-tab-label__icon { color: #af52de; }
+.knowledge-tab-label--tags .knowledge-tab-label__icon { color: #ff9500; }
+.knowledge-tab-label--wikiLinks .knowledge-tab-label__icon { color: #32ade6; }
+.knowledge-tab-label--libraryMap .knowledge-tab-label__icon { color: #34c759; }
+.knowledge-tab-label--eval .knowledge-tab-label__icon { color: #bf5af2; }
+.knowledge-tab-label--preview .knowledge-tab-label__icon { color: #5856d6; }
+.knowledge-tab-label--previewAuto .knowledge-tab-label__icon { color: #0071e3; }
+.knowledge-tab-label--previewWikiPages .knowledge-tab-label__icon { color: #af52de; }
+.knowledge-tab-label--previewWiki .knowledge-tab-label__icon { color: #32ade6; }
+.knowledge-tab-label--previewLinkGraph .knowledge-tab-label__icon { color: #5856d6; }
+.knowledge-tab-label--log .knowledge-tab-label__icon { color: #34c759; }
+.knowledge-tab-label--okf .knowledge-tab-label__icon { color: #ffd60a; }
+
+[data-theme='dark'] .knowledge-tab-label--files .knowledge-tab-label__icon { color: #5ac8fa; }
+[data-theme='dark'] .knowledge-tab-label--wikiPages .knowledge-tab-label__icon { color: #d4a5ff; }
+[data-theme='dark'] .knowledge-tab-label--tags .knowledge-tab-label__icon { color: #ffb340; }
+[data-theme='dark'] .knowledge-tab-label--wikiLinks .knowledge-tab-label__icon { color: #64d2ff; }
+[data-theme='dark'] .knowledge-tab-label--libraryMap .knowledge-tab-label__icon { color: #30d158; }
+[data-theme='dark'] .knowledge-tab-label--eval .knowledge-tab-label__icon { color: #da8fff; }
+[data-theme='dark'] .knowledge-tab-label--preview .knowledge-tab-label__icon { color: #a78bfa; }
+[data-theme='dark'] .knowledge-tab-label--previewAuto .knowledge-tab-label__icon { color: #5ac8fa; }
+[data-theme='dark'] .knowledge-tab-label--previewWikiPages .knowledge-tab-label__icon { color: #d4a5ff; }
+[data-theme='dark'] .knowledge-tab-label--previewWiki .knowledge-tab-label__icon { color: #64d2ff; }
+[data-theme='dark'] .knowledge-tab-label--previewLinkGraph .knowledge-tab-label__icon { color: #a78bfa; }
+[data-theme='dark'] .knowledge-tab-label--log .knowledge-tab-label__icon { color: #30d158; }
+[data-theme='dark'] .knowledge-tab-label--okf .knowledge-tab-label__icon { color: #ffe066; }
+
+.home-knowledge-tabs .ant-tabs-tab:not(.ant-tabs-tab-active) .knowledge-tab-label__icon,
+.knowledge-workspace-tabs .ant-tabs-tab:not(.ant-tabs-tab-active) .knowledge-tab-label__icon {
+  opacity: 0.88;
+}
+
+.home-knowledge-tabs .ant-tabs-tab:hover .knowledge-tab-label__icon,
+.knowledge-workspace-tabs .ant-tabs-tab:hover .knowledge-tab-label__icon,
+.home-knowledge-tabs .ant-tabs-tab-active .knowledge-tab-label__icon,
+.knowledge-workspace-tabs .ant-tabs-tab-active .knowledge-tab-label__icon {
+  opacity: 1;
+}

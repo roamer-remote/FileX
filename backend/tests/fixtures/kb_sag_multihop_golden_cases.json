@@ -1,0 +1,9 @@
+[
+  {
+    "id": "078_bridge_hop",
+    "query": "sag078alpha bridge",
+    "bridge_entity": "BridgeEntity078",
+    "expect_expanded_chunk_contains": "sag078beta",
+    "note": "078 P3：Synthetic A→BridgeEntity→B 多跳；mock embed，不依赖 KB_GOLDEN 全库种子"
+  }
+]

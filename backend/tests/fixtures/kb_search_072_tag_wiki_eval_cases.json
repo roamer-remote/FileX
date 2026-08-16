@@ -1,0 +1,32 @@
+[
+  {
+    "query": "相邻标签共现的主题",
+    "expected_query_type": "tag_topic",
+    "note": "072 TAG_TOPIC：expand_tag_cooc + wiki_context_depth=1"
+  },
+  {
+    "query": "显微镜标签下有哪些资料",
+    "expected_query_type": "tag_archive",
+    "note": "072 TAG_ARCHIVE：tag_combine=filter"
+  },
+  {
+    "query": "资料A和资料B什么关系",
+    "expected_query_type": "struct_relation",
+    "note": "072 STRUCT_RELATION 双实体 → wiki-path（P2 T-F3）"
+  },
+  {
+    "query": "这篇涉及哪些主题",
+    "expected_query_type": "struct_relation",
+    "note": "072 STRUCT_RELATION 单点 → wiki-explain"
+  },
+  {
+    "query": "CRISPR 还有哪些相关文档",
+    "expected_query_type": "topic_wiki",
+    "note": "072 TOPIC_WIKI：depth=2 + coref"
+  },
+  {
+    "query": "发票",
+    "expected_query_type": "cjk_doc",
+    "note": "007 短 CJK 基线 + 072 评测对照"
+  }
+]

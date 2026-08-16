@@ -1,0 +1,15 @@
+ARG EXTRACT_BASE_IMAGE=filex-extract-base
+FROM ${EXTRACT_BASE_IMAGE}
+
+WORKDIR /app
+
+COPY backend/ .
+
+RUN mkdir -p /app/uploads /app/logs
+
+ENV UPLOAD_DIR=/app/uploads
+ENV PYTHONPATH=/app
+ENV TZ=Asia/Shanghai
+ENV FILEX_LOG_TIMEZONE=Asia/Shanghai
+
+CMD ["python", "-m", "workers.kb_extract"]

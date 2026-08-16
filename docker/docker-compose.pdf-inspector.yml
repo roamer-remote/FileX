@@ -1,0 +1,12 @@
+# pdf-inspector runtime profile.
+#
+# This is intentionally a small, non-secret overlay. bamboo-compose.sh loads
+# it for both CPU and NVIDIA GPU deployments after the production env_file.
+# The overlay owns the inspector defaults. FILEX_SECRETS_FILE is for secrets
+# and does not participate in Compose ${...} interpolation; Bamboo can override
+# these values by exporting KB_PDF_INSPECTOR_* before invoking this script.
+services:
+  kb-extract:
+    environment:
+      KB_PDF_INSPECTOR_MODE: ${KB_PDF_INSPECTOR_MODE:-extract}
+      KB_PDF_INSPECTOR_TIMEOUT_SEC: ${KB_PDF_INSPECTOR_TIMEOUT_SEC:-120}

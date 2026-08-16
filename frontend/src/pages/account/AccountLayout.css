@@ -1,0 +1,57 @@
+/* 账户中心：与 home 标题层级、DESIGN 留白一致；Tab 与内容区无多余阴影 */
+.account-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.account-layout-header {
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+
+.account-layout-title {
+  margin: 0 0 8px;
+  font-size: clamp(1.75rem, 2.5vw, 2.125rem);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.374px;
+  line-height: 1.1;
+}
+
+.account-layout-sub {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  letter-spacing: -0.224px;
+  line-height: 1.43;
+  max-width: 720px;
+}
+
+.account-layout-tabs.ant-tabs {
+  min-width: 0;
+}
+
+.account-layout-tabs .ant-tabs-nav {
+  margin: 0 0 16px;
+}
+
+.account-layout-outlet {
+  min-width: 0;
+}
+
+.account-tab-panel {
+  min-width: 0;
+}
+
+.account-overview-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline, rgba(255, 255, 255, 0.08));
+}
+
+[data-theme='light'] .account-overview-actions {
+  border-top-color: var(--hairline, #e0e0e0);
+}

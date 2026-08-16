@@ -1,0 +1,24 @@
+.knowledge-filename-search {
+  width: 188px;
+  min-width: 160px;
+  max-width: 280px;
+}
+
+.knowledge-filename-search__prefix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.knowledge-filename-search__prefix-btn:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

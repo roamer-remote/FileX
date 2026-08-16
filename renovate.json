@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["pip_requirements"],
+  "automerge": false,
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Disable generic Python dependency PRs; this repo only auto-opens MinerU PRs.",
+      "matchManagers": ["pip_requirements"],
+      "enabled": false
+    },
+    {
+      "description": "Open manual-review PRs for the MinerU sidecar dependency only.",
+      "matchManagers": ["pip_requirements"],
+      "matchFileNames": ["docker/mineru-sidecar/requirements.mineru.txt"],
+      "matchPackageNames": ["mineru"],
+      "enabled": true,
+      "groupName": "MinerU sidecar",
+      "rangeStrategy": "pin",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "mineru",
+      "commitMessageTopic": "MinerU sidecar",
+      "labels": ["dependencies", "mineru"],
+      "automerge": false
+    }
+  ]
+}

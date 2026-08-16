@@ -1,0 +1,586 @@
+/* ============================================================
+   Folder archive HUD — floating panel + sidebar trigger
+   ============================================================ */
+
+.folder-floating-panel {
+  --folder-hud-radius: 14px;
+  --folder-hud-accent: var(--accent);
+  --folder-hud-accent-dim: color-mix(in srgb, var(--accent) 22%, transparent);
+  --folder-hud-surface: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  --folder-hud-grid: color-mix(in srgb, var(--accent) 7%, transparent);
+  /* 右下方向分层阴影（浅色） */
+  --folder-hud-shadow-ring: 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent);
+  --folder-hud-shadow-br-1: 6px 12px 26px -4px rgba(30, 41, 59, 0.26);
+  --folder-hud-shadow-br-2: 14px 26px 52px -8px rgba(30, 41, 59, 0.32);
+  --folder-hud-shadow-br-3: 24px 42px 80px -12px rgba(30, 41, 59, 0.24);
+  --folder-hud-shadow-glow: 10px 20px 48px -8px rgba(var(--accent-rgb), 0.34);
+
+  position: fixed;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  max-width: min(540px, calc(100vw - 24px));
+  border-radius: var(--folder-hud-radius);
+  border: 1px solid color-mix(in srgb, var(--folder-hud-accent) 38%, var(--hairline));
+  background: var(--folder-hud-surface);
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  box-shadow:
+    var(--folder-hud-shadow-ring),
+    var(--folder-hud-shadow-br-1),
+    var(--folder-hud-shadow-br-2),
+    var(--folder-hud-shadow-br-3),
+    var(--folder-hud-shadow-glow);
+  overflow: hidden;
+  isolation: isolate;
+  font-family: var(--font-body);
+  height: auto;
+  max-height: var(--folder-panel-max-h, 420px);
+  transform-origin: top left;
+}
+
+[data-theme='dark'] .folder-floating-panel {
+  --folder-hud-surface: color-mix(in srgb, var(--bg-card) 78%, #0a0c12);
+  --folder-hud-shadow-ring: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+  --folder-hud-shadow-br-1: 8px 16px 34px -6px rgba(0, 0, 0, 0.62);
+  --folder-hud-shadow-br-2: 16px 30px 60px -10px rgba(0, 0, 0, 0.72);
+  --folder-hud-shadow-br-3: 28px 50px 96px -14px rgba(0, 0, 0, 0.58);
+  --folder-hud-shadow-glow: 12px 24px 56px -8px rgba(var(--accent-rgb), 0.42);
+}
+
+.folder-floating-panel--drawer {
+  left: 8px !important;
+  right: 8px !important;
+  top: auto !important;
+  bottom: 8px;
+  width: auto !important;
+  max-height: 72vh;
+}
+
+.folder-floating-panel--dragging {
+  --folder-hud-shadow-ring: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
+  --folder-hud-shadow-br-1: 10px 18px 36px -6px rgba(30, 41, 59, 0.32);
+  --folder-hud-shadow-br-2: 18px 32px 64px -10px rgba(30, 41, 59, 0.38);
+  --folder-hud-shadow-br-3: 30px 50px 92px -12px rgba(30, 41, 59, 0.28);
+  --folder-hud-shadow-glow: 14px 28px 60px -6px rgba(var(--accent-rgb), 0.55);
+}
+
+
+.folder-floating-panel--resizing {
+  --folder-hud-shadow-ring: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
+  --folder-hud-shadow-glow: 14px 28px 60px -6px rgba(var(--accent-rgb), 0.55);
+}
+
+.folder-floating-panel--resized {
+  max-height: none;
+}
+
+.folder-floating-panel--resized .folder-floating-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.folder-floating-panel__resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0 0 var(--folder-hud-radius) 0;
+  background: transparent;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+
+.folder-floating-panel__resize-handle::after {
+  content: '';
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  pointer-events: none;
+}
+
+.folder-floating-panel__resize-handle:hover::after,
+.folder-floating-panel--resizing .folder-floating-panel__resize-handle::after {
+  border-color: var(--accent);
+}
+
+[data-theme='dark'] .folder-floating-panel--dragging {
+  --folder-hud-shadow-br-1: 10px 20px 40px -6px rgba(0, 0, 0, 0.68);
+  --folder-hud-shadow-br-2: 20px 36px 72px -10px rgba(0, 0, 0, 0.78);
+  --folder-hud-shadow-br-3: 34px 56px 104px -14px rgba(0, 0, 0, 0.62);
+  --folder-hud-shadow-glow: 16px 30px 64px -6px rgba(var(--accent-rgb), 0.58);
+}
+
+.folder-floating-panel--enter {
+  animation: folder-panel-from-trigger 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.folder-floating-panel--exit {
+  animation: folder-panel-to-trigger 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes folder-panel-from-trigger {
+  /* 锚点：触发器左上角；同时平移 + 缩放 */
+  from {
+    opacity: 0.85;
+    transform: translate(var(--folder-panel-motion-dx, 0), var(--folder-panel-motion-dy, 0))
+      scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes folder-panel-to-trigger {
+  from {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--folder-panel-motion-dx, 0), var(--folder-panel-motion-dy, 0))
+      scale(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folder-floating-panel--enter,
+  .folder-floating-panel--exit {
+    animation: none;
+  }
+}
+
+.folder-floating-panel__aura {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 120% 80% at 100% 0%, rgba(var(--accent-rgb), 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 60% at 0% 100%, rgba(var(--accent-rgb), 0.08) 0%, transparent 50%);
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.folder-floating-panel__frame {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.folder-floating-panel__corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+  border-style: solid;
+  opacity: 0.85;
+}
+
+.folder-floating-panel__corner--tl {
+  top: 6px;
+  left: 6px;
+  border-width: 2px 0 0 2px;
+}
+
+.folder-floating-panel__corner--tr {
+  top: 6px;
+  right: 6px;
+  border-width: 2px 2px 0 0;
+}
+
+.folder-floating-panel__corner--bl {
+  bottom: 6px;
+  left: 6px;
+  border-width: 0 0 2px 2px;
+}
+
+.folder-floating-panel__corner--br {
+  bottom: 6px;
+  right: 6px;
+  border-width: 0 2px 2px 0;
+}
+
+.folder-floating-panel__chrome {
+  position: relative;
+  z-index: 3;
+  padding: 10px 12px;
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 22%, var(--hairline));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 8%, var(--bg-card)) 0%,
+    color-mix(in srgb, var(--bg-card) 92%, transparent) 100%
+  );
+}
+
+.folder-floating-panel__chrome:active {
+  cursor: grabbing;
+}
+
+.folder-floating-panel__search {
+  margin-top: 8px;
+  cursor: default;
+  touch-action: auto;
+}
+
+.folder-floating-panel__search .ant-input-search {
+  width: 100%;
+}
+
+.folder-floating-panel__search .ant-input-affix-wrapper {
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-card) 90%, transparent);
+}
+
+.folder-floating-panel__chrome-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.folder-floating-panel__title {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.folder-floating-panel__icon-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--hairline));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-card) 70%, transparent);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    color 0.15s var(--ease-out-expo),
+    border-color 0.15s var(--ease-out-expo),
+    box-shadow 0.15s var(--ease-out-expo),
+    background 0.15s var(--ease-out-expo);
+}
+
+.folder-floating-panel__icon-btn:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 14px -4px rgba(var(--accent-rgb), 0.55);
+  background: var(--folder-hud-accent-dim);
+}
+
+.folder-floating-panel__icon-btn--minimize:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 14px -4px rgba(var(--accent-rgb), 0.55);
+}
+
+.folder-floating-panel__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 0 0 auto;
+  max-height: calc(var(--folder-panel-max-h, 420px) - 108px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overflow-anchor: none;
+  padding: 10px 10px 16px;
+  scroll-padding-bottom: 16px;
+  background-color: var(--bg-card);
+  background-image:
+    linear-gradient(var(--folder-hud-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--folder-hud-grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: center top;
+}
+
+.folder-floating-panel__footer {
+  position: relative;
+  z-index: 3;
+  height: 3px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--accent) 12%, var(--hairline));
+}
+
+.folder-floating-panel__footer-line {
+  display: block;
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--accent-rgb), 0.9),
+    transparent
+  );
+  animation: folder-hud-scan 4.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folder-floating-panel__footer-line {
+    animation: none;
+    width: 100%;
+    opacity: 0.35;
+  }
+}
+
+@keyframes folder-hud-scan {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+/* --- HUD tree (scoped) --- */
+
+.folder-floating-panel .folder-tree--hud {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.folder-floating-panel .folder-tree--hud .folder-tree-row--uncategorized {
+  gap: 6px;
+}
+
+.folder-floating-panel .folder-tree-hud-new-root-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 4px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.15s var(--ease-out-expo), opacity 0.15s var(--ease-out-expo);
+}
+
+.folder-floating-panel .folder-tree-hud-new-root-btn:hover {
+  color: color-mix(in srgb, var(--accent) 82%, var(--text-primary));
+  opacity: 0.92;
+}
+
+.folder-floating-panel .folder-tree--hud .folder-tree-row {
+  position: relative;
+}
+
+.folder-floating-panel .folder-tree--hud .folder-tree-row::before {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--sidebar-tree-line);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.folder-floating-panel .folder-tree--hud .folder-tree-nav-btn {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition:
+    border-color 0.15s var(--ease-out-expo),
+    box-shadow 0.15s var(--ease-out-expo),
+    background 0.15s var(--ease-out-expo);
+}
+
+.folder-floating-panel .folder-tree--hud .folder-tree-nav-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.folder-floating-panel .folder-tree--hud .folder-tree-nav-btn.is-active {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    0 0 20px -8px rgba(var(--accent-rgb), 0.65);
+  color: var(--accent);
+}
+
+.folder-floating-panel .folder-tree--hud .folder-tree-expand {
+  color: color-mix(in srgb, var(--accent) 70%, var(--text-muted));
+}
+
+.folder-floating-panel .folder-sidebar-empty--hud {
+  margin-top: 8px;
+  padding: 14px 12px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  border-radius: 8px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 25%, var(--hairline));
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+
+/* --- Sidebar trigger --- */
+
+.folder-panel-trigger-wrap {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin: 6px 0 10px;
+  padding: 0 4px;
+}
+
+.folder-panel-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--hairline));
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bg-card) 92%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 6%, var(--bg-card)) 100%
+  );
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  transition:
+    border-color 0.2s var(--ease-out-expo),
+    box-shadow 0.2s var(--ease-out-expo);
+}
+
+.folder-panel-trigger--active,
+.folder-panel-trigger--active:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--accent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 15%, transparent),
+    0 0 24px -6px rgba(var(--accent-rgb), 0.45);
+}
+
+.folder-panel-trigger--linked {
+  animation: folder-trigger-link-pulse 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes folder-trigger-link-pulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(var(--accent-rgb), 0.55),
+      0 0 0 1px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  45% {
+    box-shadow:
+      0 0 0 5px rgba(var(--accent-rgb), 0.22),
+      0 0 28px -2px rgba(var(--accent-rgb), 0.65),
+      0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  100% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent) 15%, transparent),
+      0 0 24px -6px rgba(var(--accent-rgb), 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folder-panel-trigger--linked {
+    animation: none;
+  }
+}
+
+.folder-panel-trigger:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: 0 0 18px -8px rgba(var(--accent-rgb), 0.35);
+}
+
+.folder-panel-trigger__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Legacy aliases used outside floating panel */
+.folder-tree-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 6px;
+}
+
+.folder-tree-panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.folder-tree-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sidebar-item-text, var(--text-primary));
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.folder-tree-nav-btn:hover {
+  background: var(--sidebar-item-hover, rgba(255, 255, 255, 0.06));
+}
+
+.folder-tree-nav-btn.is-active {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+}
+
+.folder-floating-panel .folder-tree-nav-btn.is-search-match {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-card));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+}

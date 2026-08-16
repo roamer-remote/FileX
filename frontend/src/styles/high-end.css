@@ -1,0 +1,307 @@
+/* High-end visual layer — Soft Structuralism (refs: specs/_design/refs/high-end/) */
+
+[data-theme='light'] .app-layout {
+  background: transparent;
+}
+
+[data-theme='light'] .global-nav {
+  height: 48px;
+  min-height: 48px;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--hairline);
+}
+
+[data-theme='light'] .global-nav .nav-content {
+  height: 100%;
+  max-width: var(--app-shell-max, 1400px);
+  padding: 0 clamp(12px, 2vw, 24px);
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+[data-theme='light'] .global-nav .nav-brand {
+  color: var(--text-primary);
+}
+
+[data-theme='light'] .global-nav .nav-link {
+  margin: 0;
+  padding: 8px 12px;
+  height: auto;
+  min-height: 34px;
+  border-radius: 9px;
+  color: var(--text-secondary, #64748b);
+}
+
+/* 选中 / hover / 底条：见 AppLayout.css（方案 B），勿在此覆盖 */
+
+[data-theme='light'] .app-sidebar {
+  width: 248px;
+  padding: 0;
+  background: var(--surface-pearl);
+  border: none;
+  border-right: 1px solid var(--hairline);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* —— 右侧内容画布：渐变贯穿 Hero / Tabs / 正文（单卡管理页 / 资料库索引除外，由 AppLayout 贴边） —— */
+[data-theme='light'] .app-main:not(.app-main--flush),
+[data-theme='dark'] .app-main:not(.app-main--flush) {
+  position: relative;
+  isolation: isolate;
+  padding: 4px 12px 12px;
+  background-color: var(--main-panel-bg);
+  background-image: var(--main-panel-gradient);
+  background-attachment: local;
+  border-radius: 0;
+  border: 1px solid var(--main-panel-border);
+  box-shadow: var(--main-panel-shadow);
+  overflow-x: hidden;
+}
+
+[data-theme='light'] .app-main:not(.app-main--flush)::before,
+[data-theme='dark'] .app-main:not(.app-main--flush)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--main-panel-highlight);
+  z-index: 0;
+}
+
+[data-theme='light'] .app-main-inner,
+[data-theme='dark'] .app-main-inner {
+  position: relative;
+  z-index: 1;
+  gap: 0;
+  min-height: 0;
+}
+
+[data-theme='light'] .home-knowledge-tabs .ant-tabs-nav::before,
+[data-theme='dark'] .home-knowledge-tabs .ant-tabs-nav::before {
+  border-bottom-color: color-mix(in srgb, var(--text-primary) 8%, transparent) !important;
+}
+
+[data-theme='light'] .home-knowledge-tabs .ant-tabs-nav,
+[data-theme='dark'] .home-knowledge-tabs .ant-tabs-nav {
+  margin-bottom: 0;
+  background: transparent;
+}
+
+[data-theme='light'] .knowledge-hero,
+[data-theme='dark'] .knowledge-hero {
+  padding-bottom: 0;
+  margin-top: 0;
+}
+
+[data-theme='light'] .home-knowledge,
+[data-theme='light'] .knowledge-files-page,
+[data-theme='dark'] .home-knowledge,
+[data-theme='dark'] .knowledge-files-page {
+  gap: 6px;
+}
+
+[data-theme='light'] .knowledge-files-page.knowledge-files-page--lobby,
+[data-theme='dark'] .knowledge-files-page.knowledge-files-page--lobby {
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
+
+[data-theme='light'] .home-knowledge-tabs .ant-tabs-content-holder,
+[data-theme='dark'] .home-knowledge-tabs .ant-tabs-content-holder {
+  margin-top: 8px;
+}
+
+[data-theme='light'] .tg-page.tg-page--embedded,
+[data-theme='dark'] .tg-page.tg-page--embedded {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme='light'] .admin-root,
+[data-theme='dark'] .admin-root {
+  padding: 0;
+  background: transparent;
+}
+
+[data-theme='light'] .sidebar {
+  gap: 12px;
+}
+
+[data-theme='light'] .sidebar-panel-card {
+  border: none;
+  border-radius: var(--radius-md);
+  background: rgba(44, 44, 46, 0.03);
+  padding: 12px 14px;
+  box-shadow: none;
+}
+
+[data-theme='light'] .sidebar-stats-card.double-bezel-shell,
+[data-theme='light'] .sidebar-mq-card.double-bezel-shell {
+  padding: 14px 16px;
+  background: rgba(44, 44, 46, 0.03);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: none;
+}
+
+[data-theme='light'] .sidebar-nav-item.is-active {
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+[data-theme='light'] .sidebar-stats-bar {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(95, 125, 99, 0.15);
+}
+
+[data-theme='light'] .app-logo--nav {
+  position: static;
+  width: 32px;
+  height: 28px;
+  flex-shrink: 0;
+  z-index: auto;
+}
+
+.home-knowledge-tabs .ant-tabs-ink-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent) !important;
+}
+
+.home-knowledge-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--accent);
+}
+
+[data-theme='light'] .fl-panel-shell.double-bezel-shell,
+[data-theme='dark'] .fl-panel-shell.double-bezel-shell {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 20px;
+}
+
+[data-theme='light'] .app-layout--sidebar-collapsed .app-body,
+[data-theme='dark'] .app-layout--sidebar-collapsed .app-body {
+  gap: 0;
+}
+
+/* 侧栏折叠：主区与顶栏 nav-content 左缘对齐，正文卡片与 Hero 左缘一致 */
+[data-theme='light'] .app-layout--sidebar-collapsed .app-main:not(.app-main--flush),
+[data-theme='dark'] .app-layout--sidebar-collapsed .app-main:not(.app-main--flush) {
+  padding-inline: 18px;
+}
+
+[data-theme='light'] .fl-panel.double-bezel-inner {
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+  background: #ffffff;
+}
+
+.fl-panel-shell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.fl-panel.double-bezel-inner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px 16px;
+  border: none;
+  box-shadow: none;
+  background: var(--bg-card);
+}
+
+[data-theme='light'] .fl-file-table .ant-table-thead > tr > th {
+  border-bottom: none !important;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+[data-theme='light'] .fl-file-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--divider-soft) !important;
+}
+
+[data-theme='light'] .fl-file-table .ant-table-tbody > tr:hover > td {
+  background: var(--table-row-hover) !important;
+}
+
+[data-theme='light'] .fl-file-table .ant-tag:nth-child(3n + 1) {
+  background: #e8f0ea;
+  color: #4a7c59;
+}
+
+[data-theme='light'] .fl-file-table .ant-tag:nth-child(3n + 2) {
+  background: #f5e8ec;
+  color: #9a5a6b;
+}
+
+[data-theme='light'] .fl-file-table .ant-tag:nth-child(3n) {
+  background: #f5efe6;
+  color: #9a7344;
+}
+
+[data-theme='light'] .fl-toolbar {
+  border-bottom-color: var(--divider-soft);
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+}
+
+[data-theme='light'] .fl-toolbar .ant-input-affix-wrapper,
+[data-theme='light'] .fl-toolbar .ant-select-selector {
+  border-radius: var(--radius-pill) !important;
+  box-shadow: 0 2px 8px rgba(44, 44, 46, 0.04);
+}
+
+[data-theme='light'] .fl-card {
+  border: none;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme='light'] .fl-card:hover {
+  box-shadow: var(--shadow-elevated);
+  border-color: transparent;
+}
+
+@media (max-width: 960px) {
+  [data-theme='light'] .global-nav {
+    padding: 0;
+    height: 48px;
+    min-height: 48px;
+  }
+
+  [data-theme='light'] .app-sidebar {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  [data-theme='light'] .app-main:not(.app-main--flush),
+  [data-theme='dark'] .app-main:not(.app-main--flush) {
+    padding: 4px 6px 8px;
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  [data-theme='light'] .app-layout .nav-left {
+    padding-left: 0;
+  }
+}

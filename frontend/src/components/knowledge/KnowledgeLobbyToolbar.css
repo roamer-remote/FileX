@@ -1,0 +1,249 @@
+.knowledge-lobby-toolbar {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: transparent;
+  border: none;
+}
+
+.knowledge-lobby-toolbar__filename-wrap {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  top: auto;
+  width: min(360px, calc(100% - 20px));
+  pointer-events: auto;
+}
+
+.knowledge-lobby-toolbar__eval-wrap {
+  position: absolute;
+  top: 33.333%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(584px, calc(100% - 48px));
+  pointer-events: auto;
+}
+
+/* Google-style search bar (lobby) — 边框与侧栏「我的资料」选中态对齐 */
+.knowledge-lobby-google-bar {
+  --google-bar-bg: #fff;
+  --google-bar-text: #202124;
+  --google-bar-muted: #70757a;
+  --google-bar-lead: color-mix(in srgb, var(--accent) 72%, var(--text-muted));
+  --google-bar-chip-bg: #f1f3f4;
+  --google-bar-chip-text: #202124;
+  --google-bar-border: color-mix(in srgb, var(--accent) 42%, #fff);
+  --google-bar-glow: 0 0 8px 2px rgba(var(--accent-rgb), 0.38);
+  --google-bar-glow-hover: 0 0 10px 3px rgba(var(--accent-rgb), 0.46);
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 46px;
+  padding: 0 6px 0 14px;
+  border-radius: 24px;
+  background: var(--google-bar-bg);
+  border: 1.5px solid var(--google-bar-border);
+  box-shadow: var(--google-bar-glow);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.knowledge-lobby-google-bar:hover,
+.knowledge-lobby-google-bar:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 55%, #fff);
+  box-shadow: var(--google-bar-glow-hover);
+}
+
+.knowledge-lobby-google-bar__lead {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--google-bar-lead);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.knowledge-lobby-google-bar__input.ant-input-affix-wrapper,
+.knowledge-lobby-google-bar__input.ant-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--google-bar-text);
+  background: transparent;
+  box-shadow: none;
+}
+
+.knowledge-lobby-google-bar__input.ant-input-affix-wrapper:hover,
+.knowledge-lobby-google-bar__input.ant-input-affix-wrapper:focus,
+.knowledge-lobby-google-bar__input.ant-input-affix-wrapper-focused {
+  background: transparent;
+  box-shadow: none;
+}
+
+.knowledge-lobby-google-bar__input.ant-input::placeholder,
+.knowledge-lobby-google-bar__input.ant-input-affix-wrapper input::placeholder {
+  color: var(--google-bar-muted);
+}
+
+.knowledge-lobby-google-bar__input.ant-input-affix-wrapper .ant-input-clear-icon {
+  color: var(--google-bar-lead);
+}
+
+.knowledge-lobby-google-bar__ai-chip {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 999px;
+  background: var(--google-bar-chip-bg);
+  color: var(--google-bar-chip-text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.knowledge-lobby-google-bar__ai-chip:hover {
+  background: #e8eaed;
+}
+
+.knowledge-lobby-google-bar__ai-chip:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+
+.knowledge-lobby-google-bar__ai-chip-icon {
+  font-size: 16px;
+}
+
+/* Filename search: idle transparent; solid shell on focus */
+.knowledge-lobby-google-bar.knowledge-lobby-google-bar--filename {
+  width: 100%;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.knowledge-lobby-google-bar.knowledge-lobby-google-bar--filename:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.knowledge-lobby-google-bar.knowledge-lobby-google-bar--filename:focus-within {
+  background: var(--google-bar-bg);
+  border-color: var(--google-bar-border);
+  box-shadow: var(--google-bar-glow-hover);
+}
+
+.knowledge-lobby-google-bar--filename .knowledge-lobby-filename-search.knowledge-lobby-toolbar__search {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.knowledge-lobby-google-bar--filename .knowledge-filename-search.ant-input-affix-wrapper {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.knowledge-lobby-google-bar--filename .knowledge-filename-search.ant-input-affix-wrapper:hover,
+.knowledge-lobby-google-bar--filename .knowledge-filename-search.ant-input-affix-wrapper-focused {
+  background: transparent;
+  box-shadow: none;
+}
+
+.knowledge-lobby-google-bar--filename .knowledge-filename-search .ant-input-prefix {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-end: 0;
+}
+
+.knowledge-lobby-google-bar--filename .knowledge-filename-search .ant-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--google-bar-text, #202124);
+}
+
+.knowledge-lobby-google-bar--filename .knowledge-filename-search .ant-input::placeholder {
+  color: var(--google-bar-muted, #70757a);
+}
+
+.knowledge-lobby-google-bar--filename .knowledge-filename-search__prefix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--google-bar-lead, #9aa0a6);
+  font-size: 18px;
+  line-height: 1;
+}
+
+[data-theme='dark'] .knowledge-lobby-google-bar,
+[data-theme='dark'] .knowledge-lobby-google-bar--filename {
+  --google-bar-bg: #303134;
+  --google-bar-text: #e8eaed;
+  --google-bar-muted: #9aa0a6;
+  --google-bar-lead: color-mix(in srgb, var(--accent) 78%, var(--text-muted));
+  --google-bar-chip-bg: #414345;
+  --google-bar-chip-text: #e8eaed;
+  --google-bar-border: color-mix(in srgb, var(--accent) 48%, transparent);
+  --google-bar-glow: 0 0 10px 2px rgba(var(--accent-rgb), 0.32);
+  --google-bar-glow-hover: 0 0 12px 3px rgba(var(--accent-rgb), 0.42);
+}
+
+[data-theme='dark'] .knowledge-lobby-google-bar__ai-chip:hover {
+  background: #4a4d51;
+}
+
+@media (max-width: 768px) {
+  .knowledge-lobby-toolbar__filename-wrap {
+    bottom: 10px;
+    left: 10px;
+    top: auto;
+    width: calc(100% - 20px);
+  }
+
+  .knowledge-lobby-toolbar__eval-wrap {
+    width: calc(100% - 32px);
+  }
+
+  .knowledge-lobby-google-bar__ai-chip span {
+    display: none;
+  }
+
+  .knowledge-lobby-google-bar__ai-chip {
+    padding: 8px 10px;
+  }
+}

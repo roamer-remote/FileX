@@ -1,0 +1,3204 @@
+/* 117 — Figma 导入 SVG 矢量工厂视图（方案 2） */
+
+.mq-factory-view {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 4px 0 8px;
+  background: transparent;
+}
+
+.mq-factory-view__pipelines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
+
+.mq-figma-row {
+  width: 100%;
+  max-width: 1508px;
+  margin-inline: auto;
+  position: relative;
+}
+
+.mq-figma-row--extract {
+  --mq-figma-progress-stroke: #2f8cff;
+}
+
+.mq-figma-row--index {
+  --mq-figma-progress-stroke: #31aa63;
+}
+
+.mq-figma-row--post {
+  --mq-figma-progress-stroke: #15b8d8;
+}
+
+.mq-figma-row--expanded {
+  max-width: none;
+}
+
+.mq-figma-row__svg,
+.mq-figma-sidecars__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.mq-figma-row__background {
+  pointer-events: none;
+}
+
+.mq-figma-bitmap-hud {
+  font-family: sans-serif;
+}
+
+.mq-figma-bitmap-cover {
+  fill: #eef7ff;
+  stroke: rgba(150, 180, 220, 0.28);
+  stroke-width: 1;
+}
+
+.mq-figma-bitmap-cover--tag,
+.mq-figma-bitmap-cover--route {
+  fill: #e7f1ff;
+  stroke: rgba(103, 145, 205, 0.48);
+}
+
+.mq-figma-bitmap-cover--metric {
+  fill: #eff8ff;
+  stroke: none;
+}
+
+.mq-figma-bitmap-hud__badge {
+  fill: rgba(255, 255, 255, 0.96);
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.mq-figma-bitmap-hud__title {
+  fill: #14233a;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.mq-figma-bitmap-hud__health-slot {
+  overflow: visible;
+}
+
+.mq-figma-bitmap-hud__health {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mq-figma-bitmap-hud__route {
+  font-family: monospace;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.mq-figma-bitmap-hud__label {
+  fill: #314463;
+  font-size: 22px;
+  font-weight: 650;
+}
+
+.mq-figma-bitmap-hud__metric {
+  fill: #314463;
+  font-size: 29px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  paint-order: stroke;
+  stroke: rgba(238, 247, 255, 0.92);
+  stroke-width: 5px;
+}
+
+.mq-figma-bitmap-hud__metric--hot {
+  fill: #f97316;
+}
+
+.mq-figma-bitmap-hud__metric--running {
+  fill: #1677ff;
+}
+
+.mq-figma-bitmap-counter__value {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #102033;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: sans-serif;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.mq-figma-bitmap-counter__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #102033;
+  line-height: 1;
+}
+
+.mq-figma-bitmap-counter--process .mq-figma-bitmap-counter__value {
+  color: #1677ff;
+}
+
+.mq-figma-bitmap-counter--process .mq-figma-bitmap-counter__icon {
+  color: #1677ff;
+}
+
+.mq-figma-bitmap-counter--hot .mq-figma-bitmap-counter__value,
+.mq-figma-bitmap-counter--hot .mq-figma-bitmap-counter__icon {
+  color: #ca8a04;
+}
+
+.mq-figma-bitmap-counter--dlq.mq-figma-bitmap-counter--hot .mq-figma-bitmap-counter__value,
+.mq-figma-bitmap-counter--dlq.mq-figma-bitmap-counter--hot .mq-figma-bitmap-counter__icon {
+  color: #ef4444;
+}
+
+.mq-figma-bitmap-hud__robot-status {
+  font-family: sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: rgba(238, 247, 255, 0.94);
+  stroke-width: 6px;
+}
+
+.mq-figma-bitmap-flow {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mq-figma-bitmap-flow--running {
+  opacity: 1;
+}
+
+.mq-figma-bitmap-flow path {
+  fill: none;
+  stroke: rgba(22, 119, 255, 0.76);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 24 18;
+  animation: mq-figma-bitmap-flow-dash 1.15s linear infinite;
+}
+
+@keyframes mq-figma-bitmap-flow-dash {
+  to {
+    stroke-dashoffset: -42;
+  }
+}
+
+[data-theme='dark'] .mq-figma-row__background {
+  filter: brightness(0.74) saturate(0.92);
+}
+
+[data-theme='dark'] .mq-figma-bitmap-cover {
+  fill: #111f31;
+  stroke: rgba(125, 156, 198, 0.34);
+}
+
+[data-theme='dark'] .mq-figma-bitmap-cover--tag,
+[data-theme='dark'] .mq-figma-bitmap-cover--route {
+  fill: #0d1827;
+  stroke: rgba(125, 156, 198, 0.4);
+}
+
+[data-theme='dark'] .mq-figma-bitmap-hud__title,
+[data-theme='dark'] .mq-figma-bitmap-hud__label,
+[data-theme='dark'] .mq-figma-bitmap-hud__metric {
+  fill: #e5eefb;
+  stroke: rgba(13, 24, 39, 0.9);
+}
+
+[data-theme='dark'] .mq-figma-bitmap-counter__value,
+[data-theme='dark'] .mq-figma-bitmap-counter__icon {
+  color: #e5eefb;
+}
+
+[data-theme='dark'] .mq-figma-bitmap-hud__metric--hot {
+  fill: #fbbf24;
+}
+
+[data-theme='dark'] .mq-figma-bitmap-counter--hot .mq-figma-bitmap-counter__value,
+[data-theme='dark'] .mq-figma-bitmap-counter--hot .mq-figma-bitmap-counter__icon {
+  color: #fbbf24;
+}
+
+[data-theme='dark'] .mq-figma-bitmap-hud__metric--running {
+  fill: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-bitmap-counter--process .mq-figma-bitmap-counter__value,
+[data-theme='dark'] .mq-figma-bitmap-counter--process .mq-figma-bitmap-counter__icon {
+  color: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-bitmap-counter--dlq.mq-figma-bitmap-counter--hot .mq-figma-bitmap-counter__value,
+[data-theme='dark'] .mq-figma-bitmap-counter--dlq.mq-figma-bitmap-counter--hot .mq-figma-bitmap-counter__icon {
+  color: #f87171;
+}
+
+[data-theme='dark'] .mq-figma-bitmap-hud__robot-status {
+  stroke: rgba(13, 24, 39, 0.92);
+}
+
+.mq-figma-panel {
+  fill: #fff;
+  stroke: #cfe4ff;
+  stroke-width: 1.4;
+}
+
+/* 面板底部反射（地板镜像倒影） */
+.mq-figma-row:not(.mq-figma-row--expanded)::after {
+  content: '';
+  position: absolute;
+  inset: auto 8px -12px 8px;
+  height: 28px;
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(
+    to bottom,
+    rgba(100, 140, 180, 0.13) 0%,
+    rgba(100, 140, 180, 0.04) 50%,
+    transparent 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(2.5px);
+}
+
+[data-theme='dark'] .mq-figma-row:not(.mq-figma-row--expanded)::after {
+  background: linear-gradient(
+    to bottom,
+    rgba(59, 130, 246, 0.09) 0%,
+    rgba(59, 130, 246, 0.03) 50%,
+    transparent 100%
+  );
+}
+
+.mq-figma-panel-run {
+  fill: #fff;
+  stroke: #22d3ee;
+  stroke-width: 2;
+}
+
+.mq-figma-resource-panel {
+  --mq-resource-text: #31415d;
+  --mq-resource-heading: #283852;
+  --mq-resource-label: #40516c;
+  --mq-resource-value: #1f3b64;
+  --mq-resource-bar-bg: rgba(134, 157, 188, 0.18);
+  --mq-resource-blue: #2f8cff;
+  --mq-resource-green: #31aa63;
+  --mq-resource-cyan: #15a9c8;
+  --mq-resource-amber: #f28b16;
+  --mq-resource-status-bg: rgba(232, 248, 239, 0.9);
+  --mq-resource-status-border: rgba(33, 150, 83, 0.28);
+  --mq-resource-status-text: #16834a;
+  --mq-resource-tag-bg: rgba(231, 248, 239, 0.88);
+  --mq-resource-tag-border: rgba(43, 148, 88, 0.24);
+  --mq-resource-tag-text: #16834a;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--mq-resource-text);
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 1.35;
+  overflow: hidden;
+}
+
+.mq-figma-resource-panel--index {
+  background: transparent;
+}
+
+.mq-figma-resource-panel--post {
+  background: transparent;
+}
+
+.mq-figma-resource-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 8px;
+  color: var(--mq-resource-heading);
+  font-weight: 700;
+}
+
+.mq-figma-resource-panel__status {
+  flex: none;
+  padding: 3px 9px;
+  border: 1px solid var(--mq-resource-status-border);
+  border-radius: 5px;
+  background: var(--mq-resource-status-bg);
+  color: var(--mq-resource-status-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mq-figma-resource-row {
+  display: grid;
+  /* Give values enough room for VRAM strings such as "0.9 / 8.0GB". */
+  grid-template-columns: 42px 92px minmax(72px, 1fr) minmax(0, 120px);
+  align-items: center;
+  column-gap: 9px;
+  min-height: 27px;
+  color: var(--mq-resource-text);
+}
+
+.mq-figma-resource-row__trailing {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.mq-figma-resource-panel__meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 21px;
+  overflow: hidden;
+  color: var(--mq-resource-label);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.mq-figma-resource-panel__meta--waiting {
+  color: var(--mq-resource-amber);
+  font-weight: 700;
+}
+
+.mq-figma-resource-panel__meta-label {
+  color: var(--mq-resource-label);
+  flex: none;
+}
+
+.mq-figma-resource-panel__meta-value {
+  overflow: hidden;
+  color: var(--mq-resource-value);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mq-figma-resource-row__label {
+  color: var(--mq-resource-label);
+}
+
+.mq-figma-resource-row__value {
+  color: var(--mq-resource-value);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mq-figma-resource-row__bar {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--mq-resource-bar-bg);
+}
+
+.mq-figma-resource-row__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mq-resource-blue);
+}
+
+.mq-figma-resource-row--green .mq-figma-resource-row__bar > span,
+.mq-figma-resource-row--green .mq-figma-resource-row__spark polyline {
+  background: var(--mq-resource-green);
+  stroke: var(--mq-resource-green);
+}
+
+.mq-figma-resource-row--cyan .mq-figma-resource-row__bar > span,
+.mq-figma-resource-row--cyan .mq-figma-resource-row__spark polyline {
+  background: var(--mq-resource-cyan);
+  stroke: var(--mq-resource-cyan);
+}
+
+.mq-figma-resource-row--amber .mq-figma-resource-row__bar > span,
+.mq-figma-resource-row--amber .mq-figma-resource-row__spark polyline {
+  background: var(--mq-resource-amber);
+  stroke: var(--mq-resource-amber);
+}
+
+.mq-figma-resource-row__spark {
+  width: 70px;
+  height: 16px;
+  flex: none;
+}
+
+.mq-figma-resource-row__spark polyline {
+  fill: none;
+  stroke: var(--mq-resource-blue);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mq-figma-resource-row__tag {
+  justify-self: end;
+  max-width: 70px;
+  padding: 2px 5px;
+  border: 1px solid var(--mq-resource-tag-border);
+  border-radius: 4px;
+  background: var(--mq-resource-tag-bg);
+  color: var(--mq-resource-tag-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 17px;
+}
+
+[data-theme='dark'] .mq-figma-resource-panel {
+  --mq-resource-text: #cbd7e8;
+  --mq-resource-heading: #e5eefb;
+  --mq-resource-label: #aab8cc;
+  --mq-resource-value: #f2f7ff;
+  --mq-resource-bar-bg: rgba(156, 176, 206, 0.22);
+  --mq-resource-blue: #60a5fa;
+  --mq-resource-green: #4ade80;
+  --mq-resource-cyan: #22d3ee;
+  --mq-resource-amber: #fbbf24;
+  --mq-resource-status-bg: rgba(20, 83, 45, 0.52);
+  --mq-resource-status-border: rgba(74, 222, 128, 0.34);
+  --mq-resource-status-text: #86efac;
+  --mq-resource-tag-bg: rgba(20, 83, 45, 0.46);
+  --mq-resource-tag-border: rgba(74, 222, 128, 0.3);
+  --mq-resource-tag-text: #bbf7d0;
+}
+
+.mq-figma-shadow {
+  filter: url(#mq-figma-shadow-3d);
+}
+
+.mq-figma-h2 {
+  font-family: sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  fill: #14233a;
+}
+
+.mq-figma-body {
+  font-family: sans-serif;
+  font-size: 14px;
+  fill: #5b6b86;
+}
+
+.mq-figma-num {
+  font-family: sans-serif;
+  font-size: 18px;
+  fill: #314463;
+}
+
+.mq-figma-blue {
+  fill: #1677ff;
+}
+
+.mq-figma-green {
+  fill: #24a35a;
+}
+
+.mq-figma-cyan {
+  fill: #0891b2;
+}
+
+.mq-figma-tag {
+  fill: #eef7ff;
+  stroke: #a9d5ff;
+}
+
+.mq-figma-tagg {
+  fill: #effaf3;
+  stroke: #b9e7c8;
+}
+
+.mq-figma-tago {
+  fill: #fff5eb;
+  stroke: #ffd4ab;
+}
+
+.mq-figma-tag-run {
+  fill: #ecfbff;
+  stroke: #91ddf0;
+}
+
+.mq-figma-tag-run-route {
+  fill: #eefbff;
+  stroke: #9fe5f4;
+}
+
+.mq-figma-tag-purple {
+  fill: #f5f1ff;
+  stroke: #d6c9ff;
+}
+
+.mq-figma-tag-purple-run {
+  fill: #f5f1ff;
+  stroke: #d6c9ff;
+}
+
+.mq-figma-belt {
+  fill: #eaf3fb;
+  stroke: #9dc3e6;
+  stroke-width: 2;
+}
+
+.mq-figma-belt-top {
+  fill: #f4faff;
+  stroke: #a8cce8;
+  stroke-width: 1;
+}
+
+.mq-figma-belt-front {
+  fill: #c8dff5;
+  stroke: #8fb8e0;
+  stroke-width: 1;
+}
+
+.mq-figma-belt-lip {
+  stroke: #ffffff;
+  stroke-width: 2;
+  opacity: 0.75;
+}
+
+.mq-figma-belt-slotG {
+  fill: #72c98d;
+}
+
+.mq-figma-belt-slot {
+  fill: #7fb9f4;
+}
+
+.mq-figma-ground-shadow {
+  fill: #5a8fca;
+  opacity: 0.14;
+}
+
+.mq-figma-pedestal-face--top {
+  fill: #f8fcff;
+}
+
+.mq-figma-pedestal-face--left {
+  fill: #dceaf8;
+}
+
+.mq-figma-pedestal-face--right {
+  fill: #c5ddf2;
+}
+
+.mq-figma-pedestalG .mq-figma-pedestal-face--top {
+  fill: #f8fffa;
+}
+
+.mq-figma-pedestalG .mq-figma-pedestal-face--left {
+  fill: #d8f0e0;
+}
+
+.mq-figma-pedestalG .mq-figma-pedestal-face--right {
+  fill: #b9e7c8;
+}
+
+.mq-figma-pedestalC .mq-figma-pedestal-face--top {
+  fill: #f8fdff;
+}
+
+.mq-figma-pedestalC .mq-figma-pedestal-face--left {
+  fill: #ccf1f8;
+}
+
+.mq-figma-pedestalC .mq-figma-pedestal-face--right {
+  fill: #9fe5f4;
+}
+
+.mq-figma-cube-edge {
+  stroke: #55a8f2;
+  stroke-width: 1.5;
+  opacity: 0.85;
+}
+
+.mq-figma-cube-face {
+  stroke: none;
+}
+
+.mq-figma-doc-layer {
+  fill: #1677ff;
+}
+
+.mq-figma-doc-layerG {
+  fill: #24a35a;
+}
+
+.mq-figma-doc-layerC {
+  fill: #0891b2;
+}
+
+.mq-figma-arm-joint {
+  fill: #e8f0f8;
+  stroke: #75889f;
+  stroke-width: 2;
+}
+
+.mq-figma-arm-upper {
+  fill: #b8c9dc;
+  stroke: #62758d;
+  stroke-width: 1.5;
+}
+
+.mq-figma-arm-link {
+  stroke: #62758d;
+}
+
+.mq-figma-arm-leg {
+  stroke: #8496ab;
+  stroke-width: 5;
+}
+
+.mq-figma-arm-unit-live .mq-figma-arm-link-live {
+  stroke: #62758d;
+}
+
+.mq-figma-stroke-blue {
+  stroke: #1677ff;
+}
+
+.mq-figma-stroke-green {
+  stroke: #24a35a;
+}
+
+.mq-figma-stroke-purple {
+  stroke: #7c5cff;
+}
+
+.mq-figma-stroke-orange {
+  stroke: #f97316;
+}
+
+.mq-figma-hex-face--top {
+  stroke-width: 2.5;
+}
+
+.mq-figma-branch-card {
+  fill: #fff;
+  stroke: #d7e6f5;
+  stroke-width: 1.4;
+}
+
+.mq-figma-branch-divider {
+  stroke: #d8e7f6;
+  stroke-width: 1;
+}
+
+.mq-figma-robot-body,
+.mq-figma-robot-head {
+  fill: #eef3f8;
+  stroke: #7e8ea3;
+  stroke-width: 1.5;
+}
+
+.mq-figma-robot-limb {
+  fill: #eef3f8;
+  stroke: #7e8ea3;
+  stroke-width: 1.5;
+}
+
+.mq-figma-metric-dot {
+  fill: #fff;
+}
+
+.mq-figma-robot-laptop {
+  fill: #9aa9ba;
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+.mq-figma-row--running .mq-figma-conveyor .mq-figma-belt-package {
+  animation: mq-figma-cube-glow 2s ease-in-out infinite;
+}
+
+/* —— 具象站台 —— */
+
+.mq-figma-hopper-front {
+  fill: #eef7ff;
+  stroke: #9dccf7;
+  stroke-width: 1.5;
+}
+
+.mq-figma-hopper-back {
+  fill: #dceaf8;
+  stroke: #9dccf7;
+  stroke-width: 1.5;
+}
+
+.mq-figma-hopper-side {
+  fill: #c5ddf2;
+  stroke: #7fb9f4;
+  stroke-width: 1.2;
+}
+
+.mq-figma-hopper-throat {
+  fill: #cbd5e1;
+  opacity: 0.5;
+}
+
+.mq-figma-hopper-scan-window {
+  fill: #dceafe;
+  stroke: #9dccf7;
+  stroke-width: 1;
+}
+
+.mq-figma-hopper-scan-beam {
+  stroke-linecap: round;
+  opacity: 0.9;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.mq-figma-hopper-output {
+  fill: #94b8dd;
+  opacity: 0.7;
+}
+
+.mq-figma-intake-loader {
+  fill: #d8e5f2;
+  stroke: #8aa7c4;
+  stroke-width: 1.2;
+}
+
+.mq-figma-intake-display {
+  fill: #314463;
+  stroke: #7fb9f4;
+  stroke-width: 1.2;
+}
+
+.mq-figma-intake-display-line {
+  stroke: #7dd3fc;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.mq-figma-intake-foot {
+  stroke: #8aa0b8;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.mq-figma-intake-label,
+.mq-figma-rework-label,
+.mq-figma-recycle-label,
+.mq-figma-robot-idle-label {
+  font-family: sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0;
+  fill: #52627a;
+}
+
+.mq-figma-paper,
+.mq-figma-paper-face--top {
+  fill: #ffffff;
+}
+
+.mq-figma-paper-face--left {
+  fill: #f1f5f9;
+}
+
+.mq-figma-paper-face--right {
+  fill: #e2e8f0;
+}
+
+.mq-figma-paperG.mq-figma-paper-face--top,
+.mq-figma-paperG {
+  fill: #ffffff;
+}
+
+.mq-figma-paper-fold {
+  fill: #dbeafe;
+}
+
+.mq-figma-paper-line {
+  stroke: #94a3b8;
+}
+
+.mq-figma-chute-body {
+  fill: #fff7ed;
+  stroke: #fdba74;
+  stroke-width: 1.5;
+}
+
+.mq-figma-chute-rim {
+  fill: #ffedd5;
+  stroke: #fb923c;
+  stroke-width: 1.2;
+}
+
+.mq-figma-chute-warning {
+  fill: #fff7ed;
+  stroke: #fb923c;
+  stroke-width: 1.5;
+}
+
+.mq-figma-chute-warning-line {
+  stroke: #f97316;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.mq-figma-chute-foot {
+  stroke: #94a3b8;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.mq-figma-chute-roller {
+  fill: #e2e8f0;
+  stroke: #94a3b8;
+  stroke-width: 1.5;
+}
+
+.mq-figma-retry-arrow-head {
+  fill: #f97316;
+}
+
+.mq-figma-rework-label {
+  fill: #c05f15;
+}
+
+.mq-figma-repair-wrench {
+  stroke: #64748b;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.mq-figma-repair-tag {
+  fill: #f7dfbd;
+  stroke: #b88952;
+  stroke-width: 1.1;
+}
+
+.mq-figma-repair-tag-line {
+  stroke: #a46f37;
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.mq-figma-bin-lid {
+  fill: #e2e8f0;
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+.mq-figma-bin-body {
+  fill: #475569;
+  stroke: #334155;
+  stroke-width: 1.5;
+}
+
+.mq-figma-bin-handle {
+  fill: #94a3b8;
+}
+
+.mq-figma-bin-inner-lip {
+  fill: #334155;
+  opacity: 0.65;
+}
+
+.mq-figma-bin-core-window {
+  fill: #10243a;
+  stroke: #4d8cc4;
+  stroke-width: 1.4;
+}
+
+.mq-figma-bin-glow {
+  fill: #22d3ee;
+  opacity: 0.78;
+}
+
+.mq-figma-bin-foot {
+  stroke: #64748b;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.mq-figma-bin-grate {
+  stroke: #94a3b8;
+}
+
+.mq-figma-recycle-mark-head {
+  fill: #22d3ee;
+}
+
+.mq-figma-recycle-label {
+  fill: #42516a;
+}
+
+.mq-figma-workbench-top {
+  fill: #cbd5e1;
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+.mq-figma-workbench-side {
+  fill: #94a3b8;
+  stroke: #64748b;
+  stroke-width: 1.2;
+}
+
+.mq-figma-workbench-front {
+  fill: #aab8c8;
+  stroke: #64748b;
+  stroke-width: 1.2;
+}
+
+.mq-figma-arm-column {
+  fill: #94a3b8;
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+.mq-figma-arm-column--secondary {
+  fill: #a8b8ca;
+}
+
+.mq-figma-workbench-sensor {
+  stroke: #60a5fa;
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+
+.mq-figma-workbench-bolt {
+  fill: #e2e8f0;
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+.mq-figma-workbench-console {
+  fill: #96a7ba;
+  stroke: #5d7088;
+  stroke-width: 1.2;
+}
+
+.mq-figma-workbench-screen {
+  fill: #17314f;
+  stroke: #60a5fa;
+  stroke-width: 1;
+}
+
+.mq-figma-workbench-screen-line {
+  stroke: #7dd3fc;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+}
+
+.mq-figma-workbench-lamp-arm {
+  stroke: #66788f;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.mq-figma-workbench-lamp {
+  fill: #95a4b7;
+  stroke: #64748b;
+  stroke-width: 1.2;
+}
+
+.mq-figma-workbench-lamp-beam {
+  stroke: #facc15;
+  stroke-width: 5;
+  stroke-linecap: round;
+  opacity: 0.28;
+}
+
+.mq-figma-gear {
+  fill: #d4dde8;
+  stroke: #64748b;
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.mq-figma-gear--small {
+  fill: #c5d0dc;
+}
+
+.mq-figma-gear-core {
+  fill: #8aa0b8;
+  stroke: #52627a;
+  stroke-width: 1.2;
+}
+
+.mq-figma-gear-tooth-lines {
+  stroke: #6a7c92;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.mq-figma-workbench-roller {
+  stroke: #7a8da5;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.mq-figma-engineer-shadow {
+  fill: #7892ac;
+  opacity: 0.16;
+}
+
+.mq-figma-engineer-face,
+.mq-figma-engineer-hand {
+  fill: #f2c9a8;
+  stroke: #9f6f4b;
+  stroke-width: 1.2;
+}
+
+.mq-figma-engineer-hair {
+  fill: #6f4028;
+  stroke: #4c2b1b;
+  stroke-width: 1.1;
+}
+
+.mq-figma-engineer-shirt {
+  fill: #5f748a;
+  stroke: #45566a;
+  stroke-width: 1.2;
+}
+
+.mq-figma-engineer-apron {
+  fill: #9a6b47;
+  stroke: #72472c;
+  stroke-width: 1.2;
+}
+
+.mq-figma-engineer-strap,
+.mq-figma-engineer-arm,
+.mq-figma-engineer-leg {
+  stroke: #72472c;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.mq-figma-engineer-eye,
+.mq-figma-engineer-smile {
+  stroke: #3f2a1f;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.mq-figma-engineer-caliper {
+  fill: none;
+  stroke: #66788f;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: 8px 10px;
+}
+
+.mq-figma-arm-nozzle,
+.mq-figma-arm-nozzle-live {
+  fill: #64748b;
+  stroke: #475569;
+  stroke-width: 1;
+}
+
+.mq-figma-roller {
+  fill: #e2e8f0;
+  stroke: #64748b;
+  stroke-width: 2;
+}
+
+.mq-figma-roller-cap {
+  fill: #64748b;
+}
+
+.mq-figma-belt-ground {
+  fill: #5a8fca;
+  opacity: 0.1;
+}
+
+.mq-figma-belt-rail {
+  stroke: #64748b;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.mq-figma-package-face--top {
+  fill: #fef3c7;
+  stroke: #d97706;
+  stroke-width: 1;
+}
+
+.mq-figma-package-face--left {
+  fill: #fde68a;
+  stroke: #d97706;
+  stroke-width: 1;
+}
+
+.mq-figma-package-face--right {
+  fill: #fcd34d;
+  stroke: #d97706;
+  stroke-width: 1;
+}
+
+.mq-figma-robot-antenna {
+  stroke: #64748b;
+}
+
+.mq-figma-robot-antenna-tip {
+  fill: #22d3ee;
+}
+
+.mq-figma-robot-eye {
+  fill: #22d3ee;
+  stroke: #22d3ee;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.mq-figma-robot-visor {
+  fill: #0f1e2f;
+}
+
+.mq-figma-robot-neck {
+  fill: #cbd5e1;
+  stroke: #7e8ea3;
+  stroke-width: 1.2;
+}
+
+.mq-figma-robot-chest {
+  fill: #dceafe;
+  opacity: 0.75;
+}
+
+.mq-figma-robot-mouth,
+.mq-figma-robot-arm-link,
+.mq-figma-robot-wave-fingers {
+  stroke: #64748b;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.mq-figma-robot-arm-link {
+  stroke-width: 6;
+}
+
+.mq-figma-robot-ear {
+  fill: #d8e3ef;
+  stroke: #7e8ea3;
+  stroke-width: 1.4;
+}
+
+.mq-figma-robot-idle-label {
+  fill: #1677ff;
+}
+
+.mq-figma-robot-glow {
+  fill: #5bd8ff;
+  opacity: 0.45;
+}
+
+.mq-figma-robot-shadow {
+  fill: #c8efff;
+}
+
+.mq-figma-robot-mouth {
+  fill: #64748b;
+}
+
+.mq-figma-robot-limb {
+  stroke: #7e8ea3;
+  stroke-width: 1.2;
+}
+
+.mq-figma-robot-laptop-base {
+  fill: #94a3b8;
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+.mq-figma-robot-laptop-screen {
+  fill: #0f172a;
+  stroke: #334155;
+  stroke-width: 1;
+}
+
+.mq-figma-robot-laptop-lines {
+  stroke: #22d3ee;
+  stroke-linecap: round;
+}
+
+.mq-figma-branch-plate-top {
+  fill: #eef7ff;
+  stroke: #9dccf7;
+  stroke-width: 1.2;
+}
+
+.mq-figma-branch-plate-side {
+  fill: #c5ddf2;
+  stroke: #7fb9f4;
+  stroke-width: 1;
+}
+
+.mq-figma-branch-bell {
+  stroke: #1677ff;
+  stroke-width: 2;
+}
+
+.mq-figma-branch-bell-clapper,
+.mq-figma-branch-bell-knob {
+  stroke: #1677ff;
+}
+
+.mq-figma-branch-bell-knob {
+  fill: #1677ff;
+}
+
+.mq-figma-branch-doc {
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+.mq-figma-branch-doc-fold {
+  fill: #e2e8f0;
+}
+
+.mq-figma-branch-doc-lines {
+  stroke: #64748b;
+}
+
+.mq-figma-branch-icon-fill--blue {
+  fill: #eef7ff;
+}
+
+.mq-figma-branch-icon-fill--green {
+  fill: #f1fbf4;
+}
+
+.mq-figma-branch-icon-fill--purple {
+  fill: #f5f1ff;
+}
+
+.mq-figma-branch-icon-fill--orange {
+  fill: #fff5eb;
+}
+
+.mq-figma-branch-pdf-label {
+  fill: #7c5cff;
+  font-family: sans-serif;
+}
+
+.mq-figma-retry-arrow.mq-figma-blue {
+  stroke: #1677ff;
+}
+
+.mq-figma-retry-arrow.mq-figma-green {
+  stroke: #24a35a;
+}
+
+.mq-figma-retry-arrow.mq-figma-cyan {
+  stroke: #0891b2;
+}
+
+.mq-figma-recycle-mark.mq-figma-blue {
+  stroke: #22d3ee;
+}
+
+.mq-figma-hopper-lip.mq-figma-blue {
+  stroke: #1677ff;
+}
+
+.mq-figma-station {
+  fill: #f8fcff;
+  stroke: none;
+}
+
+.mq-figma-stationG {
+  fill: #f8fffa;
+  stroke: none;
+}
+
+.mq-figma-stationC {
+  fill: #f8fdff;
+  stroke: none;
+}
+
+.mq-figma-cube {
+  fill: #dff1ff;
+  stroke: #55a8f2;
+  stroke-width: 2;
+}
+
+.mq-figma-cubeG {
+  fill: #e5f8e9;
+  stroke: #55b86d;
+  stroke-width: 2;
+}
+
+.mq-figma-cubeC {
+  fill: #ddf8ff;
+  stroke: #32c5e7;
+  stroke-width: 2;
+}
+
+.mq-figma-metric-hot {
+  font-family: sans-serif;
+  font-size: 18px;
+  fill: #f97316;
+}
+
+.mq-figma-metric-running {
+  font-family: sans-serif;
+  font-size: 18px;
+  fill: #1677ff;
+}
+
+.mq-figma-hit {
+  cursor: pointer;
+}
+
+.mq-figma-robot-panel--expandable .mq-figma-hit {
+  cursor: pointer;
+}
+
+.mq-figma-robot-panel__bg {
+  fill: #fff;
+  stroke: none;
+}
+
+.mq-figma-task-bubble {
+  --mq-figma-bubble-bg: #ffffff;
+  --mq-figma-bubble-border: #2563eb;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 10px 8px;
+  border-radius: 8px;
+  background: var(--mq-figma-bubble-bg);
+  border: 1.5px solid var(--mq-figma-bubble-border);
+  font-size: 14px;
+  line-height: 1.35;
+  color: #14233a;
+  overflow: hidden;
+  animation: mq-figma-bubble-in 0.35s ease-out both;
+}
+
+.mq-figma-task-bubble--callout {
+  position: relative;
+  box-shadow:
+    0 8px 22px color-mix(in srgb, var(--mq-figma-bubble-border) 28%, transparent),
+    0 2px 8px rgba(15, 23, 42, 0.14);
+}
+
+.mq-figma-task-bubble--callout::before,
+.mq-figma-task-bubble--callout::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.mq-figma-task-bubble--callout::before {
+  bottom: -9px;
+  border-width: 9px 9px 0;
+  border-color: var(--mq-figma-bubble-border) transparent transparent;
+}
+
+.mq-figma-task-bubble--callout::after {
+  bottom: -7px;
+  border-width: 7px 7px 0;
+  border-color: var(--mq-figma-bubble-bg) transparent transparent;
+}
+
+.mq-figma-task-bubble__user {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1677ff;
+}
+
+.mq-figma-task-bubble__file {
+  display: block;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #314463;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mq-figma-task-bubble__progress {
+  margin-top: 2px;
+  min-width: 0;
+}
+
+.mq-figma-task-bubble__progress .ant-progress {
+  display: flex;
+  align-items: center;
+  margin-inline-end: 0;
+  line-height: 1;
+}
+
+.mq-figma-task-bubble__progress .ant-progress-outer {
+  flex: 1;
+  min-width: 0;
+}
+
+.mq-figma-task-bubble__progress .ant-progress-text {
+  flex-shrink: 0;
+  width: auto;
+  min-width: 2.5em;
+  margin-inline-start: 6px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mq-figma-task-bubble__stage {
+  font-size: 12px;
+  line-height: 1.2;
+  color: #5b6b86;
+  margin-bottom: 2px;
+}
+
+.mq-figma-task-bubble__detail {
+  font-variant-numeric: tabular-nums;
+}
+
+.mq-figma-queue-preview {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(179, 192, 210, 0.85);
+  font-size: 11px;
+  line-height: 1.25;
+  color: #314463;
+  pointer-events: auto;
+}
+
+.mq-figma-queue-preview__title {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #5b6b86;
+}
+
+.mq-figma-queue-preview__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mq-figma-queue-preview__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.mq-figma-queue-preview__wait {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.mq-figma-queue-preview__user {
+  font-weight: 700;
+  color: #1677ff;
+  margin-right: 4px;
+}
+
+.mq-figma-queue-preview__file {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mq-figma-queue-preview__more {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1677ff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mq-figma-sidecars {
+  width: 100%;
+  max-width: 1508px;
+  margin-inline: auto;
+}
+
+/* 浅色 v2：柔和表面层级，对齐 FileX 主面板 (#e8ecf2)，避免大面积 #fff 刺眼 */
+
+[data-theme='light'] {
+  --mq-figma-l-surface: #e6ebf2;
+  --mq-figma-l-surface-2: #dde4ed;
+  --mq-figma-l-surface-3: #d2dae6;
+  --mq-figma-l-surface-4: #c6d0de;
+  --mq-figma-l-stroke: #b3c0d2;
+  --mq-figma-l-stroke-accent: #96a9c0;
+  --mq-figma-l-paper: #e0e7ef;
+  --mq-figma-l-paper-side: #d2dae6;
+  --mq-figma-l-paper-fold: #c8d4e4;
+}
+
+[data-theme='light'] .mq-figma-shadow {
+  filter:
+    drop-shadow(0 10px 20px rgba(15, 23, 42, 0.1))
+    drop-shadow(0 3px 6px rgba(15, 23, 42, 0.06));
+}
+
+[data-theme='light'] .mq-figma-panel,
+[data-theme='light'] .mq-figma-panel-run,
+[data-theme='light'] .mq-figma-branch-card,
+[data-theme='light'] .mq-figma-robot-panel__bg {
+  fill: var(--mq-figma-l-surface);
+  stroke: var(--mq-figma-l-stroke-accent);
+}
+
+[data-theme='light'] .mq-figma-tag,
+[data-theme='light'] .mq-figma-tagg,
+[data-theme='light'] .mq-figma-tago,
+[data-theme='light'] .mq-figma-tag-run,
+[data-theme='light'] .mq-figma-tag-run-route,
+[data-theme='light'] .mq-figma-tag-purple,
+[data-theme='light'] .mq-figma-tag-purple-run {
+  fill: var(--mq-figma-l-surface-2);
+}
+
+[data-theme='light'] .mq-figma-tag {
+  stroke: #a8bdd4;
+}
+
+[data-theme='light'] .mq-figma-tagg {
+  stroke: #9ec4ad;
+}
+
+[data-theme='light'] .mq-figma-tago {
+  stroke: #d4b896;
+}
+
+[data-theme='light'] .mq-figma-tag-run,
+[data-theme='light'] .mq-figma-tag-run-route {
+  stroke: #8ec4d4;
+}
+
+[data-theme='light'] .mq-figma-tag-purple,
+[data-theme='light'] .mq-figma-tag-purple-run {
+  stroke: #b8a8d8;
+}
+
+[data-theme='light'] .mq-figma-metric-dot {
+  fill: var(--mq-figma-l-surface-3);
+}
+
+[data-theme='light'] .mq-figma-belt-top {
+  fill: var(--mq-figma-l-surface-3);
+  stroke: var(--mq-figma-l-stroke);
+}
+
+[data-theme='light'] .mq-figma-belt-front {
+  fill: var(--mq-figma-l-surface-4);
+  stroke: var(--mq-figma-l-stroke);
+}
+
+[data-theme='light'] .mq-figma-belt-lip {
+  stroke: var(--mq-figma-l-stroke);
+  opacity: 0.55;
+}
+
+[data-theme='light'] .mq-figma-roller {
+  fill: var(--mq-figma-l-surface-4);
+  stroke: #8b9cb0;
+}
+
+[data-theme='light'] .mq-figma-pedestal-face--top,
+[data-theme='light'] .mq-figma-pedestalG .mq-figma-pedestal-face--top,
+[data-theme='light'] .mq-figma-pedestalC .mq-figma-pedestal-face--top {
+  fill: var(--mq-figma-l-surface-2);
+}
+
+[data-theme='light'] .mq-figma-pedestal-face--left,
+[data-theme='light'] .mq-figma-pedestalG .mq-figma-pedestal-face--left,
+[data-theme='light'] .mq-figma-pedestalC .mq-figma-pedestal-face--left {
+  fill: var(--mq-figma-l-surface-3);
+}
+
+[data-theme='light'] .mq-figma-pedestal-face--right,
+[data-theme='light'] .mq-figma-pedestalG .mq-figma-pedestal-face--right,
+[data-theme='light'] .mq-figma-pedestalC .mq-figma-pedestal-face--right {
+  fill: var(--mq-figma-l-surface-4);
+}
+
+[data-theme='light'] .mq-figma-hopper-front {
+  fill: var(--mq-figma-l-surface-2);
+  stroke: var(--mq-figma-l-stroke-accent);
+}
+
+[data-theme='light'] .mq-figma-hopper-back {
+  fill: var(--mq-figma-l-surface-3);
+  stroke: var(--mq-figma-l-stroke-accent);
+}
+
+[data-theme='light'] .mq-figma-hopper-side {
+  fill: var(--mq-figma-l-surface-4);
+  stroke: var(--mq-figma-l-stroke);
+}
+
+[data-theme='light'] .mq-figma-paper,
+[data-theme='light'] .mq-figma-paper-face--top,
+[data-theme='light'] .mq-figma-paperG,
+[data-theme='light'] .mq-figma-paperG.mq-figma-paper-face--top,
+[data-theme='light'] .mq-figma-paperC,
+[data-theme='light'] .mq-figma-paperC.mq-figma-paper-face--top {
+  fill: var(--mq-figma-l-paper);
+}
+
+[data-theme='light'] .mq-figma-paper-face--left,
+[data-theme='light'] .mq-figma-paperG.mq-figma-paper-face--left,
+[data-theme='light'] .mq-figma-paperC.mq-figma-paper-face--left {
+  fill: var(--mq-figma-l-paper-side);
+}
+
+[data-theme='light'] .mq-figma-paper-face--right,
+[data-theme='light'] .mq-figma-paperG.mq-figma-paper-face--right,
+[data-theme='light'] .mq-figma-paperC.mq-figma-paper-face--right {
+  fill: var(--mq-figma-l-surface-4);
+}
+
+[data-theme='light'] .mq-figma-paper-fold {
+  fill: var(--mq-figma-l-paper-fold);
+}
+
+[data-theme='light'] .mq-figma-robot-body,
+[data-theme='light'] .mq-figma-robot-head,
+[data-theme='light'] .mq-figma-robot-limb {
+  fill: var(--mq-figma-l-surface-3);
+  stroke: #8b9cb0;
+}
+
+[data-theme='light'] .mq-figma-robot-laptop-base {
+  fill: var(--mq-figma-l-surface-4);
+  stroke: #8b9cb0;
+}
+
+[data-theme='light'] .mq-figma-robot-shadow {
+  fill: #94a3b8;
+  opacity: 0.22;
+}
+
+[data-theme='light'] .mq-figma-robot-glow,
+[data-theme='light'] .mq-figma-robot-glow-live {
+  fill: #0891b2;
+  opacity: 0.16;
+}
+
+[data-theme='light'] .mq-figma-ground-shadow {
+  fill: #64748b;
+  opacity: 0.1;
+}
+
+[data-theme='light'] .mq-figma-arm-joint {
+  fill: var(--mq-figma-l-surface-3);
+  stroke: #8b9cb0;
+}
+
+[data-theme='light'] .mq-figma-arm-upper {
+  fill: var(--mq-figma-l-surface-4);
+  stroke: #8b9cb0;
+}
+
+[data-theme='light'] .mq-figma-branch-plate-top {
+  fill: var(--mq-figma-l-surface-2);
+  stroke: var(--mq-figma-l-stroke-accent);
+}
+
+[data-theme='light'] .mq-figma-branch-plate-side {
+  fill: var(--mq-figma-l-surface-4);
+  stroke: var(--mq-figma-l-stroke);
+}
+
+[data-theme='light'] .mq-figma-branch-icon-fill--blue,
+[data-theme='light'] .mq-figma-branch-icon-fill--green,
+[data-theme='light'] .mq-figma-branch-icon-fill--purple,
+[data-theme='light'] .mq-figma-branch-icon-fill--orange {
+  fill: var(--mq-figma-l-surface-2);
+}
+
+[data-theme='light'] .mq-figma-branch-divider {
+  stroke: var(--mq-figma-l-stroke);
+}
+
+[data-theme='light'] .mq-figma-station,
+[data-theme='light'] .mq-figma-stationG,
+[data-theme='light'] .mq-figma-stationC {
+  fill: var(--mq-figma-l-surface-2);
+}
+
+[data-theme='light'] .mq-figma-chute-body {
+  fill: #e8dfd4;
+  stroke: #d4a574;
+}
+
+[data-theme='light'] .mq-figma-chute-rim {
+  fill: #ddd2c4;
+  stroke: #c4895a;
+}
+
+[data-theme='light'] .mq-figma-package-face--top {
+  fill: #e8dcc0;
+  stroke: #b8862e;
+}
+
+[data-theme='light'] .mq-figma-package-face--left {
+  fill: #ddd0aa;
+  stroke: #b8862e;
+}
+
+[data-theme='light'] .mq-figma-package-face--right {
+  fill: #d4c596;
+  stroke: #b8862e;
+}
+
+[data-theme='light'] .mq-figma-task-bubble {
+  --mq-figma-bubble-bg: #ffffff;
+  --mq-figma-bubble-border: #2563eb;
+  color: #1e293b;
+}
+
+[data-theme='light'] .mq-figma-task-bubble__user {
+  color: #1d4ed8;
+}
+
+[data-theme='light'] .mq-figma-workbench-top {
+  fill: var(--mq-figma-l-surface-4);
+}
+
+[data-theme='light'] .mq-figma-workbench-bolt {
+  fill: var(--mq-figma-l-surface-3);
+}
+
+[data-theme='light'] .mq-figma-workbench-console,
+[data-theme='light'] .mq-figma-workbench-lamp {
+  fill: #b7c3d1;
+  stroke: #8b9cb0;
+}
+
+[data-theme='light'] .mq-figma-gear {
+  fill: #c9d3df;
+  stroke: #8797aa;
+}
+
+[data-theme='light'] .mq-figma-engineer-shirt {
+  fill: #60768c;
+}
+
+[data-theme='light'] .mq-figma-engineer-apron {
+  fill: #9b6b48;
+}
+
+[data-theme='light'] .mq-figma-bin-core-window,
+[data-theme='light'] .mq-figma-workbench-screen,
+[data-theme='light'] .mq-figma-intake-display {
+  fill: #203653;
+}
+
+.mq-factory-drawer .mq-figma-row {
+  max-width: none;
+}
+
+[data-theme='dark'] .mq-figma-ground-shadow {
+  fill: #1677ff;
+  opacity: 0.12;
+}
+
+[data-theme='dark'] .mq-figma-pedestal-face--top {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 88%, #1677ff);
+}
+
+[data-theme='dark'] .mq-figma-pedestal-face--left {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 82%, #1677ff);
+}
+
+[data-theme='dark'] .mq-figma-pedestal-face--right {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 78%, #1677ff);
+}
+
+[data-theme='dark'] .mq-figma-pedestalG .mq-figma-pedestal-face--top {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 88%, #24a35a);
+}
+
+[data-theme='dark'] .mq-figma-pedestalG .mq-figma-pedestal-face--left {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 82%, #24a35a);
+}
+
+[data-theme='dark'] .mq-figma-pedestalG .mq-figma-pedestal-face--right {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 78%, #24a35a);
+}
+
+[data-theme='dark'] .mq-figma-cube-edge {
+  stroke: color-mix(in srgb, #1677ff 55%, #94a3b8);
+}
+
+[data-theme='dark'] .mq-figma-arm-joint {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 75%, #94a3b8);
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-arm-upper {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 70%, #64748b);
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-branch-card {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 96%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 35%, #334155);
+}
+
+[data-theme='dark'] .mq-figma-panel,
+[data-theme='dark'] .mq-figma-panel-run {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 96%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 35%, #334155);
+}
+
+[data-theme='dark'] .mq-figma-robot-panel__bg {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 94%, #1677ff);
+}
+
+[data-theme='dark'] .mq-figma-h2 {
+  fill: var(--text-primary, #e2e8f0);
+}
+
+[data-theme='dark'] .mq-figma-body {
+  fill: var(--text-secondary, #94a3b8);
+}
+
+[data-theme='dark'] .mq-figma-num {
+  fill: var(--text-primary, #e2e8f0);
+}
+
+[data-theme='dark'] .mq-figma-task-bubble {
+  --mq-figma-bubble-bg: #f0f9ff;
+  --mq-figma-bubble-border: #38bdf8;
+  color: #0f172a;
+}
+
+[data-theme='dark'] .mq-figma-task-bubble__user {
+  color: #1d4ed8;
+}
+
+[data-theme='dark'] .mq-figma-task-bubble__file {
+  color: #334155;
+}
+
+[data-theme='dark'] .mq-figma-metric-hot {
+  fill: #fb923c;
+}
+
+[data-theme='dark'] .mq-figma-metric-running {
+  fill: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-blue {
+  fill: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-green {
+  fill: #4ade80;
+}
+
+[data-theme='dark'] .mq-figma-cyan {
+  fill: #22d3ee;
+}
+
+[data-theme='dark'] .mq-figma-tag {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 82%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 45%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-tagg {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 82%, #24a35a);
+  stroke: color-mix(in srgb, #24a35a 45%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-tago {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 82%, #f97316);
+  stroke: color-mix(in srgb, #f97316 45%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-tag-run,
+[data-theme='dark'] .mq-figma-tag-run-route {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 82%, #0891b2);
+  stroke: color-mix(in srgb, #0891b2 45%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-tag-purple,
+[data-theme='dark'] .mq-figma-tag-purple-run {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 82%, #7c5cff);
+  stroke: color-mix(in srgb, #7c5cff 45%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-shadow {
+  filter:
+    drop-shadow(0 12px 24px rgba(0, 0, 0, 0.48))
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+}
+
+[data-theme='dark'] .mq-figma-belt-top {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 72%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 35%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-belt-front {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 62%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 30%, #334155);
+}
+
+[data-theme='dark'] .mq-figma-belt-lip {
+  stroke: color-mix(in srgb, #94a3b8 50%, #1677ff);
+  opacity: 0.55;
+}
+
+[data-theme='dark'] .mq-figma-belt-slot {
+  fill: color-mix(in srgb, #1677ff 55%, #334155);
+}
+
+[data-theme='dark'] .mq-figma-belt-slotG {
+  fill: color-mix(in srgb, #24a35a 55%, #334155);
+}
+
+[data-theme='dark'] .mq-figma-belt-rail {
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-roller {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 70%, #64748b);
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-pedestalC .mq-figma-pedestal-face--top {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 88%, #0891b2);
+}
+
+[data-theme='dark'] .mq-figma-pedestalC .mq-figma-pedestal-face--left {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 82%, #0891b2);
+}
+
+[data-theme='dark'] .mq-figma-pedestalC .mq-figma-pedestal-face--right {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 78%, #0891b2);
+}
+
+[data-theme='dark'] .mq-figma-hopper-front {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 78%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 40%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-hopper-back {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 72%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 35%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-hopper-side {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 65%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 30%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-hopper-lip.mq-figma-blue {
+  stroke: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-paper,
+[data-theme='dark'] .mq-figma-paper-face--top,
+[data-theme='dark'] .mq-figma-paperG {
+  fill: #e2e8f0;
+}
+
+[data-theme='dark'] .mq-figma-paper-face--left {
+  fill: #cbd5e1;
+}
+
+[data-theme='dark'] .mq-figma-paper-face--right {
+  fill: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-paper-fold {
+  fill: color-mix(in srgb, #1677ff 35%, #64748b);
+}
+
+[data-theme='dark'] .mq-figma-paper-line {
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-chute-body {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 75%, #f97316);
+  stroke: color-mix(in srgb, #fb923c 50%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-chute-rim {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 70%, #f97316);
+  stroke: #fb923c;
+}
+
+[data-theme='dark'] .mq-figma-chute-roller {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 65%, #94a3b8);
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-retry-arrow.mq-figma-blue {
+  stroke: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-retry-arrow.mq-figma-green {
+  stroke: #4ade80;
+}
+
+[data-theme='dark'] .mq-figma-retry-arrow.mq-figma-cyan {
+  stroke: #22d3ee;
+}
+
+[data-theme='dark'] .mq-figma-retry-arrow-head {
+  fill: #fb923c;
+}
+
+[data-theme='dark'] .mq-figma-bin-lid {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 60%, #94a3b8);
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-bin-body {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 55%, #475569);
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-bin-handle {
+  fill: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-bin-grate {
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-recycle-mark.mq-figma-blue {
+  stroke: #22d3ee;
+}
+
+[data-theme='dark'] .mq-figma-recycle-mark-head {
+  fill: #22d3ee;
+}
+
+[data-theme='dark'] .mq-figma-workbench-top {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 55%, #64748b);
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-workbench-side {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 50%, #475569);
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-arm-column {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 50%, #64748b);
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-workbench-bolt {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 65%, #94a3b8);
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-arm-nozzle,
+[data-theme='dark'] .mq-figma-arm-nozzle-live {
+  fill: #475569;
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-arm-link,
+[data-theme='dark'] .mq-figma-arm-unit-live .mq-figma-arm-link-live {
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-arm-leg {
+  stroke: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-package-face--top {
+  fill: color-mix(in srgb, #78350f 35%, #422006);
+  stroke: #f59e0b;
+}
+
+[data-theme='dark'] .mq-figma-package-face--left {
+  fill: color-mix(in srgb, #78350f 45%, #292524);
+  stroke: #d97706;
+}
+
+[data-theme='dark'] .mq-figma-package-face--right {
+  fill: color-mix(in srgb, #78350f 55%, #1c1917);
+  stroke: #b45309;
+}
+
+[data-theme='dark'] .mq-figma-robot-shadow {
+  fill: color-mix(in srgb, #0891b2 25%, #0f172a);
+}
+
+[data-theme='dark'] .mq-figma-robot-glow {
+  fill: #0891b2;
+  opacity: 0.35;
+}
+
+[data-theme='dark'] .mq-figma-robot-glow-live {
+  fill: #0891b2;
+}
+
+[data-theme='dark'] .mq-figma-robot-body,
+[data-theme='dark'] .mq-figma-robot-head {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 58%, #64748b);
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-robot-limb {
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-robot-visor {
+  fill: #020617;
+}
+
+[data-theme='dark'] .mq-figma-robot-eye {
+  fill: #22d3ee;
+}
+
+[data-theme='dark'] .mq-figma-robot-antenna {
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-robot-mouth {
+  fill: #64748b;
+}
+
+[data-theme='dark'] .mq-figma-robot-laptop-base {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 55%, #64748b);
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-robot-laptop-screen {
+  fill: #020617;
+  stroke: #334155;
+}
+
+[data-theme='dark'] .mq-figma-robot-laptop-lines {
+  stroke: #22d3ee;
+}
+
+[data-theme='dark'] .mq-figma-branch-divider {
+  stroke: color-mix(in srgb, #1677ff 25%, #334155);
+}
+
+[data-theme='dark'] .mq-figma-branch-plate-top {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 78%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 35%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-branch-plate-side {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 65%, #1677ff);
+  stroke: color-mix(in srgb, #1677ff 28%, #475569);
+}
+
+[data-theme='dark'] .mq-figma-branch-icon-fill--blue {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 80%, #1677ff);
+}
+
+[data-theme='dark'] .mq-figma-branch-icon-fill--green {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 80%, #24a35a);
+}
+
+[data-theme='dark'] .mq-figma-branch-icon-fill--purple {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 80%, #7c5cff);
+}
+
+[data-theme='dark'] .mq-figma-branch-icon-fill--orange {
+  fill: color-mix(in srgb, var(--bg-card, #0f172a) 80%, #f97316);
+}
+
+[data-theme='dark'] .mq-figma-branch-doc-fold {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 60%, #64748b);
+}
+
+[data-theme='dark'] .mq-figma-branch-doc {
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-branch-doc-lines {
+  stroke: #94a3b8;
+}
+
+[data-theme='dark'] .mq-figma-branch-bell {
+  stroke: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-branch-bell-clapper,
+[data-theme='dark'] .mq-figma-stroke-green {
+  stroke: #4ade80;
+}
+
+[data-theme='dark'] .mq-figma-stroke-purple {
+  stroke: #a78bfa;
+}
+
+[data-theme='dark'] .mq-figma-stroke-orange {
+  stroke: #fb923c;
+}
+
+[data-theme='dark'] .mq-figma-stroke-blue {
+  stroke: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-branch-bell-knob {
+  fill: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-branch-pdf-label {
+  fill: #a78bfa;
+}
+
+[data-theme='dark'] .mq-figma-arm-unit-live .mq-figma-arm-tip-live {
+  fill: color-mix(in srgb, var(--bg-card, #1e293b) 65%, #93c5fd);
+}
+
+[data-theme='dark'] .mq-figma-arm-spark-live {
+  fill: #fbbf24;
+}
+
+/* 深色 v2：固定暗色表面，覆盖上方 color-mix（--bg-card 在深色为 #2c2c2e 仍偏亮） */
+
+[data-theme='dark'] {
+  --mq-figma-d-surface: #161618;
+  --mq-figma-d-surface-2: #1c1c1e;
+  --mq-figma-d-surface-3: #222224;
+  --mq-figma-d-surface-4: #2c2c2e;
+  --mq-figma-d-stroke: #3a3a3c;
+  --mq-figma-d-stroke-accent: #2f4a6e;
+}
+
+[data-theme='dark'] .mq-factory-view,
+[data-theme='dark'] .mq-factory-drawer {
+  color-scheme: dark;
+}
+
+[data-theme='dark'] .mq-figma-metric-dot {
+  fill: var(--mq-figma-d-surface-4);
+}
+
+[data-theme='dark'] .mq-figma-ground-shadow {
+  fill: #000;
+  opacity: 0.28;
+}
+
+[data-theme='dark'] .mq-figma-pedestal-face--top,
+[data-theme='dark'] .mq-figma-pedestalG .mq-figma-pedestal-face--top,
+[data-theme='dark'] .mq-figma-pedestalC .mq-figma-pedestal-face--top {
+  fill: var(--mq-figma-d-surface-3);
+}
+
+[data-theme='dark'] .mq-figma-pedestal-face--left,
+[data-theme='dark'] .mq-figma-pedestalG .mq-figma-pedestal-face--left,
+[data-theme='dark'] .mq-figma-pedestalC .mq-figma-pedestal-face--left {
+  fill: var(--mq-figma-d-surface);
+}
+
+[data-theme='dark'] .mq-figma-pedestal-face--right,
+[data-theme='dark'] .mq-figma-pedestalG .mq-figma-pedestal-face--right,
+[data-theme='dark'] .mq-figma-pedestalC .mq-figma-pedestal-face--right {
+  fill: var(--mq-figma-d-surface-2);
+}
+
+[data-theme='dark'] .mq-figma-branch-card,
+[data-theme='dark'] .mq-figma-panel,
+[data-theme='dark'] .mq-figma-panel-run {
+  fill: var(--mq-figma-d-surface);
+  stroke: var(--mq-figma-d-stroke-accent);
+}
+
+[data-theme='dark'] .mq-figma-robot-panel__bg {
+  fill: transparent;
+}
+
+[data-theme='dark'] .mq-figma-tag,
+[data-theme='dark'] .mq-figma-tagg,
+[data-theme='dark'] .mq-figma-tago,
+[data-theme='dark'] .mq-figma-tag-run,
+[data-theme='dark'] .mq-figma-tag-run-route,
+[data-theme='dark'] .mq-figma-tag-purple,
+[data-theme='dark'] .mq-figma-tag-purple-run {
+  fill: var(--mq-figma-d-surface-2);
+}
+
+[data-theme='dark'] .mq-figma-tag {
+  stroke: #2f4a6e;
+}
+
+[data-theme='dark'] .mq-figma-tagg {
+  stroke: #2a5a3a;
+}
+
+[data-theme='dark'] .mq-figma-tago {
+  stroke: #6a4020;
+}
+
+[data-theme='dark'] .mq-figma-tag-run,
+[data-theme='dark'] .mq-figma-tag-run-route {
+  stroke: #1e5a66;
+}
+
+[data-theme='dark'] .mq-figma-tag-purple,
+[data-theme='dark'] .mq-figma-tag-purple-run {
+  stroke: #4a3a7a;
+}
+
+[data-theme='dark'] .mq-figma-belt-top {
+  fill: var(--mq-figma-d-surface-2);
+  stroke: var(--mq-figma-d-stroke-accent);
+}
+
+[data-theme='dark'] .mq-figma-belt-front {
+  fill: var(--mq-figma-d-surface);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-belt-lip {
+  stroke: var(--mq-figma-d-stroke);
+  opacity: 0.45;
+}
+
+[data-theme='dark'] .mq-figma-belt-slot {
+  fill: #2f4a6e;
+}
+
+[data-theme='dark'] .mq-figma-belt-slotG {
+  fill: #2a5a3a;
+}
+
+[data-theme='dark'] .mq-figma-belt-rail {
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-roller {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-hopper-front {
+  fill: var(--mq-figma-d-surface-3);
+  stroke: var(--mq-figma-d-stroke-accent);
+}
+
+[data-theme='dark'] .mq-figma-hopper-back {
+  fill: var(--mq-figma-d-surface-2);
+  stroke: var(--mq-figma-d-stroke-accent);
+}
+
+[data-theme='dark'] .mq-figma-hopper-side {
+  fill: var(--mq-figma-d-surface);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-hopper-lip.mq-figma-blue {
+  stroke: #4d7ab8;
+}
+
+[data-theme='dark'] .mq-figma-paper,
+[data-theme='dark'] .mq-figma-paper-face--top,
+[data-theme='dark'] .mq-figma-paperG {
+  fill: #52525b;
+}
+
+[data-theme='dark'] .mq-figma-paper-face--left {
+  fill: #3f3f46;
+}
+
+[data-theme='dark'] .mq-figma-paper-face--right {
+  fill: #27272a;
+}
+
+[data-theme='dark'] .mq-figma-paper-fold {
+  fill: #2f4a6e;
+}
+
+[data-theme='dark'] .mq-figma-paper-line {
+  stroke: #52525b;
+}
+
+[data-theme='dark'] .mq-figma-chute-body {
+  fill: #241c14;
+  stroke: #6a4020;
+}
+
+[data-theme='dark'] .mq-figma-chute-rim {
+  fill: #2a2018;
+  stroke: #8b5a2e;
+}
+
+[data-theme='dark'] .mq-figma-chute-roller {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-retry-arrow.mq-figma-blue {
+  stroke: #4d7ab8;
+}
+
+[data-theme='dark'] .mq-figma-retry-arrow.mq-figma-green {
+  stroke: #3d8a55;
+}
+
+[data-theme='dark'] .mq-figma-retry-arrow.mq-figma-cyan {
+  stroke: #1e7a8a;
+}
+
+[data-theme='dark'] .mq-figma-retry-arrow-head {
+  fill: #c27830;
+}
+
+[data-theme='dark'] .mq-figma-arm-joint {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-arm-upper {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-workbench-top {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-workbench-side,
+[data-theme='dark'] .mq-figma-arm-column {
+  fill: var(--mq-figma-d-surface-2);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-workbench-bolt {
+  fill: var(--mq-figma-d-surface-3);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-arm-nozzle,
+[data-theme='dark'] .mq-figma-arm-nozzle-live {
+  fill: #48484a;
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-arm-link,
+[data-theme='dark'] .mq-figma-arm-unit-live .mq-figma-arm-link-live {
+  stroke: #636366;
+}
+
+[data-theme='dark'] .mq-figma-arm-leg {
+  stroke: #48484a;
+}
+
+[data-theme='dark'] .mq-figma-package-face--top {
+  fill: #3a3018;
+  stroke: #8b6914;
+}
+
+[data-theme='dark'] .mq-figma-package-face--left {
+  fill: #2a2210;
+  stroke: #6a5010;
+}
+
+[data-theme='dark'] .mq-figma-package-face--right {
+  fill: #1f1a0c;
+  stroke: #5a450e;
+}
+
+[data-theme='dark'] .mq-figma-robot-shadow {
+  fill: #000;
+  opacity: 0.35;
+}
+
+[data-theme='dark'] .mq-figma-robot-glow,
+[data-theme='dark'] .mq-figma-robot-glow-live {
+  fill: #0891b2;
+  opacity: 0.18;
+}
+
+[data-theme='dark'] .mq-figma-robot-body,
+[data-theme='dark'] .mq-figma-robot-head,
+[data-theme='dark'] .mq-figma-robot-limb {
+  fill: #48484a;
+  stroke: #636366;
+}
+
+[data-theme='dark'] .mq-figma-robot-laptop-base {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-branch-plate-top {
+  fill: var(--mq-figma-d-surface-3);
+  stroke: var(--mq-figma-d-stroke-accent);
+}
+
+[data-theme='dark'] .mq-figma-branch-plate-side {
+  fill: var(--mq-figma-d-surface);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-branch-icon-fill--blue,
+[data-theme='dark'] .mq-figma-branch-icon-fill--green,
+[data-theme='dark'] .mq-figma-branch-icon-fill--purple,
+[data-theme='dark'] .mq-figma-branch-icon-fill--orange {
+  fill: var(--mq-figma-d-surface-2);
+}
+
+[data-theme='dark'] .mq-figma-branch-divider {
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-branch-bell {
+  stroke: #4d7ab8;
+}
+
+[data-theme='dark'] .mq-figma-stroke-blue {
+  stroke: #4d7ab8;
+}
+
+[data-theme='dark'] .mq-figma-stroke-green {
+  stroke: #3d8a55;
+}
+
+[data-theme='dark'] .mq-figma-stroke-purple {
+  stroke: #7c6bb8;
+}
+
+[data-theme='dark'] .mq-figma-stroke-orange {
+  stroke: #b87830;
+}
+
+[data-theme='dark'] .mq-figma-branch-bell-knob {
+  fill: #4d7ab8;
+}
+
+[data-theme='dark'] .mq-figma-branch-pdf-label {
+  fill: #9b87e8;
+}
+
+[data-theme='dark'] .mq-figma-branch-doc-fold {
+  fill: var(--mq-figma-d-surface-4);
+}
+
+[data-theme='dark'] .mq-figma-branch-doc,
+[data-theme='dark'] .mq-figma-branch-doc-lines {
+  stroke: #636366;
+}
+
+[data-theme='dark'] .mq-figma-bin-lid {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-bin-body {
+  fill: #1a1a1c;
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-hopper-throat,
+[data-theme='dark'] .mq-figma-arm-column--secondary,
+[data-theme='dark'] .mq-figma-workbench-front {
+  fill: var(--mq-figma-d-surface);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-hopper-scan-window {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke-accent);
+}
+
+[data-theme='dark'] .mq-figma-hopper-output {
+  fill: #2f4a6e;
+}
+
+[data-theme='dark'] .mq-figma-intake-loader,
+[data-theme='dark'] .mq-figma-workbench-console,
+[data-theme='dark'] .mq-figma-workbench-lamp {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-intake-display,
+[data-theme='dark'] .mq-figma-workbench-screen,
+[data-theme='dark'] .mq-figma-bin-core-window {
+  fill: #111827;
+  stroke: #2f4a6e;
+}
+
+[data-theme='dark'] .mq-figma-intake-label,
+[data-theme='dark'] .mq-figma-recycle-label {
+  fill: #aab8cc;
+}
+
+[data-theme='dark'] .mq-figma-chute-warning {
+  fill: #2a2018;
+  stroke: #8b5a2e;
+}
+
+[data-theme='dark'] .mq-figma-chute-warning-line {
+  stroke: #b87830;
+}
+
+[data-theme='dark'] .mq-figma-chute-foot,
+[data-theme='dark'] .mq-figma-bin-foot {
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-repair-wrench {
+  stroke: #8a8a8c;
+}
+
+[data-theme='dark'] .mq-figma-repair-tag {
+  fill: #3a301f;
+  stroke: #8b5a2e;
+}
+
+[data-theme='dark'] .mq-figma-repair-tag-line {
+  stroke: #b87830;
+}
+
+[data-theme='dark'] .mq-figma-workbench-sensor {
+  stroke: #4d7ab8;
+}
+
+[data-theme='dark'] .mq-figma-workbench-lamp-arm,
+[data-theme='dark'] .mq-figma-workbench-roller,
+[data-theme='dark'] .mq-figma-gear-tooth-lines {
+  stroke: #636366;
+}
+
+[data-theme='dark'] .mq-figma-workbench-lamp-beam {
+  stroke: #b87830;
+  opacity: 0.22;
+}
+
+[data-theme='dark'] .mq-figma-gear {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: #636366;
+}
+
+[data-theme='dark'] .mq-figma-gear-core {
+  fill: #636366;
+  stroke: #8a8a8c;
+}
+
+[data-theme='dark'] .mq-figma-roller-cap {
+  fill: #636366;
+}
+
+[data-theme='dark'] .mq-figma-belt-ground {
+  fill: #000;
+  opacity: 0.2;
+}
+
+[data-theme='dark'] .mq-figma-robot-neck {
+  fill: #3a3a3c;
+  stroke: #636366;
+}
+
+[data-theme='dark'] .mq-figma-robot-chest {
+  fill: #52525b;
+}
+
+[data-theme='dark'] .mq-figma-robot-ear {
+  fill: #3a3a3c;
+  stroke: #636366;
+}
+
+[data-theme='dark'] .mq-figma-robot-mouth,
+[data-theme='dark'] .mq-figma-robot-arm-link,
+[data-theme='dark'] .mq-figma-robot-wave-fingers {
+  stroke: #8a8a8c;
+}
+
+[data-theme='dark'] .mq-figma-robot-idle-label {
+  fill: #60a5fa;
+}
+
+[data-theme='dark'] .mq-figma-engineer-face,
+[data-theme='dark'] .mq-figma-engineer-hand {
+  fill: #c8916b;
+  stroke: #7a4b32;
+}
+
+[data-theme='dark'] .mq-figma-engineer-hair {
+  fill: #4d2d1d;
+  stroke: #2f1b12;
+}
+
+[data-theme='dark'] .mq-figma-engineer-shirt {
+  fill: #3f5163;
+  stroke: #636366;
+}
+
+[data-theme='dark'] .mq-figma-engineer-apron {
+  fill: #6f4a32;
+  stroke: #8b5a2e;
+}
+
+[data-theme='dark'] .mq-figma-engineer-strap,
+[data-theme='dark'] .mq-figma-engineer-arm,
+[data-theme='dark'] .mq-figma-engineer-leg,
+[data-theme='dark'] .mq-figma-engineer-caliper {
+  stroke: #8a8a8c;
+}
+
+[data-theme='dark'] .mq-figma-engineer-eye,
+[data-theme='dark'] .mq-figma-engineer-smile {
+  stroke: #1f2937;
+}
+
+[data-theme='dark'] .mq-figma-bin-inner-lip {
+  fill: #020617;
+}
+
+[data-theme='dark'] .mq-figma-bin-glow {
+  fill: #0891b2;
+  opacity: 0.55;
+}
+
+[data-theme='dark'] .mq-figma-arm-unit-live .mq-figma-arm-tip-live {
+  fill: var(--mq-figma-d-surface-4);
+  stroke: var(--mq-figma-d-stroke);
+}
+
+[data-theme='dark'] .mq-figma-arm-spark-live {
+  fill: #c27830;
+}
+
+/* —— 运行态动画（元素须在主 SVG 文档树，不可依赖 <use> 内部 class） —— */
+
+.mq-figma-panel-run-anim {
+  animation: mq-figma-panel-glow 2.4s ease-in-out infinite;
+}
+
+.mq-figma-belt-slots-live {
+  animation: mq-figma-belt-scroll 1.1s linear infinite;
+}
+
+.mq-figma-live-package {
+  animation: mq-figma-package-travel 4.2s linear infinite;
+}
+
+.mq-figma-live-package--2 {
+  animation-delay: 1.65s;
+}
+
+.mq-figma-flow-chev-live {
+  animation: mq-figma-flow-pulse 0.85s ease-in-out infinite;
+}
+
+.mq-figma-flow-chev-live--2 {
+  animation-delay: 0.12s;
+}
+
+.mq-figma-flow-chev-live--3 {
+  animation-delay: 0.24s;
+}
+
+.mq-figma-arm-unit-live {
+  pointer-events: none;
+}
+
+.mq-figma-arm-unit-live .mq-figma-arm-link-live {
+  stroke: #62758d;
+}
+
+.mq-figma-arm-unit-live .mq-figma-arm-tip-live {
+  animation: mq-figma-arm-tip-pulse 0.45s ease-in-out infinite alternate;
+}
+
+.mq-figma-arm-unit-live .mq-figma-arm-spark-live {
+  animation: mq-figma-spark 0.35s ease-in-out infinite alternate;
+}
+
+.mq-figma-arm-unit-live .mq-figma-process-glow-live {
+  animation: mq-figma-process-glow 1.8s ease-in-out infinite;
+}
+
+.mq-figma-arm-spark-live {
+  animation: mq-figma-spark 0.35s ease-in-out infinite alternate;
+}
+
+.mq-figma-row--running .mq-figma-hopper-scan-beam {
+  animation: mq-figma-scan-beam 1.15s ease-in-out infinite;
+}
+
+.mq-figma-row--running .mq-figma-workbench-sensor,
+.mq-figma-row--running .mq-figma-bin-glow {
+  animation: mq-figma-process-glow 1.8s ease-in-out infinite;
+}
+
+.mq-figma-row--running .mq-figma-gear--large {
+  animation: mq-figma-gear-spin 3.2s linear infinite;
+}
+
+.mq-figma-row--running .mq-figma-gear--small {
+  animation: mq-figma-gear-spin-reverse 2.2s linear infinite;
+}
+
+.mq-figma-row--running .mq-figma-workbench-lamp-beam,
+.mq-figma-row--running .mq-figma-workbench-screen-line,
+.mq-figma-row--running .mq-figma-intake-display-line {
+  animation: mq-figma-process-glow 1.4s ease-in-out infinite;
+}
+
+.mq-figma-row--running .mq-figma-engineer-arm--tool,
+.mq-figma-row--running .mq-figma-engineer-caliper {
+  animation: mq-figma-engineer-calibrate 1.7s ease-in-out infinite;
+}
+
+.mq-figma-row--running .mq-figma-robot-arm-link--wave,
+.mq-figma-row--running .mq-figma-robot-wave-fingers {
+  animation: mq-figma-robot-wave 1.9s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 88px 102px;
+}
+
+.mq-figma-row--running .mq-figma-retry-arrow,
+.mq-figma-row--running .mq-figma-retry-arrow-head {
+  animation: mq-figma-retry-pulse 1.45s ease-in-out infinite;
+}
+
+.mq-figma-row--running .mq-figma-robot-eye,
+.mq-figma-row--running .mq-figma-robot-chest,
+.mq-figma-row--running .mq-figma-robot-antenna-tip {
+  animation: mq-figma-robot-signal 1.4s ease-in-out infinite;
+}
+
+.mq-figma-process-glow-live {
+  animation: mq-figma-process-glow 1.8s ease-in-out infinite;
+}
+
+.mq-figma-robot-wrap--active {
+  transform-box: fill-box;
+  animation: mq-figma-robot-breathe 2.5s ease-in-out infinite;
+}
+
+.mq-figma-robot-glow-live {
+  animation: mq-figma-robot-glow 1.8s ease-in-out infinite;
+}
+
+.mq-figma-branch-glow-live {
+  animation: mq-figma-process-glow 1.8s ease-in-out infinite;
+}
+
+.mq-figma-branch--running {
+  transform-box: fill-box;
+  transform-origin: 178px 74px;
+  animation: mq-figma-branch-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes mq-figma-belt-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(336px);
+  }
+}
+
+@keyframes mq-figma-package-travel {
+  from {
+    opacity: 0;
+    transform: translateX(-170px);
+  }
+  10% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(640px);
+  }
+}
+
+@keyframes mq-figma-flow-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes mq-figma-arm-swing {
+  0%,
+  100% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+}
+
+
+@keyframes mq-figma-arm-tip-pulse {
+  from {
+    fill: #d8e3ef;
+  }
+  to {
+    fill: #93c5fd;
+  }
+}
+
+@keyframes mq-figma-gear-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mq-figma-gear-spin-reverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes mq-figma-engineer-calibrate {
+  0%,
+  100% {
+    transform: rotate(-1deg) translateY(0);
+  }
+  50% {
+    transform: rotate(4deg) translateY(-1px);
+  }
+}
+
+@keyframes mq-figma-robot-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-8deg);
+  }
+}
+
+@keyframes mq-figma-spark {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mq-figma-scan-beam {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scaleX(0.62);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes mq-figma-process-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes mq-figma-retry-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes mq-figma-panel-glow {
+  0%,
+  100% {
+    stroke: #22d3ee;
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke: #0891b2;
+    stroke-opacity: 0.65;
+  }
+}
+
+@keyframes mq-figma-cube-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+@keyframes mq-figma-robot-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes mq-figma-robot-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes mq-figma-eye-blink {
+  0%,
+  42%,
+  46%,
+  100% {
+    opacity: 1;
+  }
+  44% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes mq-figma-robot-signal {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes mq-figma-branch-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes mq-figma-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mq-figma-panel-run-anim,
+  .mq-figma-belt-slots-live,
+  .mq-figma-flow-chev-live,
+  .mq-figma-live-package,
+  .mq-figma-arm-unit-live .mq-figma-arm-tip-live,
+  .mq-figma-arm-unit-live .mq-figma-arm-spark-live,
+  .mq-figma-arm-unit-live .mq-figma-process-glow-live,
+  .mq-figma-row--running .mq-figma-hopper-scan-beam,
+  .mq-figma-row--running .mq-figma-workbench-sensor,
+  .mq-figma-row--running .mq-figma-gear--large,
+  .mq-figma-row--running .mq-figma-gear--small,
+  .mq-figma-row--running .mq-figma-workbench-lamp-beam,
+  .mq-figma-row--running .mq-figma-workbench-screen-line,
+  .mq-figma-row--running .mq-figma-intake-display-line,
+  .mq-figma-row--running .mq-figma-engineer-arm--tool,
+  .mq-figma-row--running .mq-figma-engineer-caliper,
+  .mq-figma-row--running .mq-figma-robot-arm-link--wave,
+  .mq-figma-row--running .mq-figma-robot-wave-fingers,
+  .mq-figma-row--running .mq-figma-bin-glow,
+  .mq-figma-row--running .mq-figma-retry-arrow,
+  .mq-figma-row--running .mq-figma-retry-arrow-head,
+  .mq-figma-row--running .mq-figma-robot-eye,
+  .mq-figma-row--running .mq-figma-robot-chest,
+  .mq-figma-row--running .mq-figma-robot-antenna-tip,
+  .mq-figma-robot-wrap--active,
+  .mq-figma-robot-glow-live,
+  .mq-figma-branch-glow-live,
+  .mq-figma-bitmap-flow path,
+  .mq-figma-task-bubble {
+    animation: none;
+  }
+
+  .mq-figma-row--running .mq-figma-conveyor .mq-figma-belt-package {
+    animation: none;
+  }
+
+  .mq-figma-arm-spark-live {
+    opacity: 0.75;
+  }
+}

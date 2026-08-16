@@ -1,0 +1,11 @@
+.wiki-page-create-hint {
+  margin: 0 0 16px;
+  color: var(--muted, rgba(255, 255, 255, 0.55));
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.wiki-page-slug-readonly {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  opacity: 0.92;
+}

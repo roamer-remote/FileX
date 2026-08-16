@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# Python
+backend/__pycache__
+backend/.venv
+backend/*.pyc
+backend/.env
+
+# Node
+frontend/node_modules
+frontend/.vite
+
+# IDE
+.idea
+.vscode
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (use volumes)
+backend/filebox.db
+backend/uploads
+backend/knowledge_base
+uploads
+logs
+docker/data
+
+# Claude
+.claude
+
+# Generated analysis/review artifacts
+graphify-out
+code-reviews

@@ -1,0 +1,10 @@
+# GPU-only runtime dependencies. CPU deployments must not consume this file.
+# The GPU image is Ubuntu 22.04 / Python 3.10 / linux-amd64. Use explicit
+# CUDA wheel URLs because the available mirror's simple index does not expose
+# the +cu118 local-version metadata reliably; an unconstrained 2.6.0 can pick
+# the CPU wheel from the primary PyPI index.
+# MinerU 4.0.0a6 requires torch>=2.6.0; this CUDA 11.8 pair retains sm_61
+# support for Pascal/GTX 10xx while satisfying that dependency.
+# PyTorch 2.7.1/cu126 omits sm_61.
+torch @ https://mirrors.aliyun.com/pytorch-wheels/cu118/torch-2.6.0%2Bcu118-cp310-cp310-linux_x86_64.whl
+torchvision @ https://mirrors.aliyun.com/pytorch-wheels/cu118/torchvision-0.21.0%2Bcu118-cp310-cp310-linux_x86_64.whl

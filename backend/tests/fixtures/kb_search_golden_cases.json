@@ -1,0 +1,77 @@
+[
+  {
+    "query": "发票",
+    "min_hits": 0,
+    "note": "007/008 golden：短 CJK；008 后对比 kb_fts_config=zh_cn vs simple（需 KB_GOLDEN=1 与种子数据）"
+  },
+  {
+    "query": "合同",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK"
+  },
+  {
+    "query": "报告",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK"
+  },
+  {
+    "query": "报销",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK；可与 query_expansion 发票映射对照"
+  },
+  {
+    "query": "简历",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK"
+  },
+  {
+    "query": "教程",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK"
+  },
+  {
+    "query": "制度",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK"
+  },
+  {
+    "query": "汇总",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK"
+  },
+  {
+    "query": "协议",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK"
+  },
+  {
+    "query": "手册",
+    "min_hits": 0,
+    "note": "007 golden：短 CJK"
+  },
+  {
+    "query": "显微镜",
+    "min_hits": 0,
+    "note": "007 golden：中英混排短词"
+  },
+  {
+    "query": "成像",
+    "min_hits": 0,
+    "note": "007 golden：2 字 CJK"
+  },
+  {
+    "query": "相邻标签共现的主题",
+    "min_hits": 0,
+    "note": "072 T-F1：TAG_TOPIC L4b（KB_GOLDEN=1 需 tag+chunk 种子）"
+  },
+  {
+    "query": "资料A和资料B什么关系",
+    "min_hits": 0,
+    "note": "072 T-F1：STRUCT_RELATION 双实体 wiki-path（KB_GOLDEN=1 需 wiki 边种子）"
+  },
+  {
+    "query": "sag078alpha bridge",
+    "min_hits": 0,
+    "note": "078 P3：SAG 多跳索引行；完整断言见 test_kb_sag_multihop_golden.py"
+  }
+]

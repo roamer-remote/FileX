@@ -1,0 +1,165 @@
+# ============================================================
+# GPU overlay — 叠加于 docker-compose.yml（+ prod.yml / local.yml）
+#
+# 此文件由 GPU 部署脚本自动叠加：
+#   - bamboo-compose.sh（自动检测 nvidia-smi，日常增量/手动 SSH）
+#   - scripts/deploy/deploy-filex-amd64-nvidia.sh（Bamboo CI/CD 全量部署）
+#
+# CPU-only 服务器不引用本文件（nvidia-smi 不可用时自动跳过）。
+#
+# 前置条件：宿主机已安装 nvidia-container-toolkit
+# GPU base 镜像由 Dockerfile.gpu 构建，runtime 复用现有 sidecar Dockerfile
+# ============================================================
+
+x-gpu-device: &gpu_device
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+
+services:
+  # --- FileX API：MQ 资源面板需要在 API 容器内读取 nvidia-smi ---
+  filex:
+    <<: *gpu_device
+    environment:
+      # 164 §6：GPU 调度启用开关须与 gpu-scheduler 一致；API 发布入口在启用时
+      # 只入队 durable route，不发布旧 extract/post 拓扑。
+      GPU_SCHEDULER_ENABLED: ${GPU_SCHEDULER_ENABLED:-true}
+      GPU_SCHEDULER_GPU_IDS: ${GPU_SCHEDULER_GPU_IDS:-0}
+      GPU_SCHEDULER_OWNER_ID: ${GPU_SCHEDULER_OWNER_ID:-filex-gpu-scheduler}
+      # 164 §8：GPU 调度模式下 MinerU 必须走带 lease/token 的 MQ RPC；
+      # HTTP debug 路径禁止作为调度执行通道（fail-closed）。
+      KB_EXTRACT_MINERU_USE_MQ: ${KB_EXTRACT_MINERU_USE_MQ:-1}
+      KB_EXTRACT_MINERU_URL: ${KB_EXTRACT_MINERU_URL:-http://filex-mineru:8080}
+
+  # --- GPU scheduler：唯一 GPU owner；dispatch + 消费 filex.gpu.* ---
+  gpu-scheduler:
+    image: filex/app:${FILEX_VERSION:-latest}
+    container_name: filex-gpu-scheduler
+    restart: unless-stopped
+    <<: *gpu_device
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      filex-ollama:
+        condition: service_healthy
+      filex-mineru:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kill -0 1 2>/dev/null && python -c \"import pika; from config import RABBITMQ_URL; c=pika.BlockingConnection(pika.URLParameters(RABBITMQ_URL)); c.close()\"",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 180s
+    command: ["python", "-m", "workers.gpu_scheduler"]
+    env_file:
+      - ${FILEX_SECRETS_FILE:-/root/docker/important/FileX/secrets/filex.env}
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/uploads:/app/uploads
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/logs:/app/logs
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: Asia/Shanghai
+      FILEX_LOG_TIMEZONE: Asia/Shanghai
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://filex-ollama:11434}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-qwen3.5:9b}
+      OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-bge-m3:latest}
+      OLLAMA_EMBED_DIM: ${OLLAMA_EMBED_DIM:-1024}
+      OLLAMA_EMBED_BATCH_SIZE: ${OLLAMA_EMBED_BATCH_SIZE:-8}
+      OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      DATABASE_POOL_SIZE: "5"
+      DATABASE_MAX_OVERFLOW: "10"
+      DATABASE_POOL_TIMEOUT: "30"
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: gpu-scheduler
+      GPU_SCHEDULER_ENABLED: ${GPU_SCHEDULER_ENABLED:-true}
+      GPU_SCHEDULER_GPU_IDS: ${GPU_SCHEDULER_GPU_IDS:-0}
+      GPU_SCHEDULER_OWNER_ID: ${GPU_SCHEDULER_OWNER_ID:-filex-gpu-scheduler}
+      KB_EXTRACT_MINERU_USE_MQ: ${KB_EXTRACT_MINERU_USE_MQ:-1}
+      KB_EXTRACT_MINERU_URL: ${KB_EXTRACT_MINERU_URL:-http://filex-mineru:8080}
+      # GPU 调度部署下 mineru 提取任务由本容器执行（workers.gpu_scheduler ->
+      # run_extract_job -> extract_with_provider）。pdf-inspector 开关由系统参数表
+      # 下发（默认关闭），此处仅下发 mode/timeout 运行时参数。
+      KB_PDF_INSPECTOR_MODE: ${KB_PDF_INSPECTOR_MODE:-extract}
+      KB_PDF_INSPECTOR_TIMEOUT_SEC: ${KB_PDF_INSPECTOR_TIMEOUT_SEC:-120}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # --- Ollama：GPU 加速 embedding / chat ---
+  filex-ollama:
+    <<: *gpu_device
+    environment:
+      # GPU 部署默认降低并行以让大模型常驻显存（8GB 卡默认 2；
+      # 显存充裕的机器可 OLLAMA_NUM_PARALLEL_GPU=N 覆盖）
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL_GPU:-1}
+      # 模型常驻不卸载（-1 = 永不超时），避免空闲后重载被挤到 CPU
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE_GPU:--1}
+      # GPU 容器禁止静默回退 CPU：预热 chat 模型并确认实际 runner 为 GPU。
+      OLLAMA_REQUIRE_GPU: "1"
+      OLLAMA_GPU_WARM_MODEL: ${OLLAMA_GPU_WARM_MODEL:-qwen3.5:9b}
+      OLLAMA_GPU_START_RETRIES: ${OLLAMA_GPU_START_RETRIES:-3}
+
+  # --- TEI rerank：GPU 镜像（非 CPU 镜像）---
+  kb-rerank:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.9.3
+    <<: *gpu_device
+
+  # --- MinerU sidecar：GPU base（复用 Dockerfile.mineru-sidecar，仅替换 base image）---
+  filex-mineru:
+    build:
+      args:
+        MINERU_BASE_IMAGE: ${FILEX_MINERU_DEPS_IMAGE:-filex/mineru-base:${FILEX_BASE_VERSION:-py3.13}-gpu}
+    <<: *gpu_device
+    environment:
+      # GPU 模式下复用 base compose 的 CPU 线程数；不能设为空字符串，
+      # libgomp 会把 OMP_NUM_THREADS="" 当作非法值导致 MinerU CLI rc=1
+      # （WHB T-9 实测）。如需调整线程数，用 FILEX_MINERU_THREADS 覆盖。
+      OMP_NUM_THREADS: ${FILEX_MINERU_THREADS:-12}
+      MKL_NUM_THREADS: ${FILEX_MINERU_THREADS:-12}
+      OPENBLAS_NUM_THREADS: ${FILEX_MINERU_THREADS:-12}
+      TORCH_NUM_THREADS: ${FILEX_MINERU_THREADS:-12}
+      CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES:-0}
+      # MinerU 运行设备：GPU 部署用 cuda（覆盖 mineru_runner 默认 cpu，否则 GPU 空转）
+      MINERU_DEVICE: cuda
+
+  # --- 旧 extract/post consumer：GPU 调度启用时只交接，不执行 GPU ---
+  kb-extract:
+    environment:
+      GPU_SCHEDULER_ENABLED: ${GPU_SCHEDULER_ENABLED:-true}
+      GPU_SCHEDULER_OWNER_ID: ${GPU_SCHEDULER_OWNER_ID:-filex-gpu-scheduler}
+
+  kb-post:
+    environment:
+      GPU_SCHEDULER_ENABLED: ${GPU_SCHEDULER_ENABLED:-true}
+      GPU_SCHEDULER_OWNER_ID: ${GPU_SCHEDULER_OWNER_ID:-filex-gpu-scheduler}
+
+  # --- kb-indexer：索引后同步 post 也可能触发 RAPTOR；GPU 模式下必须与
+  # scheduler 同开关，禁止在无 lease 时同步执行 GPU 模型。 ---
+  kb-indexer:
+    environment:
+      GPU_SCHEDULER_ENABLED: ${GPU_SCHEDULER_ENABLED:-true}
+      GPU_SCHEDULER_OWNER_ID: ${GPU_SCHEDULER_OWNER_ID:-filex-gpu-scheduler}
+
+  # --- Docling sidecar：GPU base（复用 Dockerfile.docling-sidecar，仅替换 base image）---
+  filex-docling:
+    build:
+      args:
+        DOCLING_BASE_IMAGE: ${FILEX_DOCLING_DEPS_IMAGE:-filex/docling-base:${FILEX_BASE_VERSION:-py3.13}-gpu}
+    <<: *gpu_device
+    environment:
+      CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES:-0}

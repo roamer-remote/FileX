@@ -1,0 +1,132 @@
+/* 侧栏分组导航：参考层级菜单（浅/深主题由 cyber.css 变量驱动） */
+
+.sidebar-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 10px 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sidebar-item-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-nav-group-header:hover {
+  background: var(--sidebar-item-hover-bg);
+}
+
+.sidebar-nav-group-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-nav-group-actions {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sidebar-nav-group-chevron {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  color: var(--sidebar-item-text-muted);
+}
+
+.sidebar-nav-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px 0 4px;
+}
+
+.sidebar-nav-tree {
+  position: relative;
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 1px solid var(--sidebar-tree-line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sidebar-item-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-nav-item:hover:not(.is-active) {
+  background: var(--sidebar-item-hover-bg);
+}
+
+.sidebar-nav-item.is-active {
+  background: var(--sidebar-item-active-bg);
+  color: var(--sidebar-item-active-text);
+  font-weight: 500;
+}
+
+.sidebar-nav-item.is-active .sidebar-nav-item-icon {
+  color: var(--sidebar-item-active-text);
+  opacity: 1;
+}
+
+.sidebar-nav-item-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  color: var(--sidebar-item-text-muted);
+  opacity: 0.92;
+}
+
+.sidebar-nav-item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-nav-item--block {
+  width: 100%;
+}

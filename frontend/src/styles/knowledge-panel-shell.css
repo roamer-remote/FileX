@@ -1,0 +1,151 @@
+.knowledge-panel-shell {
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.knowledge-files-tab-pane {
+  flex: 1 1 0%;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-self: stretch;
+}
+
+.knowledge-files-tab-pane--files > .fl-panel {
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 大厅 Drawer：资料页 / 主题页与资料关系等同宽贴侧栏，去掉双层 bezel 留白 */
+.knowledge-panel-shell .knowledge-files-tab-pane--files > .fl-panel-shell.double-bezel-shell {
+  flex: 1 1 0%;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.knowledge-panel-shell .knowledge-files-tab-pane--files .fl-panel.double-bezel-inner {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--bg-card);
+}
+
+.knowledge-panel-shell .knowledge-files-tab-pane--library {
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.knowledge-panel-shell .knowledge-files-tab-pane--library > .library-map-tab {
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+}
+
+.knowledge-panel-shell .knowledge-files-tab-pane--wiki-pages {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.knowledge-panel-shell .knowledge-files-tab-pane--wiki-pages > .wiki-pages-pane.glass-panel {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--bg-card);
+}
+
+
+/* 大厅 Drawer：资料关系与资料页/主题页一致，去掉外层圆角与边线 */
+.knowledge-panel-shell .knowledge-files-tab-pane--wiki > .tg-page.tg-page--embedded {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* 资料页工具栏/表格间距见 FileList.css fl-panel--table-unified */
+
+
+.knowledge-files-tab-pane--tags > .tg-page,
+.knowledge-files-tab-pane--wiki > .tg-page {
+  flex: 1 1 0%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.knowledge-files-tab-pane--tags .tg-page.tg-page--embedded .tg-spin.ant-spin-nested-loading,
+.knowledge-files-tab-pane--tags .tg-page.tg-page--embedded .tg-spin .ant-spin-container,
+.knowledge-files-tab-pane--wiki .tg-page.tg-page--embedded .tg-spin.ant-spin-nested-loading,
+.knowledge-files-tab-pane--wiki .tg-page.tg-page--embedded .tg-spin .ant-spin-container {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.knowledge-files-tab-pane--tags .tg-page.tg-page--embedded .tg-body,
+.knowledge-files-tab-pane--wiki .tg-page.tg-page--embedded .tg-body {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 大厅 Drawer：智能检索与主题页一致，左右各留 15px 与父容器间距 */
+.knowledge-panel-shell .knowledge-files-tab-pane--eval > .kb-retrieval-eval {
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow: hidden;
+  padding-inline: 15px;
+  box-sizing: border-box;
+}
+
+.knowledge-files-tab-pane--tags .tg-page.tg-page--embedded .tg-chart-host,
+.knowledge-files-tab-pane--wiki .tg-page.tg-page--embedded .tg-chart-host {
+  flex: 1 1 0%;
+  min-height: 0;
+  align-self: stretch;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.knowledge-files-tab-pane--wiki .tg-page.tg-page--embedded .wlg-graph-layout {
+  flex: 1 1 0%;
+  min-height: 0;
+  height: 0;
+  align-self: stretch;
+}
+
+.knowledge-files-tab-pane--wiki .tg-page.tg-page--embedded .wlg-graph-canvas {
+  flex: 1 1 0%;
+  min-height: 0;
+  align-self: stretch;
+}

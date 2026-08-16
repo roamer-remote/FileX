@@ -1,0 +1,74 @@
+.folder-tree-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+.folder-tree-icon--root.folder-tree-icon--closed .folder-tree-icon-tab {
+  fill: var(--folder-icon-root-tab);
+}
+
+.folder-tree-icon--root.folder-tree-icon--closed .folder-tree-icon-body {
+  fill: var(--folder-icon-root-body);
+}
+
+.folder-tree-icon--root.folder-tree-icon--open .folder-tree-icon-back {
+  fill: var(--folder-icon-root-open-back);
+}
+
+.folder-tree-icon--root.folder-tree-icon--open .folder-tree-icon-flap {
+  fill: var(--folder-icon-root-open-flap);
+}
+
+.folder-tree-icon--root.folder-tree-icon--open .folder-tree-icon-front {
+  fill: var(--folder-icon-root-open-front);
+}
+
+.folder-tree-icon--child .folder-tree-icon-tab {
+  fill: var(--folder-icon-child-tab);
+}
+
+.folder-tree-icon--child .folder-tree-icon-body {
+  fill: var(--folder-icon-child-body);
+}
+
+.folder-tree-icon--uncategorized.anticon {
+  color: #e63535;
+  font-size: 15px;
+}
+
+.sidebar-nav-item.is-active .folder-tree-icon--root.folder-tree-icon--closed .folder-tree-icon-body {
+  fill: var(--folder-icon-root-body-active);
+}
+
+.sidebar-nav-item.is-active .folder-tree-icon--child .folder-tree-icon-body {
+  fill: var(--folder-icon-child-body-active);
+}
+
+.sidebar-nav-item.is-active .folder-tree-icon--uncategorized.anticon {
+  color: #ff4d4f;
+}
+
+:root,
+[data-theme='light'] {
+  --folder-icon-root-tab: #e8a820;
+  --folder-icon-root-body: #f5c842;
+  --folder-icon-root-body-active: #f0b830;
+  --folder-icon-root-open-back: #d49218;
+  --folder-icon-root-open-flap: #f0c040;
+  --folder-icon-root-open-front: #f8d878;
+  --folder-icon-child-tab: #4a9de8;
+  --folder-icon-child-body: #6eb4f2;
+  --folder-icon-child-body-active: #4a9de8;
+}
+
+[data-theme='dark'] {
+  --folder-icon-root-tab: #c88810;
+  --folder-icon-root-body: #dba828;
+  --folder-icon-root-body-active: #e8b838;
+  --folder-icon-root-open-back: #a87208;
+  --folder-icon-root-open-flap: #c89820;
+  --folder-icon-root-open-front: #e0b040;
+  --folder-icon-child-tab: #2d7fd4;
+  --folder-icon-child-body: #4090e0;
+  --folder-icon-child-body-active: #58a4f0;
+}

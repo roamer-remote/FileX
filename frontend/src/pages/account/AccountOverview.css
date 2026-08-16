@@ -1,0 +1,412 @@
+/* 账户概览：参考双栏信息卡布局，与 cyber 变量及浅色/深色主题兼容 */
+.account-overview {
+  min-width: 0;
+}
+
+.account-overview-shell {
+  padding: var(--space-xl) var(--space-lg);
+  border-radius: var(--radius-lg, 9px);
+  border: 1px solid var(--hairline, rgba(0, 0, 0, 0.08));
+  background: var(--bg-card);
+  box-shadow: none;
+}
+
+[data-theme='dark'] .account-overview-shell {
+  background: var(--bg-card);
+  box-shadow: none;
+}
+
+.account-overview-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px 32px;
+}
+
+.account-overview-profile {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+@media (min-width: 992px) {
+  .account-overview-profile {
+    border-right: 1px solid var(--hairline, rgba(0, 0, 0, 0.08));
+    padding-right: 28px;
+    margin-right: 4px;
+  }
+
+  [data-theme='dark'] .account-overview-profile {
+    border-right-color: var(--hairline, rgba(255, 255, 255, 0.08));
+  }
+}
+
+.account-overview-content {
+  flex: 1 1 360px;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .account-overview-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .account-overview-profile {
+    flex: none;
+    width: 100%;
+    border-right: none;
+    padding-right: 0;
+    margin-right: 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--hairline, rgba(0, 0, 0, 0.08));
+  }
+
+  [data-theme='dark'] .account-overview-profile {
+    border-bottom-color: var(--hairline, rgba(255, 255, 255, 0.08));
+  }
+}
+
+.account-overview-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.account-overview-avatar-trigger {
+  position: relative;
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  line-height: 0;
+}
+
+.account-overview-avatar-trigger:disabled {
+  cursor: not-allowed;
+}
+
+.account-overview-avatar-trigger:not(:disabled):hover .account-overview-avatar-overlay,
+.account-overview-avatar-trigger:not(:disabled):focus-visible .account-overview-avatar-overlay {
+  opacity: 1;
+}
+
+.account-overview-avatar-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.account-overview-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 26px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+[data-theme='dark'] .account-overview-avatar-overlay {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.account-overview-avatar-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid var(--bg-card);
+  border-radius: 50%;
+  background: var(--danger-dim);
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.account-overview-avatar-remove:not(:disabled):hover {
+  background: rgba(var(--danger-rgb), 0.18);
+  color: var(--danger);
+  transform: scale(1.05);
+}
+
+.account-overview-avatar-remove:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.account-overview-avatar-remove:focus-visible {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
+}
+
+.account-overview-avatar {
+  border: 2px solid var(--hairline, rgba(0, 0, 0, 0.08));
+  background: var(--accent-dim, rgba(0, 102, 204, 0.12)) !important;
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+  font-size: 36px !important;
+}
+
+.account-overview-change-password.ant-btn,
+.account-overview-bind-wechat.ant-btn {
+  width: 100%;
+  max-width: 160px;
+}
+
+.account-overview-change-password.ant-btn {
+  margin-top: 4px;
+}
+
+.account-overview-bind-wechat.ant-btn {
+  margin-top: 8px;
+}
+
+.account-overview-username {
+  margin: 4px 0 0;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.account-overview-role-line {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.account-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 16px 14px;
+  border-radius: var(--radius-md, 6px);
+  border: 1px solid var(--hairline, rgba(0, 0, 0, 0.08));
+  background: var(--bg-card);
+  min-height: 108px;
+  box-sizing: border-box;
+}
+
+.account-stat-card--combined {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  min-height: auto;
+  padding: 14px 18px;
+  margin-bottom: 0;
+}
+
+.account-stat-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.account-stat-item-text--cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 16px;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+.account-stat-item-text--cols .account-stat-value {
+  grid-column: 1;
+  justify-self: start;
+  text-align: left;
+  word-break: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-stat-item-text--cols .account-stat-label {
+  grid-column: 2;
+  justify-self: end;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+.account-stat-divider {
+  flex-shrink: 0;
+  width: 1px;
+  margin: 4px 12px;
+  background: var(--hairline, rgba(0, 0, 0, 0.08));
+  align-self: stretch;
+}
+
+[data-theme='dark'] .account-stat-divider {
+  background: var(--hairline, rgba(255, 255, 255, 0.08));
+}
+
+@media (max-width: 576px) {
+  .account-stat-card--combined {
+    flex-direction: column;
+    padding: 14px 16px;
+  }
+
+  .account-stat-divider {
+    width: 100%;
+    height: 1px;
+    margin: 4px 0;
+  }
+}
+
+[data-theme='dark'] .account-stat-card {
+  background: color-mix(in srgb, var(--bg-card) 92%, #000);
+}
+
+.account-stat-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  font-size: 18px;
+}
+
+.account-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.account-stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.account-stat-value--mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+
+
+.account-overview-api-keys {
+  margin-top: 18px;
+  min-width: 0;
+}
+
+.account-change-password-modal .cp-hint {
+  margin-bottom: 14px;
+}
+
+.account-change-password-modal .cp-form-card--embedded {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+.account-wechat-bound-tag {
+  margin-top: 8px;
+}
+
+
+.account-overview-preferences {
+  margin-bottom: var(--space-md);
+}
+
+.account-preferences-card {
+  padding: 10px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+}
+
+.account-preferences-card__inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.account-preferences-card__icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.account-preferences-card__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-preferences-card__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.account-preferences-card__summary {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+
+.account-preferences-card__link {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.account-preferences-card__link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .account-preferences-card__inner {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .account-preferences-card__link {
+    margin-left: 26px;
+  }
+}

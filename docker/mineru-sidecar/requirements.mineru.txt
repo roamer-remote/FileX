@@ -1,0 +1,8 @@
+# Versioned independently from the CPU/GPU dependency base layers.
+# MinerU 4.0.0a6 renamed the local pipeline extra from basic to torch.
+mineru[torch]==4.0.0a6
+# MinerU's torch extra allows the latest Transformers 4.x, whose metadata
+# requires huggingface-hub<1.0. Pin the compatible pair so pip does not walk
+# every post-1.0 hub release during the WHB Python 3.10 GPU build.
+transformers==4.57.6
+huggingface-hub[hf_xet]==0.36.2

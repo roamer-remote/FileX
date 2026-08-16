@@ -1,0 +1,205 @@
+.upload-zone {
+  margin-bottom: 0;
+}
+.upload-dropper {
+  width: 100%;
+}
+.upload-dropper .ant-upload-drag {
+  border-radius: var(--radius-md) !important;
+  transition:
+    background 0.3s var(--ease-out-expo),
+    border-color 0.3s var(--ease-out-expo),
+    box-shadow 0.3s var(--ease-out-expo);
+  padding: 0 !important;
+}
+[data-theme='light'] .upload-dropper .ant-upload-drag {
+  background: linear-gradient(152deg, #b8cbbf 0%, #d0dfd4 46%, #e6efe9 100%) !important;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 72%, #2c2c2e) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 2px 10px rgba(44, 44, 46, 0.1);
+}
+[data-theme='dark'] .upload-dropper .ant-upload-drag {
+  background: linear-gradient(152deg, #0a0e12 0%, #15202b 48%, #1f2f3f 100%) !important;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 62%, #ffffff) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 16px rgba(0, 0, 0, 0.42);
+}
+.upload-dropper .ant-upload-btn {
+  padding: 0 !important;
+}
+[data-theme='light'] .upload-dropper .ant-upload-drag:hover,
+[data-theme='light'] .upload-dropper .ant-upload-drag.ant-upload-drag-hover {
+  border-color: var(--accent-hover) !important;
+  background: linear-gradient(152deg, #a8bfb0 0%, #c4d6ca 46%, #dce9e0 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 4px 14px rgba(44, 44, 46, 0.14);
+}
+[data-theme='dark'] .upload-dropper .ant-upload-drag:hover,
+[data-theme='dark'] .upload-dropper .ant-upload-drag.ant-upload-drag-hover {
+  border-color: var(--accent-hover) !important;
+  background: linear-gradient(152deg, #0d1218 0%, #182635 48%, #243648 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 6px 20px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.drop-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  text-align: left;
+}
+.drop-icon-shell {
+  position: relative;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drop-icon-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 42%, transparent);
+  animation: drop-icon-ring-pulse 1.35s ease-in-out infinite;
+}
+[data-theme='light'] .drop-icon-ring {
+  background: color-mix(in srgb, var(--accent) 38%, #ffffff);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, #2c2c2e);
+}
+[data-theme='dark'] .drop-icon-ring {
+  background: color-mix(in srgb, var(--accent) 28%, #0a0e12);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 50%, #ffffff),
+    0 0 10px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.drop-icon {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+.drop-icon-arrow {
+  transform-box: fill-box;
+  transform-origin: 16px 25px;
+  animation: drop-icon-lift 1.35s cubic-bezier(0.34, 1.35, 0.64, 1) infinite;
+  filter: drop-shadow(0 0 0 color-mix(in srgb, var(--accent) 0%, transparent));
+}
+
+.drop-icon-base {
+  transform-box: fill-box;
+  transform-origin: 16px 25px;
+  animation: drop-icon-base-tap 1.35s ease-in-out infinite;
+}
+
+.upload-dropper .ant-upload-drag:hover .drop-icon-ring {
+  animation-duration: 0.95s;
+}
+
+.upload-dropper .ant-upload-drag:hover .drop-icon-arrow,
+.upload-dropper .ant-upload-drag:hover .drop-icon-base {
+  animation-duration: 0.95s;
+}
+
+@keyframes drop-icon-ring-pulse {
+  0%,
+  100% {
+    transform: scale(0.88);
+    opacity: 0.35;
+  }
+  45% {
+    transform: scale(1.12);
+    opacity: 0.95;
+  }
+}
+
+@keyframes drop-icon-lift {
+  0%,
+  28%,
+  100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 0 color-mix(in srgb, var(--accent) 0%, transparent));
+  }
+  12% {
+    transform: translateY(-8px) scale(1.08);
+    filter: drop-shadow(0 3px 5px color-mix(in srgb, var(--accent) 45%, transparent));
+  }
+  20% {
+    transform: translateY(-1px) scale(1.02);
+    filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--accent) 30%, transparent));
+  }
+}
+
+@keyframes drop-icon-base-tap {
+  0%,
+  24%,
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  16% {
+    opacity: 0.55;
+    transform: scaleX(0.82);
+  }
+  22% {
+    opacity: 1;
+    transform: scaleX(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop-icon-ring,
+  .drop-icon-arrow,
+  .drop-icon-base {
+    animation: none;
+  }
+}
+
+.drop-body {
+  flex: 1;
+  min-width: 0;
+}
+.drop-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+}
+.drop-main {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.12px;
+  line-height: 1.25;
+}
+.drop-or {
+  font-size: 11px;
+  line-height: 1.25;
+}
+.drop-meta {
+  margin: 2px 0 0;
+  font-size: 10px;
+  line-height: 1.35;
+}
+[data-theme='light'] .drop-main {
+  color: #1c1c1e;
+}
+[data-theme='dark'] .drop-main {
+  color: var(--text-primary);
+}
+[data-theme='light'] .drop-or,
+[data-theme='light'] .drop-meta {
+  color: color-mix(in srgb, #1c1c1e 62%, var(--accent));
+}
+[data-theme='dark'] .drop-or,
+[data-theme='dark'] .drop-meta {
+  color: color-mix(in srgb, var(--text-primary) 72%, var(--accent));
+}

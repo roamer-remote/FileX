@@ -1,0 +1,40 @@
+# 生产 Bamboo 部署叠加（密钥 env_file，持久化目录见 docker-compose.yml）。
+# Bamboo 在现有命令上追加本文件即可，例如：
+#   ./scripts/deploy/bamboo-compose.sh build-app-and-up-workers
+# 或分步：
+#   ./scripts/deploy/bamboo-compose.sh build-app
+#   ./scripts/deploy/bamboo-compose.sh up-app-workers
+#
+# up-app-workers = filex + kb-indexer + kb-post + kb-ragas-eval（共用 filex/app，必须同版本重建）
+# 首次在宿主机创建（仅一次，勿入库）：
+#   mkdir -p /root/docker/important/FileX/secrets
+#   cp scripts/deploy/filex-secrets.env.example /root/docker/important/FileX/secrets/filex.env
+#   chmod 600 /root/docker/important/FileX/secrets/filex.env
+
+x-filex-prod-secrets: &filex_prod_secrets
+  - ${FILEX_SECRETS_FILE:-/root/docker/important/FileX/secrets/filex.env}
+
+services:
+  filex:
+    env_file: *filex_prod_secrets
+
+  kb-extract:
+    env_file: *filex_prod_secrets
+
+  kb-indexer:
+    env_file: *filex_prod_secrets
+
+  kb-post:
+    env_file: *filex_prod_secrets
+    environment:
+      # 提高 kb-post DB 连接池与并发（修 post DLQ 批量 QueuePool 打满问题）。
+      # 配合 kb_post_consumer 的 BoundedSemaphore(KB_POST_CONCURRENCY) 并发闸，
+      # 真正占用 DB session 的并发被收敛到 KB_POST_CONCURRENCY，pool 仅需
+      # 略大于该值即可；此处给到与 filex API 同档（12+28=40）留足余量。
+      # Postgres max_connections=200，全栈峰值 filex40+indexer15+extract15+post40=110<200。
+      DATABASE_POOL_SIZE: "12"
+      DATABASE_MAX_OVERFLOW: "28"
+      KB_POST_CONCURRENCY: "3"
+
+  kb-ragas-eval:
+    env_file: *filex_prod_secrets

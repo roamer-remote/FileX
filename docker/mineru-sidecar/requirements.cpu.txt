@@ -1,0 +1,5 @@
+# CPU-only platform dependencies. MinerU is installed in the runtime layer.
+# Keep this base reproducible; update the pair only through a verified base
+# image refresh, not during a MinerU runtime version update.
+torch==2.6.0
+torchvision==0.21.0

@@ -1,0 +1,69 @@
+/* 全站流式布局与窄屏：表单/卡片不溢出视口，Ant Modal 适配小屏 */
+
+@media (max-width: 520px) {
+  .auth-card {
+    width: min(400px, calc(100vw - 24px));
+    max-width: 100%;
+  }
+
+  .auth-card-inner {
+    padding: 28px 20px 24px;
+  }
+
+  .share-card {
+    width: min(460px, calc(100vw - 24px));
+    max-width: 100%;
+    padding: 28px 22px 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .ant-modal-root .ant-modal-wrap {
+    padding: 8px;
+  }
+
+  .ant-modal-root .ant-modal {
+    max-width: calc(100vw - 16px) !important;
+    margin: 0 auto !important;
+    padding-bottom: 0;
+  }
+}
+
+/* 窄屏：管理后台内边距与页头换行 */
+@media (max-width: 960px) {
+  .admin-root {
+    padding: 12px;
+  }
+
+  .admin-header {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+  }
+
+  .cp-root {
+    padding: 0 6px;
+    box-sizing: border-box;
+  }
+}
+
+/* 移动端：表格一行摆不下时出现横向滚动条 */
+@media (max-width: 768px) {
+  .admin-panel {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-panel--logs .admin-table-wrap,
+  .admin-panel--files .admin-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .apikeys-root .ant-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    max-width: 100%;
+  }
+}

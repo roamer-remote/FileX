@@ -1,0 +1,185 @@
+.folder-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.folder-tree-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.folder-tree-row--l2 {
+  padding-left: 0;
+}
+
+.folder-tree-expand {
+  flex-shrink: 0;
+  width: 20px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--sidebar-item-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.folder-tree-expand--placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.folder-tree-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.folder-tree-nav-btn {
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
+.folder-tree-nav-btn--draggable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.folder-tree-nav-btn--draggable:active {
+  cursor: grabbing;
+}
+
+.folder-tree-nav-icon {
+  flex-shrink: 0;
+}
+
+.folder-tree-item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: block;
+}
+
+.folder-tree-label-viewport {
+  display: block;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.folder-tree-label-track {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: max-content;
+}
+
+.folder-tree-label-track--marquee {
+  animation: folder-label-marquee var(--folder-marquee-sec, 12s) linear infinite;
+}
+
+.folder-tree-row:hover .folder-tree-label-track--marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folder-tree-label-track--marquee {
+    animation: none;
+  }
+}
+
+@keyframes folder-label-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.folder-tree-label-strip {
+  white-space: nowrap;
+  padding-right: 1.25em;
+}
+
+.folder-tree-label-strip:last-child {
+  padding-right: 0;
+}
+
+.folder-context-menu.ant-dropdown-menu {
+  min-width: 176px;
+  padding: 4px;
+}
+
+.folder-context-menu .ant-dropdown-menu-item {
+  padding: 8px 14px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.folder-context-menu .ant-dropdown-menu-item-icon {
+  font-size: 14px;
+}
+
+.folder-sidebar-empty {
+  font-size: 12px;
+  color: var(--sidebar-item-text-muted);
+  padding: 4px 12px;
+}
+
+
+.folder-tree-row--dragging {
+  opacity: 0.45;
+}
+
+.folder-tree-row--drop-target {
+  outline: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  outline-offset: -1px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 6px;
+}
+
+.folder-tree--drag-invalid {
+  cursor: not-allowed;
+}
+
+.folder-tree-row--drop-before::before,
+.folder-tree-row--drop-after::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.folder-tree-row--drop-before::before {
+  top: 0;
+}
+
+.folder-tree-row--drop-after::after {
+  bottom: 0;
+}
+
+.folder-tree-drop-preview {
+  margin: 0 8px 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.35;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+}
+
+.folder-tree-row--drop-inside .folder-tree-nav-btn {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent);
+}

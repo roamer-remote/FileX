@@ -1,0 +1,211 @@
+.kb-retrieval-eval {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+  min-width: 0;
+  gap: 10px;
+}
+
+.kb-retrieval-eval-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.kb-retrieval-eval-toolbar-search {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.kb-retrieval-eval-toolbar-switches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 6px 14px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, #93c5fd 32%, var(--hairline));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #60a5fa 12%, var(--bg-card)) 0%,
+    color-mix(in srgb, #93c5fd 6%, var(--bg-card)) 100%
+  );
+  box-sizing: border-box;
+}
+
+
+.kb-retrieval-eval-toolbar-switches .ant-tag {
+  margin: 0;
+  align-self: flex-end;
+  line-height: 1.2;
+  padding-inline: 7px;
+  border-radius: 6px;
+  background: color-mix(in srgb, #60a5fa 14%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, #3b82f6 26%, var(--hairline));
+  color: color-mix(in srgb, #1d4ed8 70%, var(--text-primary));
+}
+
+.kb-retrieval-eval-query-bar {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+}
+
+.kb-retrieval-eval-query-bar .knowledge-lobby-google-bar__ai-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.kb-retrieval-eval-refresh.ant-btn {
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 1px;
+  color: var(--text-muted);
+}
+
+.kb-retrieval-eval-refresh.ant-btn:hover {
+  color: var(--accent);
+}
+
+.kb-retrieval-eval-topk {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.kb-retrieval-eval-switch {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.kb-retrieval-eval-switch .ant-switch {
+  margin-bottom: 1px;
+}
+
+.kb-retrieval-eval-evidence {
+  align-items: flex-end;
+}
+
+.kb-retrieval-eval-evidence .ant-select {
+  margin-bottom: 0;
+}
+
+[data-theme='dark'] .kb-retrieval-eval-toolbar-switches {
+  border-color: color-mix(in srgb, #60a5fa 28%, var(--hairline));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #3b82f6 16%, var(--bg-card)) 0%,
+    color-mix(in srgb, #3b82f6 8%, var(--bg-card)) 100%
+  );
+}
+
+[data-theme='dark'] .kb-retrieval-eval-toolbar-switches-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 6px 14px;
+  width: 100%;
+  min-width: 0;
+}
+
+.kb-retrieval-eval-toolbar-switches .ant-tag {
+  background: color-mix(in srgb, #3b82f6 18%, var(--bg-card));
+  border-color: color-mix(in srgb, #60a5fa 30%, var(--hairline));
+  color: color-mix(in srgb, #93c5fd 88%, var(--text-primary));
+}
+.kb-retrieval-eval-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 12px;
+  color: var(--text-secondary, var(--text-muted));
+  flex-shrink: 0;
+}
+
+.kb-retrieval-eval-trace {
+  margin: 0;
+  padding: 8px 12px;
+  max-height: 200px;
+  overflow: auto;
+  font-size: 11px;
+  line-height: 1.4;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--text-muted));
+}
+
+.kb-retrieval-eval-table-wrap {
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.kb-retrieval-eval-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.kb-retrieval-eval-table-wrap .ant-table-wrapper {
+  flex: 1 1 0%;
+  min-height: 0;
+}
+
+.kb-retrieval-eval-table-wrap .ant-spin-nested-loading,
+.kb-retrieval-eval-table-wrap .ant-spin-container {
+  height: 100%;
+}
+
+.kb-eval-preview {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary, var(--text-muted));
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kb-eval-file-link {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--accent);
+  text-align: left;
+  cursor: pointer;
+}
+
+.kb-eval-file-link:hover {
+  color: var(--accent-hover, var(--accent));
+  text-decoration: underline;
+}

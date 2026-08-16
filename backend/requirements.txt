@@ -1,0 +1,32 @@
+fastapi>=0.136.0
+uvicorn[standard]>=0.46.0
+websockets>=12.0
+sqlalchemy>=2.0.0
+python-jose>=3.5.0
+python-multipart>=0.0.27
+aiofiles>=25.0.0
+pydantic>=2.0.0
+cryptography>=47.0.0
+Pillow>=10.0.0
+pymupdf>=1.24.0
+# GPU 调度部署下 mineru 提取由 gpu-scheduler（filex/app 基础镜像）执行，必须
+# 随 app 基础镜像携带 pdf-inspector，否则文本层 PDF 快路径在 GPU 侧无法导入。
+pdf-inspector==0.2.6
+scalar-fastapi>=1.8.0
+alembic>=1.13.0
+psycopg2-binary>=2.9.0
+pgvector>=0.3.0
+pika>=1.3.0
+structlog>=24.4.0
+redis>=5.0.0
+numpy>=1.26.0,<3
+ragas>=0.3.0,<0.4.0
+langchain-community>=0.3.31,<0.4.0
+langchain-core>=1.4.0,<1.5.0
+langchain-openai>=1.3.0,<1.4.0
+
+# Testing
+pytest>=9.0.0
+httpx>=0.28.0
+fakeredis>=2.0.0
+pytest-cov>=6.0.0

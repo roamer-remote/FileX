@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN" translate="no" class="notranslate">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      (function () {
+        var theme = localStorage.getItem("filex_theme") || "system";
+        var accent = localStorage.getItem("filex_accent") || "blue";
+        var isDark =
+          theme === "system"
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches
+            : theme === "dark";
+        document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-accent", accent);
+        if (isDark) document.documentElement.classList.add("dark");
+      })();
+    </script>
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>FileX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta name="theme-color" content="#6366F1" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#22D3EE" media="(prefers-color-scheme: light)" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

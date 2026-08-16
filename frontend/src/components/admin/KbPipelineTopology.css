@@ -1,0 +1,138 @@
+.kb-pipeline-topology {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--fx-border-subtle, rgba(127, 127, 127, 0.25));
+  border-radius: 10px;
+  background: var(--fx-surface-raised, rgba(127, 127, 127, 0.06));
+}
+
+.kb-pipeline-topology--loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.kb-pipeline-topology__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.kb-pipeline-topology__hint {
+  font-size: 12px;
+}
+
+.kb-pipeline-topology__flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 4px;
+  margin-bottom: 12px;
+}
+
+.kb-pipeline-topology__dag {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.kb-pipeline-topology__layer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.kb-pipeline-topology__layer-nodes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.kb-pipeline-topology__layer-down {
+  color: var(--fx-text-secondary, rgba(127, 127, 127, 0.75));
+  font-size: 14px;
+  line-height: 1;
+  user-select: none;
+}
+
+.kb-pipeline-topology__node-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kb-pipeline-topology__arrow {
+  color: var(--fx-text-secondary, rgba(127, 127, 127, 0.75));
+  font-size: 12px;
+  user-select: none;
+}
+
+.kb-pipeline-topology__node {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--fx-border-subtle, rgba(127, 127, 127, 0.25));
+  background: var(--fx-surface-base, transparent);
+  min-width: 72px;
+}
+
+.kb-pipeline-topology__node--highlight {
+  border-color: var(--ant-color-primary, #1677ff);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ant-color-primary, #1677ff) 35%, transparent);
+}
+
+.kb-pipeline-topology__node--readonly {
+  opacity: 0.85;
+  border-style: dashed;
+}
+
+.kb-pipeline-topology__node-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fx-text-primary, inherit);
+  line-height: 1.3;
+}
+
+.kb-pipeline-topology__node-tag {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.kb-pipeline-topology__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kb-pipeline-topology__routes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kb-pipeline-topology__routes li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.kb-pipeline-topology__stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

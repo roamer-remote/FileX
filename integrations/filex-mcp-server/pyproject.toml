@@ -1,0 +1,17 @@
+[project]
+name = "filex-mcp-server"
+version = "0.1.0"
+description = "Official FileX MCP stdio adapter."
+requires-python = ">=3.10"
+
+[project.scripts]
+filex-mcp-server = "filex_mcp_server.server:run_stdio"
+
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

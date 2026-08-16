@@ -1,0 +1,74 @@
+.app-logo {
+  display: block;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.app-logo:hover {
+  opacity: 0.92;
+}
+
+.app-logo:focus-visible {
+  outline: 2px solid var(--apple-primary-focus, #0071e3);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.app-logo__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left top;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 登录/注册/分享：左上角大块品牌区（约红框范围，透明底） */
+.app-logo--auth {
+  position: fixed;
+  left: 5%;
+  top: 5%;
+  width: clamp(200px, 28vw, 480px);
+  height: clamp(160px, 38vh, 420px);
+  z-index: 110;
+}
+
+/* 主界面：顶栏旁较小 Logo，避免遮挡内容 */
+.app-logo--app {
+  position: fixed;
+  left: clamp(16px, 6.5vw, 8vw);
+  top: 6px;
+  width: clamp(96px, 14vw, 168px);
+  height: 32px;
+  z-index: 110;
+}
+
+/* 主界面：内嵌顶栏 Logo */
+.app-logo--nav {
+  position: static;
+  width: 32px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 960px) {
+  .app-logo--auth {
+    width: clamp(160px, 34vw, 320px);
+    height: clamp(120px, 28vh, 280px);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-logo--auth {
+    left: 4%;
+    top: 4%;
+    width: clamp(120px, 42vw, 220px);
+    height: clamp(88px, 22vh, 180px);
+  }
+
+  .app-logo--app {
+    width: clamp(88px, 28vw, 132px);
+    height: 28px;
+  }
+}

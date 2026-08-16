@@ -1,0 +1,587 @@
+name: filex
+
+x-filex-tz: &filex_tz
+  TZ: Asia/Shanghai
+  FILEX_LOG_TIMEZONE: Asia/Shanghai
+
+# 业务时区：与 backend/utils/timezone.py、日志 FILEX_LOG_TIMEZONE 一致
+# 第三方镜像可能忽略 TZ，挂载宿主机 localtime 兜底（生产宿主机应为 Asia/Shanghai）
+x-filex-tz-volume: &filex_tz_volume
+  /etc/localtime:/etc/localtime:ro
+
+# 105：笔记预览 extract-assets 短期 signed URL（HMAC；多实例 FILEX_ASSET_SIGNING_SECRET 须一致）
+x-extract-asset-sign-env: &extract_asset_sign_env
+  FILEX_ASSET_SIGNING_SECRET: ${FILEX_ASSET_SIGNING_SECRET:?set FILEX_ASSET_SIGNING_SECRET}
+  FILEX_EXTRACT_ASSET_SIGN_TTL_SECONDS: ${FILEX_EXTRACT_ASSET_SIGN_TTL_SECONDS:-1800}
+  FILEX_EXTRACT_ASSET_SIGN_MAX_KEYS: ${FILEX_EXTRACT_ASSET_SIGN_MAX_KEYS:-64}
+  FILEX_EXTRACT_ASSET_HINT_CACHE_SIZE: ${FILEX_EXTRACT_ASSET_HINT_CACHE_SIZE:-256}
+
+# SQLAlchemy QueuePool（三进程共用 database.py；filex 对外 HTTP 负载高）
+# 生产：filex 12+28=40；worker 各 5+10=15；Postgres max_connections=200（见 postgres.command）
+x-db-pool-api: &db_pool_api
+  DATABASE_POOL_SIZE: "12"
+  DATABASE_MAX_OVERFLOW: "28"
+  DATABASE_POOL_TIMEOUT: "30"
+
+x-db-pool-worker: &db_pool_worker
+  DATABASE_POOL_SIZE: "5"
+  DATABASE_MAX_OVERFLOW: "10"
+  DATABASE_POOL_TIMEOUT: "30"
+
+# 仅 filex（npm）与 postgres（GitHub）构建注入宿主机 :7890 代理
+x-build-proxy-args: &build_proxy_args
+  # 默认不依赖宿主机代理；需要代理时显式设置 BUILD_HTTP_PROXY。
+  BUILD_HTTP_PROXY: ${BUILD_HTTP_PROXY:-}
+
+# Docling 笔记侧运行时拉模型（huggingface / EasyOCR）可走宿主机代理
+x-docling-proxy-env: &docling_proxy_env
+  DOCLING_HTTP_PROXY: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+  HTTP_PROXY: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+  HTTPS_PROXY: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+  http_proxy: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+  https_proxy: ${DOCLING_HTTP_PROXY:-http://host.docker.internal:7890}
+  NO_PROXY: localhost,127.0.0.1,.local,.internal,host.docker.internal,rabbitmq
+
+x-build-host-gateway: &build_host_gateway
+  extra_hosts:
+    - host.docker.internal:host-gateway
+
+# 069 Ollama：本地与生产均仅使用 Compose 容器 filex-ollama
+# - filex / kb-indexer 等同网服务：http://filex-ollama:11434（Docker DNS）
+# - 11434 永不映射宿主机（与 postgres 一致，仅 Compose 内网）
+x-ollama-env: &ollama_env
+  OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://filex-ollama:11434}
+  OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-bge-m3:latest}
+  OLLAMA_EMBED_DIM: ${OLLAMA_EMBED_DIM:-1024}
+  OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-qwen3.5:cloud}
+  # filex API 默认 120s；kb-indexer 批量嵌入见 services.kb-indexer.environment 覆盖为 300s
+  OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-120}
+  OLLAMA_EMBED_BATCH_SIZE: ${OLLAMA_EMBED_BATCH_SIZE:-8}
+
+services:
+  rabbitmq:
+    image: docker.m.daocloud.io/library/rabbitmq:3-management-alpine
+    container_name: filex-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: filebox
+      RABBITMQ_DEFAULT_PASS: filebox
+      <<: *filex_tz
+    volumes:
+      - *filex_tz_volume
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: docker.m.daocloud.io/library/redis:7-alpine
+    container_name: filex-redis
+    restart: unless-stopped
+    environment:
+      <<: *filex_tz
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/redis/data:/data
+      - *filex_tz_volume
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  filex-ollama:
+    image: docker.m.daocloud.io/ollama/ollama:latest
+    container_name: filex-ollama
+    restart: unless-stopped
+    # 11434 仅 Compose 内网可达，不映射宿主机（见 FR-069-006）
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    environment:
+      <<: *filex_tz
+      OLLAMA_PULL_MODELS: bge-m3:latest
+      # 设为 1 可强制重新 pull（默认 volume 已有模型则跳过）
+      OLLAMA_FORCE_PULL: ${OLLAMA_FORCE_PULL:-0}
+      # T-1.2 Ollama 服务端并行（098 KB 索引调优核心）
+      # OLLAMA_NUM_PARALLEL 控制 ollama serve 同时处理的 embedding 请求数
+      # - bge-m3 场景推荐 4~8（根据 CPU 核数与内存权衡）
+      # - 并发越高，内存占用越高；CPU 密集时单次 embed 可能变慢
+      # - 客户端侧已配 OLLAMA_EMBED_CONCURRENCY / BATCH_SIZE，此处需匹配
+      # - 覆盖方式：OLLAMA_NUM_PARALLEL=8 docker compose ... 或宿主机 env
+      # - 系统设置中 ollama_num_parallel 仅记录“期望目标值”；实际注入仍来自宿主机环境变量。
+      #   修改设置后，需手动设置同名 env 并重启 filex-ollama 容器。
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-4}
+      # 可选进一步调参（按需解注释）：
+      # OLLAMA_MAX_LOADED_MODELS: "1"
+      # OLLAMA_KEEP_ALIVE: "10m"
+    volumes:
+      # 生产：bind mount 持久化；勿删该目录否则需重新拉 bge-m3（约 1.2GB）
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/ollama:/root/.ollama
+      - ./scripts/ollama-entrypoint.sh:/entrypoint.sh:ro
+      - *filex_tz_volume
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "ollama list 2>/dev/null | grep -q bge-m3",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 24
+      start_period: 600s
+
+  postgres:
+    image: filex-postgres:pg16-zh
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.postgres
+      <<: *build_host_gateway
+      args:
+        <<: *build_proxy_args
+    container_name: filex-postgres
+    restart: unless-stopped
+    command: ["postgres", "-c", "max_connections=200"]
+    environment:
+      POSTGRES_USER: filebox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: filebox
+      <<: *filex_tz
+    # 不映射到宿主机，仅供 compose 网络内 filex / kb-indexer 访问
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/postgres/data:/var/lib/postgresql/data
+      - *filex_tz_volume
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U filebox -d filebox"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+
+  # 一次性 Alembic 迁移；kb-indexer / kb-extract 须在其成功后再启动，filex 再依赖 indexer 健康
+  db-migrate:
+    image: filex/app:${FILEX_VERSION:-latest}
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - python -c "from database import wait_for_database; wait_for_database()" && alembic upgrade head
+    environment:
+      <<: [*filex_tz, *db_pool_worker]
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+
+
+
+  kb-rerank:
+    image: filex/tei-rerank:cpu-1.9.3
+    container_name: filex-kb-rerank
+    restart: unless-stopped
+    # 本地目录离线加载，避免 TEI/hf-hub 联网补拉 1_Pooling 等文件
+    command: --model-id /data/model --port 80
+    environment:
+      <<: *filex_tz
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/rerank_data:/data
+      - *filex_tz_volume
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  filex:
+    image: filex/app:${FILEX_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      <<: *build_host_gateway
+      args:
+        <<: *build_proxy_args
+        APP_BASE_IMAGE: filex/app-base:${FILEX_BASE_VERSION:-py3.13}
+        NODE_IMAGE: docker.m.daocloud.io/library/node:20-alpine
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.13-slim
+        VITE_APP_BUILD_VERSION: ${FILEX_APP_BUILD_VERSION:-}
+    container_name: filex
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kb-indexer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kb-rerank:
+        condition: service_started
+      filex-ollama:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/uploads:/app/uploads
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/logs:/app/logs
+      - *filex_tz_volume
+    environment:
+      <<: [*filex_tz, *ollama_env, *db_pool_api, *extract_asset_sign_env]
+      FILEX_SECRET_KEY: ${FILEX_SECRET_KEY:?set FILEX_SECRET_KEY}
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      REDIS_URL: redis://redis:6379/0
+      KB_RERANK_URL: http://kb-rerank:80/rerank
+      KB_EXTRACT_MINERU_URL: http://filex-mineru:8080
+      # 微信开放平台网站应用（三者齐备启用扫码登录/绑定；须在开放平台登记回调 URL）
+      FILEX_WECHAT_APP_ID: ${FILEX_WECHAT_APP_ID:-}
+      FILEX_WECHAT_APP_SECRET: ${FILEX_WECHAT_APP_SECRET:-}
+      FILEX_WECHAT_REDIRECT_URI: https://ding.yyyou.top/api/wechat/callback
+      FILEX_ORIGIN: https://ding.yyyou.top
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+  filex-os-base:
+    image: filex/os-base:${FILEX_BASE_VERSION:-py3.13}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.base
+      target: filex-os-base
+      args:
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.13-slim
+    profiles:
+      - build-base
+
+  app-base:
+    image: filex/app-base:${FILEX_BASE_VERSION:-py3.13}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.base
+      target: filex-app-base
+      args:
+        FILEX_OS_BASE_IMAGE: filex/os-base:${FILEX_BASE_VERSION:-py3.13}
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.13-slim
+    profiles:
+      - build-base
+
+  filex-mineru:
+    image: filex-filex-mineru:${FILEX_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.mineru-sidecar
+      target: mineru-runtime
+      args:
+        MINERU_BASE_IMAGE: ${FILEX_MINERU_DEPS_IMAGE:-filex/mineru-base:${FILEX_BASE_VERSION:-py3.13}}
+    container_name: filex-mineru
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/mineru/models:/models
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/mineru/cache:/cache
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/uploads:/uploads:ro
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/logs:/app/logs
+      - *filex_tz_volume
+    environment:
+      <<: *filex_tz
+      FILEX_LOG_FORMAT: console
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: filex-mineru
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      MINERU_MAX_CONCURRENT: "1"
+      MINERU_MODELS_DIR: /models
+      MINERU_CACHE_DIR: /cache
+      MINERU_MODEL_SOURCE: local
+      # FileX's current local-pipeline runner requires MinerU's full model stack.
+      MINERU_MODEL_STACK: ${MINERU_MODEL_STACK:-full}
+      MINERU_TOOLS_CONFIG_JSON: /models/mineru.json
+      MINERU_PARSE_TIMEOUT_SEC: "1200"
+      MINERU_MIN_BATCH_INFERENCE_SIZE: "112"
+      MINERU_MIN_BATCH_FLOOR: "16"
+      MINERU_PAGE_CHUNK_ENABLED: "true"
+      MINERU_PAGE_CHUNK_THRESHOLD: "160"
+      MINERU_PAGE_CHUNK_PAGES: "64"
+      OMP_NUM_THREADS: "12"
+      MKL_NUM_THREADS: "12"
+      OPENBLAS_NUM_THREADS: "12"
+      TORCH_NUM_THREADS: "12"
+      UPLOAD_DIR: /uploads
+      KB_EXTRACT_TABLE_AUTO_ROTATE: "0"
+      KB_EXTRACT_TABLE_ROTATE_MAX_TABLES: "8"
+      KB_EXTRACT_TABLE_ROTATE_TIMEOUT_SEC: "30"
+    # 生产 32G 级 MinerU 容器资源（宿主机内存充足时）：
+    # - mem_limit: 32g（cgroup 上限；sidecar 读取用于 auto-batch 公式 mem_gb * 4）
+    # - shm_size: 8gb（大模型/多进程共享内存，pytorch 等需要）
+    # 推荐配置已通过代码 DEFAULTS + 本 Compose env + alembic data migration 发布；
+    # 部署后 DB 中的 mineru_* 将自动为推荐值，无需手工在管理端修改。
+    # 预期 batch（mem≈32g）：50p≈112，288p≈56，500p≈28；>160p 自动分段。
+    shm_size: "8gb"
+    mem_limit: 32g
+    # 健康检查使用 /health。
+    # /health 响应中包含 "models_ready" 字段，可直接观察 pipeline 模型（PP-DocLayoutV2 等）是否就绪。
+    # start_period 给首次启动下载模型留出时间（通常几分钟到十几分钟）。
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
+
+  filex-docling:
+    image: filex-filex-docling:${FILEX_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.docling-sidecar
+      target: docling-runtime
+      args:
+        DOCLING_BASE_IMAGE: ${FILEX_DOCLING_DEPS_IMAGE:-filex/docling-base:${FILEX_BASE_VERSION:-py3.13}}
+    container_name: filex-docling
+    restart: unless-stopped
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/docling/models:/models
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/docling/cache:/cache
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/uploads:/uploads:ro
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/logs:/app/logs
+      - *filex_tz_volume
+    environment:
+      <<: [*filex_tz, *docling_proxy_env]
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: filex-docling
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      DOCLING_MAX_CONCURRENT: "1"
+      DOCLING_MODELS_DIR: /models
+      DOCLING_CACHE_DIR: /cache
+      DOCLING_PARSE_TIMEOUT_SEC: "550"
+      UPLOAD_DIR: /uploads
+    shm_size: "2gb"
+    mem_limit: 16g
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 300s
+
+  kb-extract:
+    image: filex/kb-extract:${FILEX_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.extract
+      args:
+        EXTRACT_BASE_IMAGE: filex/kb-extract-base:${FILEX_BASE_VERSION:-py3.13}
+    container_name: filex-kb-extract
+    restart: unless-stopped
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      filex-mineru:
+        condition: service_healthy
+      filex-docling:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kill -0 1 2>/dev/null && python -c \"import pika; from config import RABBITMQ_URL; c=pika.BlockingConnection(pika.URLParameters(RABBITMQ_URL)); c.close()\"",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 180s
+    command: ["python", "-m", "workers.kb_extract"]
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/uploads:/app/uploads
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/logs:/app/logs
+      # MinerU MQ RPC assets_dir 在笔记侧 /cache；kb-extract 只读挂载以复制 auto/images/*
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/mineru/cache:/cache:ro
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/docling/cache:/docling-cache:ro
+      - *filex_tz_volume
+    environment:
+      <<: [*filex_tz, *db_pool_worker]
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: kb-extract
+      KB_EXTRACT_CONCURRENCY: "1"
+      FILEX_ENABLE_MINERU_PROVIDER: "1"
+      KB_EXTRACT_MINERU_USE_MQ: "1"
+      KB_EXTRACT_MINERU_TIMEOUT_SEC: "900"
+      KB_EXTRACT_MINERU_URL: http://filex-mineru:8080
+      KB_EXTRACT_DOCLING_URL: http://filex-docling:8080
+      KB_EXTRACT_DOCLING_USE_MQ: "1"
+      KB_EXTRACT_DOCLING_TIMEOUT_SEC: "600"
+      KB_EXTRACT_DOCLING_HTTP_TIMEOUT_SEC: "630"
+      KB_EXTRACT_DOCLING_CACHE_MOUNT: /docling-cache
+
+  kb-extract-base:
+    image: filex/kb-extract-base:${FILEX_BASE_VERSION:-py3.13}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.base
+      target: filex-extract-base
+      args:
+        FILEX_OS_BASE_IMAGE: filex/os-base:${FILEX_BASE_VERSION:-py3.13}
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.13-slim
+    profiles:
+      - build-base
+
+  filex-mineru-base:
+    image: filex/mineru-base:${FILEX_BASE_VERSION:-py3.13}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.base
+      target: filex-mineru-base
+      args:
+        FILEX_OS_BASE_IMAGE: filex/os-base:${FILEX_BASE_VERSION:-py3.13}
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.13-slim
+    profiles:
+      - build-base
+
+  filex-docling-base:
+    image: filex/docling-base:${FILEX_BASE_VERSION:-py3.13}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.base
+      target: filex-docling-base
+      args:
+        FILEX_OS_BASE_IMAGE: filex/os-base:${FILEX_BASE_VERSION:-py3.13}
+        PYTHON_IMAGE: docker.m.daocloud.io/library/python:3.13-slim
+    profiles:
+      - build-base
+
+  # 与 filex 共用 filex/app 镜像（仅 command 不同）；部署前须 build filex 或 pull 同 tag
+  kb-indexer:
+    image: filex/app:${FILEX_VERSION:-latest}
+    container_name: filex-kb-indexer
+    restart: unless-stopped
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      filex-ollama:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kill -0 1 2>/dev/null && python -c \"import pika; from config import RABBITMQ_URL; c=pika.BlockingConnection(pika.URLParameters(RABBITMQ_URL)); c.close()\"",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 180s
+    command: ["python", "-m", "workers.kb_indexer"]
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/uploads:/app/uploads
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/logs:/app/logs
+      - *filex_tz_volume
+    environment:
+      <<: [*filex_tz, *ollama_env, *db_pool_worker]
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      # kb-indexer 批量嵌入耗时长，默认 300s（filex API 用 anchor 默认 120s）
+      OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
+      # 098 大 PDF 索引优化：显式覆盖并发与 batch（默认见 config.py）
+      # KB_INDEX_CONCURRENCY 用于 MQ prefetch（与 extract 侧 KB_EXTRACT_CONCURRENCY 对称）
+      # OLLAMA_EMBED_* 控制 embedding batch 与内部并发
+      KB_INDEX_CONCURRENCY: ${KB_INDEX_CONCURRENCY:-6}
+      OLLAMA_EMBED_BATCH_SIZE: ${OLLAMA_EMBED_BATCH_SIZE:-48}
+      OLLAMA_EMBED_CONCURRENCY: ${OLLAMA_EMBED_CONCURRENCY:-4}
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: kb-indexer
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  kb-post:
+    image: filex/app:${FILEX_VERSION:-latest}
+    container_name: filex-kb-post
+    restart: unless-stopped
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      filex-ollama:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kill -0 1 2>/dev/null && python -c \"import pika; from config import RABBITMQ_URL; c=pika.BlockingConnection(pika.URLParameters(RABBITMQ_URL)); c.close()\"",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 180s
+    command: ["python", "-m", "workers.kb_post"]
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/uploads:/app/uploads
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/logs:/app/logs
+      - *filex_tz_volume
+    environment:
+      <<: [*filex_tz, *ollama_env, *db_pool_worker]
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      OLLAMA_TIMEOUT_SEC: ${OLLAMA_TIMEOUT_SEC:-300}
+      KB_POST_CONCURRENCY: ${KB_POST_CONCURRENCY:-1}
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: kb-post
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # 142 RAGAS 在线评测：与 filex 共用 app 镜像；PostgreSQL 是作业队列唯一权威。
+  # 不依赖 RabbitMQ 或 GPU，部署时须与其余 app workers 一并使用同一镜像版本重建。
+  kb-ragas-eval:
+    image: filex/app:${FILEX_VERSION:-latest}
+    container_name: filex-kb-ragas-eval
+    restart: unless-stopped
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1 2>/dev/null && python -c 'from database import engine; c = engine.connect(); c.close()'"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
+    command: ["python", "-m", "workers.kb_ragas_eval"]
+    volumes:
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/uploads:/app/uploads
+      - ${FILEX_DATA_ROOT:-/root/important/FileX/product}/logs:/app/logs
+      - *filex_tz_volume
+    environment:
+      <<: [*filex_tz, *ollama_env, *db_pool_worker]
+      DATABASE_URL: ${FILEX_DATABASE_URL:?set FILEX_DATABASE_URL}
+      UPLOAD_DIR: /app/uploads
+      RABBITMQ_URL: amqp://filebox:filebox@rabbitmq:5672/
+      FILEX_LOG_FORMAT: json
+      FILEX_LOG_DIR: /app/logs
+      FILEX_SERVICE_NAME: kb-ragas-eval
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -1,0 +1,58 @@
+/**
+ * Design tokens from specs/_design/awesome-design-md/apple/DESIGN.md
+ * Theme-dependent colors remain in cyber.css ([data-theme]).
+ */
+:root {
+  /* Spacing scale */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 17px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+  --space-section: 80px;
+
+  /* Brand accent (light surfaces) — single interactive blue */
+  --apple-primary: #0066cc;
+  --apple-primary-focus: #0071e3;
+  --apple-primary-on-dark: #2997ff;
+
+  /* Translucent control chip over photography */
+  --apple-chip-translucent: rgba(210, 210, 215, 0.64);
+
+  /* Sub-nav / sticky bar (spec: saturate(180%) blur(20px) baseline) */
+  --apple-frost-backdrop: saturate(180%) blur(20px);
+
+  /* Keyboard focus ring (buttons, links) */
+  --apple-focus-ring: 2px solid var(--apple-primary-focus);
+
+  /* Product imagery only — never use on cards or chrome */
+  --apple-shadow-product: 3px 5px 30px rgba(0, 0, 0, 0.22);
+
+  /* Typography references */
+  --type-nav-size: 12px;
+  --type-nav-ls: -0.12px;
+  --type-body-size: 17px;
+  --type-body-lh: 1.47;
+  --type-body-ls: -0.374px;
+  --type-caption-size: 14px;
+  --type-caption-ls: -0.224px;
+
+  /* 主内容区：宽屏居中（整壳宽度由 cyber.css --app-shell-max 约束） */
+  --page-content-max: min(1180px, 100%);
+  --main-padding-inline: var(--space-lg);
+  --main-padding-block: var(--space-lg);
+  --section-gap: var(--space-md);
+
+  /* 表格 shell 间距（用户数据库页模板） */
+  --table-shell-pad-block: 12px;
+  --table-shell-pad-inline: 10px;
+  --table-shell-pager-gap: 10px;
+  --table-cell-pad-inline: 8px;
+  --table-chrome-pad-block: var(--space-lg);
+  --table-chrome-pad-inline: var(--space-xl);
+  --table-chrome-pad-bottom: var(--space-md);
+
+  /* 行底色见 cyber.css：--table-row-odd/even/hover/selected（随深浅色主题） */
+}

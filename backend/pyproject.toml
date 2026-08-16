@@ -1,0 +1,22 @@
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.mypy]
+python_version = "3.13"
+strict = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short"
+markers = [
+    "slow: performance or long-running tests",
+]
+
+[tool.coverage.run]
+source = ["routers", "services", "middleware", "models"]
+
+[tool.coverage.report]
+fail_under = 65
+skip_covered = true
