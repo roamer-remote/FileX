@@ -156,7 +156,7 @@ mkdir -p "$DATA_ROOT/uploads" \
          "$DATA_ROOT/postgres/data"
 ok "数据目录已就绪"
 
-SECRETS_FILE="$DATA_ROOT/secrets/filex.env"
+SECRETS_FILE="${FILEX_SECRETS_FILE:-$DATA_ROOT/secrets/filex.env}"
 if [[ ! -f "$SECRETS_FILE" ]]; then
   mkdir -p "$(dirname "$SECRETS_FILE")"
   if [[ -n "${FILEX_LICENSE_HMAC_SECRET:-}" ]]; then
