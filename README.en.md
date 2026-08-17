@@ -270,7 +270,7 @@ flowchart TB
 
 ## <a id="access-and-deployment"></a>Access and Deployment [↑](#table-of-contents)
 
-This repository provides the FileX Docker distribution package. Users can `git pull` the latest deployment files and install the full service stack with Docker Compose. The repository does not contain application source code; runtime services are installed from prebuilt container images. The current public distribution is prepared for arm64 production environments, enables the MinerU document parsing path by default, and leaves Cross-Encoder reranking disabled by default.
+This repository provides the FileX Docker distribution package. Users can `git pull` the latest deployment files and install the full service stack with Docker Compose. The repository does not contain application source code; runtime services are installed from prebuilt container images. The current public distribution is prepared for arm64 production environments, enables the MinerU document parsing path by default, and leaves Cross-Encoder reranking disabled by default. Production deployment scripts can be invoked from Bamboo CI/CD or directly from a terminal; they validate Docker, secrets, version, CPU/GPU capabilities, and service health.
 
 <p align="center">
   <img src="screenshots/docker.png" alt="Docker Deployment" width="700">

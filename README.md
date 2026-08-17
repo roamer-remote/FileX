@@ -187,7 +187,7 @@ flowchart TB
 
 ## 生产环境 Docker 架构
 
-生产通过 **Bamboo CI/CD** 构建镜像，在宿主机用 `docker compose` 拉起全栈（**勿** SSH 手动 `git pull` / `docker build` 发布）。
+生产部署支持 **Bamboo CI/CD** 或终端直接调用部署脚本，在宿主机用 `docker compose` 拉起全栈。脚本会自动校验 Docker、生产 secrets、版本号、CPU/GPU 能力和服务健康状态。
 
 **Compose 入口**：[`docker/docker-compose.yml`](docker/docker-compose.yml) + [`docker/docker-compose.prod.yml`](docker/docker-compose.prod.yml)
 
@@ -234,9 +234,9 @@ ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.3 → filex/tei-rerank:cpu
 
 日常**仅改 Python/前端代码**时，构建脚本按依赖指纹跳过未变的 base 层。详见 [`docker/BUILD.md`](docker/BUILD.md)。
 
-### Bamboo 构建与发布
+### 构建与发布（Bamboo 或终端）
 
-在 CI 检出目录执行（须先设置 `FILEX_APP_BUILD_VERSION`）：
+在部署 checkout 目录执行（须先设置 `FILEX_APP_BUILD_VERSION`；Bamboo 和终端均可）：
 
 ```bash
 cd /root/docker/important/FileX/product
@@ -245,6 +245,21 @@ export FILEX_APP_BUILD_VERSION="$(TZ=Asia/Shanghai date +%Y-%m-%d)-$(git rev-par
 ./scripts/deploy/bamboo-compose.sh build
 ./scripts/deploy/bamboo-compose.sh up -d --no-build filex kb-indexer kb-post kb-extract filex-mineru filex-docling
 ```
+
+全量自动分流（自动选择 CPU 或 NVIDIA GPU 路径）：
+
+```bash
+./scripts/deploy/deploy-auto.sh
+```
+
+也可以直接使用对应架构入口：
+
+```bash
+./scripts/deploy/deploy-filex-cpu.sh
+./scripts/deploy/deploy-filex-amd64-nvidia.sh --current-checkout
+```
+
+首次执行前请准备生产 secrets，并确保当前用户可以访问 Docker；`--check` / `--dry-run` 仅做无副作用预检。
 
 常用子命令：
 
@@ -268,7 +283,7 @@ export FILEX_APP_BUILD_VERSION="$(TZ=Asia/Shanghai date +%Y-%m-%d)-$(git rev-par
 # 1. 通过 Renovate PR 或人工 PR 修改 docker/mineru-sidecar/requirements.mineru.txt
 #    例如：mineru[torch]==4.0.0a6（MinerU 4.0.0a6 起 basic extra 改名为 torch）
 
-# 2. CI/CD 在检出目录构建 MinerU 镜像
+# 2. 在部署 checkout 目录构建 MinerU 镜像（Bamboo 或终端均可）
 cd /root/docker/important/FileX/product
 export FILEX_APP_BUILD_VERSION="$(TZ=Asia/Shanghai date +%Y-%m-%d)-$(git rev-parse --short=7 HEAD)"
 ./scripts/check-mineru-version.py --fail-when-outdated
@@ -327,7 +342,7 @@ vi /root/docker/important/FileX/secrets/filex.env
 #   追加/修改：
 #   KB_RAGAS_ONLINE_EVAL_ENABLED=true
 
-# 2. 重新部署 filex（常规 Bamboo 发布即可，无需特殊构建）
+# 2. 重新部署 filex（Bamboo 或终端均可，无需特殊构建）
 ./scripts/deploy/bamboo-compose.sh build-app-and-up-workers
 # 或仅重启 filex 容器：
 ./scripts/deploy/bamboo-compose.sh up -d --no-build filex
